@@ -5,3 +5,5 @@ node_modules
 
 Capfile
 config.js
+conf.js
+dbman.js
