@@ -1,0 +1,78 @@
+div
+	div.btn-group(ng-class='{open: open}').pull-right
+		button.btn Filter by Status
+		button.btn.dropdown-toggle(ng-click='open=!open')
+			span.caret
+		ul.dropdown-menu(aria-labelledby='dropdownMenu')
+			li
+				a(ng-click='checkAll()', href='javascript:')
+					span.glyphicon.glyphicon-ok-sign
+					|   Check All
+			li
+				a(ng-click='selectedOrderStatus=[]', href='javascript:')
+					span.glyphicon.glyphicon-remove-sign
+					|  Uncheck All
+			li.divider
+			li(ng-repeat='status in statuslist')
+				a(ng-click='setSelectedOrder()', href='javascript:') {{status.name}}
+					span(ng-class='isChecked(status.id)')
+
+div
+	table.table
+		thead
+			tr
+				th DATE
+				th ORDER ID
+				th CLIENT ID
+				th PROVINCIA
+				th COMUNA
+				th PHOTOS
+				th TOTAL
+				th STATUS
+		tbody(ng-repeat='order in filtered = (orders | orderStatusFilter:selectedOrderStatus)')
+			tr.accordion-toggle(data-toggle='collapse',data-target='\#{{order._id}}')
+				td {{order._id.datePretty()}}
+				td 
+					small {{order._id}}
+				td 
+					small {{order.clientId}}
+				td {{order.objAddress.provincia}}
+				td {{order.objAddress.comuna}}
+				td {{order.photoIds.length}}
+				td ${{order.costTotal}}
+				td {{order.status}}
+			tr(style='border-collapse:separate')
+				td.hidden-row(colspan='12')
+					div.accordian-body.collapse.hidden-content(id='{{order._id}}')
+						div.row
+							div.col-lg-6
+								span.glyphicon.glyphicon-envelope  SHIPPING
+								p NAME: {{order.objAddress.name}} {{order.objAddress.lastName}}
+								p ADDRESS: {{order.objAddress.addressLine1}} {{order.objAddress.addressLine2}} | {{order.objAddress.region}} | {{order.objAddress.comuna}}
+							div.col-lg-6	
+								span.glyphicon.glyphicon-user  CLIENT
+								p EMAIL: {{order.objClient.email}}
+								p PHONE: {{order.objClient.mobile}}
+						div.row
+							div.col-lg-6
+								span.glyphicon.glyphicon-camera  PHOTOS
+								p QTY: {{order.photoIds.length}}
+								p ZIP PACKAGE: 
+							div.col-lg-6
+								span.glyphicon.glyphicon-usd  COSTS
+								p PRINTING: ${{order.costPrinting}}
+								p SHIPPING: ${{order.costShipping}}
+								p TOTAL ${{order.costTotal}}
+						div.row()
+							div.col-lg-6
+								span.glyphicon.glyphicon-cog  ACTIONS
+								p
+								div.btn-group
+									button.btn.btn-default.btn-sm SET PRINTING
+									button.btn.btn-default.btn-sm SET SHIPPING
+									confirm-delete(deletefx='orderDelete(\'{{order._id}}\')')
+									//button.btn.btn-danger.btn-sm(popover-confirm='deleteOrder(\'{{order._id}}\')') DELETE
+							div.col-lg-6(ng-class='isGift(order.gift)')
+								span.glyphicon.glyphicon-gift  FOR GIFT!
+								p GIFT MESSAGE: {{order.gift.message}}
+

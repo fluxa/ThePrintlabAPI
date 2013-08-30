@@ -1,0 +1,12 @@
+div
+	table.table
+		thead
+			tr
+				th _id
+				th Email
+				th Mobile
+		tbody
+			tr(ng-repeat='client in data')
+				td {{client._id}}
+				td {{client.email}}
+				td {{client.mobile}}

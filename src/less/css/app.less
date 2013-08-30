@@ -1,0 +1,86 @@
+/* app css stylesheet */
+
+@import url("https://fonts.googleapis.com/css?family=Lato:400,700,700italic,900,400italic,300");
+@import 'retina.less';
+
+@pl-midnightblue: #2a2d34;
+@pl-wetasphalt: #34495e;
+@pl-asbestos: #5b6b78;
+@pl-slime: #b6ce32;
+@pl-lime: #b6ce32;
+@pl-peterrever: #5691bb;
+@pl-silver: #bdc3c7;
+@pl-concrete: #95a5a6;
+@alizarin: #e74c3c;
+
+body {
+	font-family: 'Lato', sans-serif;
+	font-size: 15px;
+	font-weight: 300 !important;
+	line-height: 1.231;
+	color: @pl-silver;
+	background-color: @pl-midnightblue;
+	padding-top: 50px;
+}
+
+//navigation bar
+.pl-nav {
+	background-color: @pl-wetasphalt;
+}
+
+.pl-nav .navbar-brand {
+	color: @pl-lime;
+	font-weight: 300;
+}
+
+.pl-nav .navbar-nav > li > a {
+  color: #fff;
+}
+.pl-nav .navbar-nav > li > a:hover {
+  color: @pl-slime;
+}
+.pl-nav .navbar-nav > .active > a,
+.pl-nav .navbar-nav > .active > a:hover {
+  color: @pl-midnightblue;
+  background-color:@pl-slime;
+}
+
+//table-hover color
+.table tbody tr:hover td, .table tbody tr:hover th {
+    background-color: @pl-wetasphalt;
+    cursor: pointer;
+}
+
+.hidden-row  {
+    padding: 0px 8px !important;
+    border-width: 0px !important;
+    background-color: @pl-asbestos !important;
+
+}
+
+.hidden-content {
+	margin-top: 8px;
+	color: @pl-slime;
+	cursor: auto;
+}
+
+.visible {
+	display: block;
+}
+.hidden {
+	display: none;
+}
+
+.btn-pl {
+	font-weight: 300 !important;
+	color: @pl-midnightblue;
+	background-color: @pl-silver;
+	border-color: @pl-midnightblue;
+}
+
+.pl-logo {
+	.at2x('/img/pl-logo.png', 50px, 50px);
+	width: 50px;
+	height: 50px;
+	float: left;
+}

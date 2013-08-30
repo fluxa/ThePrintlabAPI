@@ -1,0 +1,7 @@
+.DS_Store
+
+# nodejs
+node_modules
+
+Capfile
+config.js

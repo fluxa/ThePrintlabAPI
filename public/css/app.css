@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css?family=Lato:400,700,700italic,900,400italic,300");
+body{font-family:'Lato',sans-serif;font-size:15px;font-weight:300 !important;line-height:1.231;color:#bdc3c7;background-color:#2a2d34;padding-top:50px}
+.pl-nav{background-color:#34495e}
+.pl-nav .navbar-brand{color:#b6ce32;font-weight:300}
+.pl-nav .navbar-nav>li>a{color:#fff}
+.pl-nav .navbar-nav>li>a:hover{color:#b6ce32}
+.pl-nav .navbar-nav>.active>a,.pl-nav .navbar-nav>.active>a:hover{color:#2a2d34;background-color:#b6ce32}
+.table tbody tr:hover td,.table tbody tr:hover th{background-color:#34495e;cursor:pointer}
+.hidden-row{padding:0px 8px !important;border-width:0px !important;background-color:#5b6b78 !important}
+.hidden-content{margin-top:8px;color:#b6ce32;cursor:auto}
+.visible{display:block}
+.hidden{display:none}
+.btn-pl{font-weight:300 !important;color:#2a2d34;background-color:#bdc3c7;border-color:#2a2d34}
+.pl-logo{background-image:url('/img/pl-logo.png');width:50px;height:50px;float:left}@media all and (-webkit-min-device-pixel-ratio:1.5){.pl-logo{background-image:url('/img/pl-logo@2x.png');background-size:50px 50px}}
