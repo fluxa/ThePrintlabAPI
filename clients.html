@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="en"><head><title>clients</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="clients"><meta name="groc-project-path" content="app/controllers/clients.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/controllers/clients.js">app/controllers/clients.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies.</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Client&#39;</span><span class="p">)</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Registers a new Client into the system</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} udid unique device identifier generated on the device</span>
+<span class="cm"> * @return {Object} User object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">udid</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">udid</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">udid</span><span class="p">)</span> <span class="p">{</span>
+    
+    <span class="c1">//try to find client first</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">udid</span><span class="o">:</span> <span class="nx">udid</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//Client found, return</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="s1">&#39;client&#39;</span><span class="o">:</span><span class="nx">doc</span><span class="p">});</span>
+        <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>client not found -> register new</p></div></div><div class="code"><div class="wrapper">      <span class="kd">var</span> <span class="nx">newClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">({</span>
+        <span class="nx">udid</span><span class="o">:</span> <span class="nx">udid</span>
+      <span class="p">});</span>
+
+      <span class="nx">newClient</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="s1">&#39;client&#39;</span><span class="o">:</span><span class="nx">doc</span><span class="p">});</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span><span class="p">})</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Gets a Client by _id</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id from Client</span>
+<span class="cm"> * @return {Object} Client object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span><span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">client</span><span class="o">:</span><span class="nx">doc</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;no Client found&#39;</span><span class="p">})</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Find Clients by {query:{&#39;prop&#39;:&#39;value&#39;}}</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} query in the form {&#39;prop&#39;:&#39;value&#39;}</span>
+<span class="cm"> * @return {Array} array of Client objects</span>
+<span class="cm"> * @api private</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">find</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span>  <span class="nx">query</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">query</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">docs</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">clients</span><span class="o">:</span><span class="nx">docs</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="nx">err</span><span class="p">})</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Updates Client information</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} client partial Client object with updated fields</span>
+<span class="cm"> * @return {Object} updated Client object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">update</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">client</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">client</span> <span class="o">&amp;&amp;</span> <span class="nx">client</span><span class="p">.</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">client</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="nx">client</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findByIdAndUpdate</span><span class="p">(</span><span class="nx">_id</span><span class="p">,</span> <span class="nx">client</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">client</span><span class="o">:</span><span class="nx">doc</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="nx">err</span><span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Remove Client from database</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id of the Client to remove</span>
+<span class="cm"> * @return {String} 200 OK</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">remove</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">doc</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">success</span><span class="o">:</span><span class="kc">true</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Client not found for _id: {0}&#39;</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">_id</span><span class="p">)});</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Try to consume a cupon code</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} payload { payload:{client_id:&#39;xxx&#39;, coupon_id:&#39;xxx&#39;} }</span>
+<span class="cm"> * @return {String} 200 OK | 400 Error</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">coupon_consume</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">payload</span> <span class="o">&amp;&amp;</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">client_id</span> <span class="o">&amp;&amp;</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">coupon_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">consumed</span> <span class="o">=</span> <span class="nx">client</span><span class="p">.</span><span class="nx">coupons</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">coupon_id</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">consumed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">client</span><span class="p">.</span><span class="nx">coupons</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">coupon_id</span><span class="p">);</span>
+          <span class="nx">client</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+          <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">client</span><span class="o">:</span><span class="nx">client</span><span class="p">});</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;coupon_id {0} already consumed by Client {1}&#39;</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">coupon_id</span><span class="p">,</span><span class="nx">payload</span><span class="p">.</span><span class="nx">client_id</span><span class="p">)});</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;no Client found&#39;</span><span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns a list of coupons available (not consumed) by the Client</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id {_id:&#39;xxx&#39;}</span>
+<span class="cm"> * @return {Array} array of coupons</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">coupon_get</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">coupons</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="nx">Client</span><span class="p">.</span><span class="nx">Coupons</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">coupon</span> <span class="o">=</span> <span class="nx">Client</span><span class="p">.</span><span class="nx">Coupons</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">coupons</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">coupon</span><span class="p">.</span><span class="nx">code</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">coupons</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">coupon</span><span class="p">);</span>
+          <span class="p">};</span>
+        <span class="p">};</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">coupons</span><span class="o">:</span> <span class="nx">coupons</span><span class="p">,</span> <span class="nx">client_id</span><span class="o">:</span> <span class="nx">client</span><span class="p">.</span><span class="nx">_id</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;no Client found&#39;</span><span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span></div></div></div></div></body></html>

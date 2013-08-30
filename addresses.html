@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><title>addresses</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="addresses"><meta name="groc-project-path" content="app/controllers/addresses.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/controllers/addresses.js">app/controllers/addresses.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies.</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Address</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Address&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Order</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Order&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Client&#39;</span><span class="p">);</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Registers a new Address for a Client</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} payload in the form { payload: {client_id:&#39;xxx&#39;, address: {}}</span>
+<span class="cm"> * @return {Object} {address: Address, client: Client} </span>
+<span class="cm"> * @api private</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">//console.log(req.body);</span>
+  <span class="kd">var</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">payload</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">address</span> <span class="o">=</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">address</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">payload</span> <span class="o">&amp;&amp;</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">client_id</span> <span class="o">&amp;&amp;</span> <span class="nx">address</span><span class="p">)</span> <span class="p">{</span>
+    
+    <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">;</span>
+        <span class="nx">address</span><span class="p">[</span><span class="s1">&#39;client_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">client</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+        <span class="nx">Address</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">address</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">client</span><span class="p">.</span><span class="nx">addresses</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">_id</span><span class="p">);</span>
+            <span class="nx">client</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">){</span>
+              <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">address</span><span class="o">:</span> <span class="nx">doc</span><span class="p">,</span> <span class="nx">client</span><span class="o">:</span> <span class="nx">client</span><span class="p">});</span>
+              <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Cannot save Client&#39;</span><span class="p">});</span>
+              <span class="p">}</span>
+            <span class="p">});</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Cannot create Address&#39;</span><span class="p">});</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Client not found&#39;</span><span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Gets an Address by _id</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id from Address</span>
+<span class="cm"> * @return {Object} address Address object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Address</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span><span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">address</span><span class="o">:</span><span class="nx">doc</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;no Address found&#39;</span><span class="p">})</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Remove and Address from database</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id of the Address to remove</span>
+<span class="cm"> * @return {String} _id of the Address removed | 400 Error</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">remove</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Address</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">doc</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">success</span><span class="o">:</span><span class="kc">true</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order not found for _id: {0}&#39;</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="nx">_id</span><span class="p">)});</span>
+      <span class="p">};</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span></div></div></div></div></body></html>

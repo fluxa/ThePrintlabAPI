@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><title>orders</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="orders"><meta name="groc-project-path" content="app/controllers/orders.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/controllers/orders.js">app/controllers/orders.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies.</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">Order</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Order&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Client&#39;</span><span class="p">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Return all posible status codes nicely formatted for using on the web-admin</span>
+<span class="cm"> *</span>
+<span class="cm"> * @return {Array} list of status</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">status_list</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">Order</span><span class="p">.</span><span class="nx">OrderStatusList</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Find Orders by {query:{&#39;prop&#39;:&#39;value&#39;}}</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} query in the form {&#39;prop&#39;:&#39;value&#39;}</span>
+<span class="cm"> * @return {Array} array of Order objects</span>
+<span class="cm"> * @api private</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">find</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span>  <span class="nx">query</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">query</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Order</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">docs</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">orders</span><span class="o">:</span><span class="nx">docs</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="nx">err</span><span class="p">})</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Create a new Order for a Client and returns a partial Order object</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} payload in the form { payload: { client_id: &#39;xxx&#39;, order:{Object}} }</span>
+<span class="cm"> * @return {Object} order partial Order object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">create</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">order</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">order</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">order</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">order</span> <span class="o">&amp;&amp;</span> <span class="nx">order</span><span class="p">.</span><span class="nx">client_id</span><span class="p">)</span> <span class="p">{</span>
+    
+    <span class="nx">Order</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">order</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">order</span><span class="o">:</span> <span class="nx">doc</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Cannot create Order&#39;</span><span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Submits the Order and saves required information</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} order {_id:&#39;xx&#39;, photo_ids:[]}</span>
+<span class="cm"> * @return {Object} order full Order object</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">submit</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">order</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">order</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">order</span> <span class="o">&amp;&amp;</span> <span class="nx">order</span><span class="p">.</span><span class="nx">_id</span> <span class="o">&amp;&amp;</span> <span class="nx">order</span><span class="p">.</span><span class="nx">photo_ids</span><span class="p">)</span> <span class="p">{</span>
+    
+    <span class="c1">//find Order</span>
+    <span class="nx">Order</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">neworder</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">;</span>
+
+        <span class="c1">//find Client</span>
+        <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">neworder</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">;</span>
+
+            <span class="c1">//TODO: verify payment???</span>
+            <span class="nx">neworder</span><span class="p">.</span><span class="nx">status</span> <span class="o">=</span> <span class="nx">Order</span><span class="p">.</span><span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentVerified</span><span class="p">;</span>
+            <span class="nx">neworder</span><span class="p">.</span><span class="nx">payment</span> <span class="o">=</span> <span class="p">{</span>
+              <span class="nx">verification_code</span><span class="o">:</span> <span class="s1">&#39;SUPER_VERIFICATION_CODE&#39;</span><span class="p">,</span>
+              <span class="nx">error</span><span class="o">:</span><span class="s1">&#39;&#39;</span>
+            <span class="p">}</span>
+
+            <span class="c1">//update Order</span>
+            <span class="nx">neworder</span><span class="p">.</span><span class="nx">photo_ids</span> <span class="o">=</span> <span class="nx">order</span><span class="p">.</span><span class="nx">photo_ids</span><span class="p">;</span>
+
+            <span class="c1">//saving</span>
+            <span class="nx">neworder</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">client</span><span class="p">.</span><span class="nx">orders</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">neworder</span><span class="p">.</span><span class="nx">_id</span><span class="p">);</span>
+                <span class="nx">client</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">order</span><span class="o">:</span> <span class="nx">neworder</span><span class="p">});</span>
+                  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order submit: Cannot save Client&#39;</span><span class="p">});</span>
+                  <span class="p">}</span>
+                <span class="p">})</span>
+              <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order submit: Cannot save Order&#39;</span><span class="p">});</span>
+              <span class="p">}</span>
+            <span class="p">});</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order submit: Client not found for _id&#39;</span><span class="p">});</span>    
+          <span class="p">}</span>
+        <span class="p">});</span>
+
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order submit: Order not found for _id&#39;</span><span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+    
+
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Remove Order from database</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {String} _id of the Order to remove</span>
+<span class="cm"> * @return {String} 200 OK | 400 Error</span>
+<span class="cm"> * @api public</span>
+<span class="cm"> */</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">remove</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">var</span> <span class="nx">_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">_id</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Order</span><span class="p">.</span><span class="nx">findByIdAndRemove</span><span class="p">(</span><span class="nx">_id</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">({</span><span class="nx">success</span><span class="o">:</span><span class="kc">true</span><span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span> <span class="nx">err</span> <span class="o">||</span> <span class="s1">&#39;Order not found for _id&#39;</span><span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">});</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="mi">400</span><span class="p">,{</span><span class="nx">error</span><span class="o">:</span><span class="s1">&#39;missing parameters&#39;</span><span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span></div></div></div></div></body></html>
