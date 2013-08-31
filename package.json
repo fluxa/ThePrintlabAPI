@@ -1,33 +1,35 @@
 {
-		"name": "api.theprintlab.cl",
-		"description": "Server side APIs for ThePrintlab App",
-		"version": "0.0.1",
-		"author": {
-				"name": "ThePrintlab 2013",
-				"email": "fluxa@theprintlab.cl"
-		},
-		"engines": {
-				"node": "0.10.x",
-				"npm": "1.3.x"
-		},
-		"dependencies": {
-				"express": "latest",
-				"express-namespace": "latest",
-				"mongoose": "latest",
-				"mongoose-user": "latest",
-				"connect-mongo": "latest",
-				"view-helpers": "latest",
-				"jade": "latest",
-				"config-leaf": "latest",
-				"underscore": "latest",
-				"time": "latest",
-				"api-easy": "latest",
-				"assert": "latest",
-				"less-middleware": "latest",
-				"nodemailer": "latest"
-		},
-		"scripts": {
-				"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",
-				"test": "vows test/*-test.js"
-		}
+	"name": "api.theprintlab.cl",
+	"description": "Server side APIs for ThePrintlab App",
+	"version": "0.0.1",
+	"author": {
+		"name": "ThePrintlab 2013",
+		"email": "fluxa@theprintlab.cl"
+	},
+	"engines": {
+		"node": "0.10.x",
+		"npm": "1.3.x"
+	},
+	"dependencies": {
+		"express": "latest",
+		"express-namespace": "latest",
+		"mongoose": "latest",
+		"mongoose-user": "latest",
+		"connect-mongo": "latest",
+		"view-helpers": "latest",
+		"jade": "latest",
+		"config-leaf": "latest",
+		"underscore": "latest",
+		"time": "latest",
+		"api-easy": "latest",
+		"assert": "latest",
+		"less-middleware": "latest",
+		"nodemailer": "latest"
+	},
+	"scripts": {
+		"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",
+		"test": "vows test/*-test.js",
+		"encrypt": "encrypt ./config/config.js ./config/config.js.cast5",
+		"decrypt": "decrypt ./config/config.js.cast5 ./config/config.js"
+	}
 }

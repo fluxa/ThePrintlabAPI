@@ -7,3 +7,5 @@ Capfile
 config.js
 conf.js
 dbman.js
+importer.sh
+mongoremote.sh
