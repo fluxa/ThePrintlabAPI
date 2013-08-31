@@ -1,4 +1,5 @@
 {
   "glob": ["app/controllers/*.js", "README.md", "app/models/*.js"],
-  "github": true
+  "github": true,
+  "whitespace-after-token": false
 }
