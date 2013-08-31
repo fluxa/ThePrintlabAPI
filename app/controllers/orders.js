@@ -61,7 +61,7 @@ exports.get = function (req, res) {
 	if (_id) {
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
-				res.send({orders: doc});
+				res.send({order: doc});
 			} else {
 				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id)));
 			}
