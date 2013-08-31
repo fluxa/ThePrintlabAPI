@@ -5,8 +5,10 @@ div
 				th _id
 				th Email
 				th Mobile
+				th N.Orders
 		tbody
 			tr(ng-repeat='client in clients')
 				td {{client._id}}
 				td {{client.email}}
 				td {{client.mobile}}
+				td {{client.orders.length}}
