@@ -62,14 +62,9 @@ function OrdersCtrl($scope, api) {
 			$scope.orderDelete = function(orderId) {
 				console.log('delete order: ' + orderId);
 				api.orderDelete(orderId).then(function(data) {
-					if (data.success) {
-						$scope.orders = _.reject($scope.orders, function(order) {
-							return order._id === data.data._id;
-						});
-						//$scope.$apply();
-					} else {
-						console.log(data.error);
-					}
+					$scope.orders = _.reject($scope.orders, function(order) {
+						return order._id === data.order._id;
+					});
 				});
 			}
 

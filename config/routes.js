@@ -32,7 +32,7 @@ module.exports = function (app, auth) {
 	app.post(v+'/client/register', clients.register);
 	app.get(v+'/client/get', clients.get);
 	app.put(v+'/client/update', clients.update);
-	app.delete(v+'/client/remove', clients.remove);
+	app.delete(v+'/client/remove/:_id', clients.remove);
 	app.post(v+'/client/coupon/consume', clients.coupon_consume);
 	app.get(v+'/client/coupon/get', clients.coupon_get);
 	// -> auth
@@ -42,7 +42,7 @@ module.exports = function (app, auth) {
 	// Address
 	app.post(v+'/address/register', addresses.register);
 	app.get(v+'/address/get', addresses.get);
-	app.post(v+'/address/remove', addresses.remove);
+	app.delete(v+'/address/remove/:_id', addresses.remove);
 
 	// Order
 	app.post(v+'/order/create', orders.create);
@@ -52,7 +52,7 @@ module.exports = function (app, auth) {
 	app.get(v+'/order/find', auth, orders.find);
 	app.get(v+'/order/all', auth, orders.all);
 	app.get(v+'/order/get', auth, orders.get);
-	app.delete(v+'/order/remove', auth, orders.remove);
+	app.delete(v+'/order/remove/:_id', auth, orders.remove);
 
 
 	// redirect all others to the index (HTML5 history)

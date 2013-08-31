@@ -176,15 +176,16 @@ exports.submit = function (req, res) {
  */
 exports.remove = function (req, res) {
 
-	var _id = req.query._id;
+	var _id = req.params['_id'];
 	if (_id) {
-		Order.findByIdAndRemove(_id, function(err, doc) {
+		Order.findOne({_id: _id}, function(err, doc) {
 			if (!err && doc) {
-				res.send({success:true});
+				doc.remove();
+				res.send({order: doc});
 			} else {
 				console.log(err);
-				res.send(400, plerror.OrderNotFound('Order remove -> not found for _id: {0}'.format(_id)));
-			};
+				res.send(400, plerror.ClientNotFound('Order remove -> not found for _id: {0}'.format(_id)));
+			}
 		});
 	} else {
 		res.send(400, plerror.MissingParameters(''))

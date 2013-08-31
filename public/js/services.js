@@ -26,7 +26,7 @@ angular.module('myApp.services', [])
 				});
 			},
 			orderDelete: function(orderId) {
-				return $http.delete('/v1/order/remove?_id='+orderId).then(function(result) {
+				return $http.delete('/v1/order/remove/'+orderId).then(function(result) {
 					return result.data;
 				});
 			},

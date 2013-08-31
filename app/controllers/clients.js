@@ -130,7 +130,7 @@ exports.update = function (req, res) {
  */
 exports.remove = function (req, res) {
 
-	var _id = req.body._id;
+	var _id = req.params['_id'];
 	if (_id) {
 		Client.findOne({_id: _id}, function(err, doc) {
 			if (!err && doc) {

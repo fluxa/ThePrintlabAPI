@@ -84,8 +84,8 @@ exports.get = function (req, res) {
 // - @method `DELETE`
 
 exports.remove = function (req, res) {
-	console.log(req.body);
-	var _id = req.body._id;
+	
+	var _id = req.params['_id'];
 	if (_id) {
 		Address.findOne({_id: _id}, function(err, doc) {
 			if (!err && doc) {

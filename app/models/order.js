@@ -54,6 +54,7 @@ OrderSchema.post('remove', function(removed) {
 
 	//} Remove removeed Order from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
+		console.log(err);
 		if (!err && doc) {
 			doc.orders.splice(doc.orders.indexOf(removed._id),1);
 			doc.save();

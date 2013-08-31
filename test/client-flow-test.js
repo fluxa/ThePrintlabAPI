@@ -115,8 +115,8 @@ suite.discuss('When registering a client')
 	assert.isNotNull(body.address._id, 'did not return Address');
 
 	suite.unbefore('clientId-post');
-	suite.before('address-post',function(outgoing){
-		outgoing.body = outgoing.body.replace('ADDRESS_ID',body.address._id);
+	suite.before('address-delete',function(outgoing){
+		outgoing.uri = outgoing.uri.replace('ADDRESS_ID',body.address._id);
 		return outgoing;
 	});
 })
@@ -125,14 +125,14 @@ suite.discuss('When registering a client')
 //Address2 remove
 .undiscuss()
 .discuss('When removing second address')
-.del('/remove', {_id: 'ADDRESS_ID'})
+.del('/remove/ADDRESS_ID')
 .expect(200)
 .expect('should return deleted Address', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/address/remove -> ' + JSON.stringify(body));
 	assert.isNotNull(body.address._id, true, 'response is not address');
 
-	suite.unbefore('address-post');
+	suite.unbefore('address-delete');
 	suite.before('clientId-get', function(outgoing){
 		outgoing.uri = outgoing.uri.replace('CLIENT_ID',client_id);
 		return outgoing;
@@ -263,7 +263,7 @@ suite.discuss('When registering a client')
 // .path('/client')
 // .undiscuss()
 // .discuss('When removing a client')
-// .del('/remove', {_id:'CLIENT_ID'})
+// .del('/remove/CLIENT_ID')
 // .expect(200)
 // .expect('should reply with success', function (err, res, body) {
 // 	var body = JSON.parse(body);
