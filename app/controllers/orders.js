@@ -53,6 +53,24 @@ exports.all = function (req, res) {
 	});
 }
 
+ // ### Get one Order by _id
+ // @return {Object} Order object
+ // @method `GET`
+exports.get = function (req, res) {
+	var _id = req.query._id;
+	if (_id) {
+		Order.findOne({_id: _id}).exec(function(err, doc) {
+			if (!err && doc) {
+				res.send({orders: doc});
+			} else {
+				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id)));
+			}
+		});
+	} else {
+		res.send(400, plerror.MissingParameters(''));
+	}
+	
+}
 
 /**
  * Create a new Order for a Client and returns a partial Order object

@@ -47,6 +47,7 @@ module.exports = function (app, auth) {
 	// Order
 	app.post(v+'/order/create', orders.create);
 	app.put(v+'/order/submit', orders.submit);
+	app.get(v+'/order/get', orders.get);
 	// -> auth
 	app.get(v+'/order/status_list', auth, orders.status_list);
 	app.get(v+'/order/find', auth, orders.find);
