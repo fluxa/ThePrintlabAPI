@@ -71,7 +71,7 @@ suite.discuss('When registering a client')
 .path('/address')
 .undiscuss()
 .discuss('When adding first address to a client')
-.post('/register', {payload:{client_id:'CLIENT_ID',address:{name:'Juan',last_name:'Fluxa',address_line1:'Martin de Zamora 4965 d.75', address_line2:'', region:'Santiago', provincia:'Santiago', comuna:'Las Condes'}}})
+.post('/register', {payload:{client:'CLIENT_ID',address:{name:'Juan',last_name:'Fluxa',address_line1:'Martin de Zamora 4965 d.75', address_line2:'', region:'Santiago', provincia:'Santiago', comuna:'Las Condes'}}})
 .expect('should return newly created Address', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/address/register  -> ' + JSON.stringify(body));
@@ -107,7 +107,7 @@ suite.discuss('When registering a client')
 //Address2 register
 .undiscuss()
 .discuss('When adding second address to a client')
-.post('/register', {payload:{client_id:'CLIENT_ID',address:{name:'MARÍA DE LA LUZ',last_name:'ROJAS',address_line1:'Calle de la Luna 456 d.21', address_line2:'', region:'Santiago', provincia:'Santiago', comuna:'Las Condes'}}})
+.post('/register', {payload:{client:'CLIENT_ID',address:{name:'MARÍA DE LA LUZ',last_name:'ROJAS',address_line1:'Calle de la Luna 456 d.21', address_line2:'', region:'Santiago', provincia:'Santiago', comuna:'Las Condes'}}})
 .expect(200)
 .expect('should return newly created Address', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -127,10 +127,10 @@ suite.discuss('When registering a client')
 .discuss('When removing second address')
 .del('/remove', {_id: 'ADDRESS_ID'})
 .expect(200)
-.expect('should return newly created Address', function (err, res, body) {
+.expect('should return deleted Address', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/address/remove -> ' + JSON.stringify(body));
-	assert.equal(body.success, true, 'response is not success');
+	assert.isNotNull(body.address._id, true, 'response is not address');
 
 	suite.unbefore('address-post');
 	suite.before('clientId-get', function(outgoing){
@@ -165,7 +165,7 @@ suite.discuss('When registering a client')
 //Coupon consume
 .undiscuss()
 .discuss('When consuming a cupon')
-.post('/consume', {payload:{client_id:'CLIENT_ID',coupon_id:'COUPON_ID'}})
+.post('/consume', {payload:{client:'CLIENT_ID',coupon_id:'COUPON_ID'}})
 .expect(200)
 .expect('should return updated Client', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -178,14 +178,14 @@ suite.discuss('When registering a client')
 //Coupon consume TWICE
 .undiscuss()
 .discuss('When consuming the same cupon again')
-.post('/consume', {payload:{client_id:'CLIENT_ID',coupon_id:'COUPON_ID'}})
+.post('/consume', {payload:{client:'CLIENT_ID',coupon_id:'COUPON_ID'}})
 .expect(400)
 .expect('should return error', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/client/coupon/consume error -> ' + JSON.stringify(body));
 	
 	suite.unbefore('coupon-post');
-	suite.before('client-post', function(outgoing){
+	suite.before('order-post', function(outgoing){
 		outgoing.body = outgoing.body.replace('CLIENT_ID',client_id);
 		outgoing.body = outgoing.body.replace('ADDRESS_ID',address_id);
 		return outgoing;
@@ -201,8 +201,8 @@ suite.discuss('When registering a client')
 .discuss('When creating an Order')
 .post('/create', {
 	order: {
-		client_id: 'CLIENT_ID',
-		shipping_address_id:'ADDRESS_ID',
+		client: 'CLIENT_ID',
+		address:'ADDRESS_ID',
 		photo_count: 3,
 		cost_printing: 5000,
 		cost_shipping: 2500,
@@ -218,26 +218,56 @@ suite.discuss('When registering a client')
 .expect('should reply with Address', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/order/create  -> ' + JSON.stringify(body));
-	assert.isNotNull(body.order._id, 'response is not success');
+	assert.isNotNull(body.order._id, 'response is not Order');
 
-	// suite.before('clientId-post', function(outgoing){
-	// 	outgoing.body = outgoing.body.replace('CLIENT_ID',body.order.client_id);
-	// 	return outgoing;
-	// });
+	suite.unbefore('order-post')
+	suite.before('order-post2', function(outgoing){
+		if(outgoing.body.indexOf('ORDER_ID') >= 0) {
+			outgoing.body = outgoing.body.replace('ORDER_ID',body.order._id);
+		}
+		if(outgoing.body.indexOf('CLIENT_ID') >= 0) {
+			outgoing.body = outgoing.body.replace('CLIENT_ID',client_id);
+		}
+		return outgoing;
+	});
 	
 })
 .next()
 
-//Client delete
-.unpath()
-.path('/client')
+//Order submit
 .undiscuss()
-.discuss('When removing a client')
-.del('/remove', {_id:'CLIENT_ID'})
-.expect(200)
-.expect('should reply with success', function (err, res, body) {
-	var body = JSON.parse(body);
-	console.log('/client/remove  -> ' + JSON.stringify(body));
-	assert.equal(body.success, true, 'response is not success');
+.discuss('When submitting an Order')
+.put('/submit', {
+	order: {
+		_id: 'ORDER_ID',
+		photo_ids: ['photoid1_1', 'photoid2_1', 'photoid3_1']
+	}
 })
+.expect(200)
+.expect('should return Order', function(err, res, body) {
+	var body = JSON.parse(body);
+	console.log('/order/submit  -> ' + JSON.stringify(body));
+	assert.isNotNull(body.order._id, 'response is not Order');
+
+	// suite.unbefore('order-post2')
+	// suite.before('client-postxx', function(outgoing){
+	// 	outgoing.body = outgoing.body.replace('CLIENT_ID',client_id);
+	// 	console.log('----------->' + outgoing.body);
+	// 	return outgoing;
+	// });
+})
+.next()
+
+// Client delete
+// .unpath()
+// .path('/client')
+// .undiscuss()
+// .discuss('When removing a client')
+// .del('/remove', {_id:'CLIENT_ID'})
+// .expect(200)
+// .expect('should reply with success', function (err, res, body) {
+// 	var body = JSON.parse(body);
+// 	console.log('/client/remove  -> ' + JSON.stringify(body));
+// 	assert.equal(body.success, true, 'response is not success');
+// })
 .export(module);

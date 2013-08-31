@@ -35,34 +35,34 @@ div
 				td 
 					small {{order._id}}
 				td 
-					small {{order.clientId}}
-				td {{order.objAddress.provincia}}
-				td {{order.objAddress.comuna}}
-				td {{order.photoIds.length}}
-				td ${{order.costTotal}}
+					small {{order.client._id}}
+				td {{order.address.provincia}}
+				td {{order.address.comuna}}
+				td {{order.photo_ids.length}}
+				td ${{order.cost_total}}
 				td {{order.status}}
 			tr(style='border-collapse:separate')
 				td.hidden-row(colspan='12')
-					div.accordian-body.collapse.hidden-content(id='{{order._id}}')
+					div.accordion-body.collapse.hidden-content(id='{{order._id}}')
 						div.row
 							div.col-lg-6
 								span.glyphicon.glyphicon-envelope  SHIPPING
-								p NAME: {{order.objAddress.name}} {{order.objAddress.lastName}}
-								p ADDRESS: {{order.objAddress.addressLine1}} {{order.objAddress.addressLine2}} | {{order.objAddress.region}} | {{order.objAddress.comuna}}
+								p NAME: {{order.address.name}} {{order.address.last_name}}
+								p ADDRESS: {{order.address.address_line1}} {{order.address.address_line2}} | {{order.address.region}} | {{order.address.comuna}}
 							div.col-lg-6	
 								span.glyphicon.glyphicon-user  CLIENT
-								p EMAIL: {{order.objClient.email}}
-								p PHONE: {{order.objClient.mobile}}
+								p EMAIL: {{order.client.email}}
+								p PHONE: {{order.client.mobile}}
 						div.row
 							div.col-lg-6
 								span.glyphicon.glyphicon-camera  PHOTOS
-								p QTY: {{order.photoIds.length}}
+								p QTY: {{order.photo_ids.length}}
 								p ZIP PACKAGE: 
 							div.col-lg-6
 								span.glyphicon.glyphicon-usd  COSTS
-								p PRINTING: ${{order.costPrinting}}
-								p SHIPPING: ${{order.costShipping}}
-								p TOTAL ${{order.costTotal}}
+								p PRINTING: ${{order.cost_printing}}
+								p SHIPPING: ${{order.cost_shipping}}
+								p TOTAL ${{order.cost_total}}
 						div.row()
 							div.col-lg-6
 								span.glyphicon.glyphicon-cog  ACTIONS

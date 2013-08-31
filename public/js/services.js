@@ -21,7 +21,7 @@ angular.module('myApp.services', [])
 				});
 			},
 			orderAll: function() {
-				return $http.get('/v1/order/find?query={}').then(function(result){
+				return $http.get('/v1/order/all?query={}').then(function(result){
 					return result.data;
 				});
 			},

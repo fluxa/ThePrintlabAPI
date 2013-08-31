@@ -5,13 +5,12 @@
 
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
-var Address = null;
-var Order = null;
+var Address = null
+var Order = null
 var _ = require('underscore');
 
-/**
- * Client schema
- */
+
+// ## Client schema
 
 var ClientSchema = new Schema({
 	udid: {type: String}, // unique id generated from the device
@@ -19,8 +18,8 @@ var ClientSchema = new Schema({
 	mobile: { type: String },
 	uaToken: { type: String },
 	coupons: { type: [String] }, // consumed coupon ids
-	addresses: { type: [Schema.ObjectId] }, //Address _id
-	orders: { type: [Schema.ObjectId] }, //Order _id
+	addresses: { type: [Schema.ObjectId] , ref: 'Address'}, //Address _id
+	orders: { type: [Schema.ObjectId] , ref: 'Order'}, //Order _id
 	social_accounts: { type: [String] }, //social _id
 })
 
@@ -31,16 +30,17 @@ var ClientSchema = new Schema({
  * - validations
  * - virtuals
  */
+
+ // ### Client post remove hooks
 ClientSchema.post('remove', function(removed) {
 	
-	console.log('Client post remove: ' + removed._id);
 	load_models();
 
-	//remove all Address
-	Address.remove({client_id: removed._id}).exec();
+	//} Remove all Address
+	Address.remove({client: removed._id}).exec();
 	
-	//remove all Order
-	Order.remove({client_id: removed._id}).exec();
+	//} Remove all Order
+	Order.remove({client: removed._id}).exec();
 	
 });
 

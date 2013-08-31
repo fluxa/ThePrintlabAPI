@@ -5,7 +5,7 @@
 
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
-var Client = require('./client')
+var Client = null
 var _ = require('underscore');
 
 var OrderStatus = {
@@ -17,15 +17,14 @@ var OrderStatus = {
 	Shipped: 'SHIPPED' //order was shipped
 }
 
-/**
- * Order schema
- */
+
+// ## Order schema
 
 var OrderSchema = new Schema({
-	client_id: {type: Schema.ObjectId}, //Client _id
-	shipping_address_id: { type: Schema.ObjectId }, //Address _id
-	photo_ids: { type: [String] }, //photoId is: uid + '_' + qty
-	photo_count: { type: Number }, //total number of photos to print
+	client: {type: Schema.ObjectId, ref: 'Client'}, // Client _id
+	address: { type: Schema.ObjectId, ref: 'Address' }, // Address _id
+	photo_ids: { type: [String] }, // Array of photo_id Strings: photo_uid + '_' + qty
+	photo_count: { type: Number },
 	cost_printing: { type: Number },
 	cost_shipping: { type: Number },
 	cost_total: { type: Number },
@@ -48,37 +47,35 @@ var OrderSchema = new Schema({
  * - validations
  * - virtuals
  */
+ // ### Order post remove hook
 OrderSchema.post('remove', function(removed) {
 	
-	console.log('Order post remove');
+	load_models();
 
-	var self = this;
-
-	//remove from Client
-	Client.findOne({_id: this.client_id}, function(err,doc) {
+	//} Remove removeed Order from Client
+	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
-			console.log('orders before: ' + doc.orders.length);
-			doc.orders = _.without(doc.orders,[self._id]);
-			console.log('orders after: ' + doc.orders.length);
+			doc.orders = doc.orders.splice(doc.orders.indexOf(removed._id),1);
 			doc.save();
 		};
 	});
 });
 
+// ### Order post save hook
 OrderSchema.post('save', function(saved) {
 	
-	console.log('Order post save');
+	load_models();
 
-	//add Order to Client
-	Client.findOne({_id: saved.client_id}, function(err, doc){
+	//} Add saved Order to Client's orders
+	Client.findOne({_id: saved.client}, function(err, doc){
 		if(!err && doc) {
-			if(_.indexOf(doc.orders,saved._id) == -1) {
+			// Only add Order _id one time and save Client
+			if(doc.orders.indexOf(saved._id) === -1) {
 				doc.orders.push(saved._id);
 				doc.save();
 			}
 		}
 	});
-	
 	
 });
 
@@ -112,3 +109,13 @@ OrderSchema.static({
  */
 
 module.exports = mongoose.model('Order', OrderSchema)
+
+/**
+* Helpers
+*/
+function load_models(){
+	if (Client == null) {
+		Client = mongoose.model('Client');
+	};
+}
+

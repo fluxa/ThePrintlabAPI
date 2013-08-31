@@ -6,10 +6,11 @@ var mongoose = require('mongoose');
 var Address = mongoose.model('Address');
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
+var plerror = require('../../plerror');
 
 
 // ### Registers a new Address for a Client 
-// - @param {Object} `{ payload: {client_id:'xxx', address: {}}`
+// - @param {Object} `{ payload: {client:'ObjectId', address: {}}`
 // - @return {Object} `{address: {}, client: {}}`
 // - @method `POST`
 
@@ -17,13 +18,13 @@ exports.register = function (req, res) {
 
 	var payload = req.body.payload;
 	var address = payload.address;
-	if (payload && payload.client_id && address) {
+	if (payload && payload.client && address) {
 		
 		//} First we try to find the Client
-		Client.findOne({_id: payload.client_id}, function(err, doc) {
+		Client.findOne({_id: payload.client}, function(err, doc) {
 			if (!err && doc) {
 				var client = doc;
-				address['client_id'] = client._id;
+				address['client'] = client._id;
 				//} And we create the Address
 				Address.create(address, function(err, doc) {
 					if (!err) {
@@ -32,19 +33,22 @@ exports.register = function (req, res) {
 							if(!err) {
 								res.send({address: doc, client: client});
 							} else {
-								res.send(400, {error: err || 'Cannot save Client'});
+								console.log(err);
+								res.send(400, plerror.CannotSaveDocument('Address register -> Cannot save Client'));
 							}
 						});
 					} else {
-						res.send(400, {error: err || 'Cannot create Address'});
+						console.log(err);
+						res.send(400, plerror.CannotSaveDocument('Address register -> Cannot create Address'));
 					}
 				});
 			} else {
-				res.send(400, {error: err || 'Client not found'});
+				console.log(err);
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client)));
 			}
 		});
 	} else {
-		res.send(400,{error:'missing parameters'})
+		res.send(400, plerror.MissingParameters(''))
 	}
 }
 
@@ -63,11 +67,12 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({address:doc});
 			} else {
-				res.send(400,{error: err || 'no Address found'})
+				console.log(err);
+				res.send(400,plerror.AddressNotFound('Address not found for _id: {0}'.format(_id)))
 			}
 		});
 	} else {
-		res.send(400,{error:'missing parameters'})
+		res.send(400, plerror.MissingParameters(''))
 	}
 }
 
@@ -79,7 +84,7 @@ exports.get = function (req, res) {
 // - @method `DELETE`
 
 exports.remove = function (req, res) {
-	
+	console.log(req.body);
 	var _id = req.body._id;
 	if (_id) {
 		Address.findOne({_id: _id}, function(err, doc) {
@@ -87,10 +92,11 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({address:doc});
 			} else {
-				res.send(400,{error: err || 'Address not found for _id: {0}'.format(_id)});
+				console.log(err);
+				res.send(400, plerror.AddressNotFound('Address not found for _id: {0}'.format(_id)))
 			};
 		});
 	} else {
-		res.send(400,{error:'missing parameters'})
+		res.send(400, plerror.MissingParameters(''))
 	}
 }

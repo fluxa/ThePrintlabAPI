@@ -5,15 +5,14 @@
 
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
-var Client = require('./client')
+var Client = null
 var _ = require('underscore');
 
-/**
- * Address schema
- */
+
+// ## Address schema
 
 var AddressSchema = new Schema({
-	client_id: {type: Schema.ObjectId},
+	client: {type: Schema.ObjectId, ref: 'Client'},
 	name: { type: String },
 	last_name: { type: String },
 	address_line1: { type: String },
@@ -30,14 +29,18 @@ var AddressSchema = new Schema({
  * - validations
  * - virtuals
  */
+
+ // ### Address post remove
 AddressSchema.post('remove', function(removed) {
 	
-	console.log('Address post remove');
-
-	//remove from Client
-	Client.findOne({_id: this.client_id}, function(err,doc) {
+	load_models();
+	
+	//} Remove Address from Client
+	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
-			doc.addresses = doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
+			console.log('before -> ' + doc.addresses);
+			doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
+			console.log('after -> ' + doc.addresses);
 			doc.save();
 		};
 	});
@@ -76,3 +79,13 @@ AddressSchema.static({
  */
 
 module.exports = mongoose.model('Address', AddressSchema)
+
+/**
+* Helpers
+*/
+function load_models(){
+	if (Client == null) {
+		Client = mongoose.model('Client');
+	};
+}
+

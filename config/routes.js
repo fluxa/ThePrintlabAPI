@@ -42,14 +42,15 @@ module.exports = function (app, auth) {
 	// Address
 	app.post(v+'/address/register', addresses.register);
 	app.get(v+'/address/get', addresses.get);
-	app.delete(v+'/address/remove', addresses.remove);
+	app.post(v+'/address/remove', addresses.remove);
 
 	// Order
 	app.post(v+'/order/create', orders.create);
-	app.post(v+'/order/submit', orders.submit);
+	app.put(v+'/order/submit', orders.submit);
 	// -> auth
 	app.get(v+'/order/status_list', auth, orders.status_list);
 	app.get(v+'/order/find', auth, orders.find);
+	app.get(v+'/order/all', auth, orders.all);
 	app.delete(v+'/order/remove', auth, orders.remove);
 
 
