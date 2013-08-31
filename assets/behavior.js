@@ -14,23 +14,114 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "singleLineComment": ["//"],
           "name": "JavaScript"
         },
-        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/ThePrintlabAPI/app/controllers/index.js",
+        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/api.theprintlab.cl/app/controllers/index.js",
         "projectPath": "app/controllers/index.js",
         "targetPath": "index",
         "firstHeader": {
           "type": "heading",
           "data": {
             "level": 1,
-            "title": "PhotoPrint API",
-            "slug": "photoprint-api",
+            "title": "ThePrintlab API",
+            "slug": "theprintlab-api",
             "isFileHeader": true
           },
-          "depth": 1
+          "depth": 1,
+          "children": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Server Dependencies",
+                "slug": "server-dependencies"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Sensitive Data Encryption",
+                "slug": "sensitive-data-encryption"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Deployment",
+                "slug": "deployment"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Documentation",
+                "slug": "documentation"
+              },
+              "depth": 2,
+              "children": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Models",
+                    "slug": "models"
+                  },
+                  "depth": 3
+                }
+              ]
+            }
+          ]
         },
-        "title": "PhotoPrint API"
+        "title": "ThePrintlab API"
       },
       "depth": 1,
-      "outline": []
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Server Dependencies",
+            "slug": "server-dependencies"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Sensitive Data Encryption",
+            "slug": "sensitive-data-encryption"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Deployment",
+            "slug": "deployment"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Documentation",
+            "slug": "documentation"
+          },
+          "depth": 2,
+          "children": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 3,
+                "title": "Models",
+                "slug": "models"
+              },
+              "depth": 3
+            }
+          ]
+        }
+      ]
     }, {
       "type": "file",
       "data": {
@@ -39,13 +130,58 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "commentsOnly": true,
           "name": "Markdown"
         },
-        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/ThePrintlabAPI/README.md",
+        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/api.theprintlab.cl/README.md",
         "projectPath": "README.md",
         "targetPath": "index",
         "title": "index"
       },
       "depth": 1,
-      "outline": []
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Server Dependencies",
+            "slug": "server-dependencies"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Sensitive Data Encryption",
+            "slug": "sensitive-data-encryption"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Deployment",
+            "slug": "deployment"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Documentation",
+            "slug": "documentation"
+          },
+          "depth": 2,
+          "children": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 3,
+                "title": "Models",
+                "slug": "models"
+              },
+              "depth": 3
+            }
+          ]
+        }
+      ]
     }, {
       "type": "file",
       "data": {
@@ -55,7 +191,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "singleLineComment": ["//"],
           "name": "JavaScript"
         },
-        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/ThePrintlabAPI/app/controllers/addresses.js",
+        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/api.theprintlab.cl/app/controllers/addresses.js",
         "projectPath": "app/controllers/addresses.js",
         "targetPath": "addresses",
         "title": "addresses"
@@ -71,7 +207,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "singleLineComment": ["//"],
           "name": "JavaScript"
         },
-        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/ThePrintlabAPI/app/controllers/clients.js",
+        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/api.theprintlab.cl/app/controllers/clients.js",
         "projectPath": "app/controllers/clients.js",
         "targetPath": "clients",
         "title": "clients"
@@ -87,7 +223,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "singleLineComment": ["//"],
           "name": "JavaScript"
         },
-        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/ThePrintlabAPI/app/controllers/orders.js",
+        "sourcePath": "/Users/fluxa/workspace/ios/ThePrintlab/api.theprintlab.cl/app/controllers/orders.js",
         "projectPath": "app/controllers/orders.js",
         "targetPath": "orders",
         "title": "orders"
