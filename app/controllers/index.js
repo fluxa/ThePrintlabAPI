@@ -24,7 +24,7 @@ exports.blitz = function(req, res) {
 }
 
 exports.ping = function(req, res) {
-	reply.send('OK');
+	res.send('OK');
 }
 
 exports.logs = function(req, res) {
