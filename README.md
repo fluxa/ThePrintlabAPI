@@ -20,9 +20,9 @@ Server side APIs for ThePrintlab App
 ## Documentation
 
 ### Models
-* [Client](client.html)
-* [Address](address.html)
-* [Order](order.html)
+* [Client](app/models/client.html)
+* [Address](app/models/address.html)
+* [Order](app/models/order.html)
 
 ### Controllers
 * [Clients](clients.html)
