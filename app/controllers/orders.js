@@ -176,7 +176,7 @@ exports.submit = function (req, res) {
  */
 exports.remove = function (req, res) {
 
-	var _id = req.body._id;
+	var _id = req.query._id;
 	if (_id) {
 		Order.findByIdAndRemove(_id, function(err, doc) {
 			if (!err && doc) {
