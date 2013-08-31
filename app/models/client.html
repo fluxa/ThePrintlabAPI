@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><title>app/models/client</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/models/client"><meta name="groc-project-path" content="app/models/client.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/models/client.js">app/models/client.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">Schema</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">Schema</span>
+<span class="kd">var</span> <span class="nx">Address</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">Order</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;underscore&#39;</span><span class="p">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Client schema</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">ClientSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span>
+  <span class="nx">udid</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">},</span> <span class="c1">// unique id generated from the device</span>
+  <span class="nx">email</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">},</span>
+  <span class="nx">mobile</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">uaToken</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">coupons</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">]</span> <span class="p">},</span> <span class="c1">// consumed coupon ids</span>
+  <span class="nx">addresses</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="p">[</span><span class="nx">Schema</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">]</span> <span class="p">},</span> <span class="c1">//Address _id</span>
+  <span class="nx">orders</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="p">[</span><span class="nx">Schema</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">]</span> <span class="p">},</span> <span class="c1">//Order _id</span>
+  <span class="nx">social_accounts</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">]</span> <span class="p">},</span> <span class="c1">//social _id</span>
+<span class="p">})</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Add your</span>
+<span class="cm"> * - pre-save hooks</span>
+<span class="cm"> * - validations</span>
+<span class="cm"> * - virtuals</span>
+<span class="cm"> */</span>
+<span class="nx">ClientSchema</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;remove&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">removed</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Client post remove: &#39;</span> <span class="o">+</span> <span class="nx">removed</span><span class="p">.</span><span class="nx">_id</span><span class="p">);</span>
+  <span class="nx">load_models</span><span class="p">();</span>
+
+  <span class="c1">//remove all Address</span>
+  <span class="nx">Address</span><span class="p">.</span><span class="nx">remove</span><span class="p">({</span><span class="nx">client_id</span><span class="o">:</span> <span class="nx">removed</span><span class="p">.</span><span class="nx">_id</span><span class="p">}).</span><span class="nx">exec</span><span class="p">();</span>
+  
+  <span class="c1">//remove all Order</span>
+  <span class="nx">Order</span><span class="p">.</span><span class="nx">remove</span><span class="p">({</span><span class="nx">client_id</span><span class="o">:</span> <span class="nx">removed</span><span class="p">.</span><span class="nx">_id</span><span class="p">}).</span><span class="nx">exec</span><span class="p">();</span>
+  
+<span class="p">});</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Methods</span>
+<span class="cm"> */</span>
+
+<span class="nx">ClientSchema</span><span class="p">.</span><span class="nx">method</span><span class="p">({</span>
+
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Statics</span>
+<span class="cm"> */</span>
+
+<span class="nx">ClientSchema</span><span class="p">.</span><span class="kr">static</span><span class="p">({</span>
+  <span class="nx">Coupons</span> <span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;FIRSTTIME_5FREE&#39;</span><span class="p">,</span> 
+      <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Imprime 5 fotos gratis!&#39;</span><span class="p">,</span> 
+      <span class="nx">desc</span><span class="o">:</span><span class="s1">&#39;Para que pruebes nuestro servicio, te regalamos 5 impresiones incluyendo costos de envío en tu primera compra.&#39;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Register</span>
+<span class="cm"> */</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Client&#39;</span><span class="p">,</span> <span class="nx">ClientSchema</span><span class="p">)</span>
+
+<span class="cm">/**</span>
+<span class="cm">* Helpers</span>
+<span class="cm">*/</span>
+<span class="kd">function</span> <span class="nx">load_models</span><span class="p">(){</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">Address</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Address</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Address&#39;</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">Order</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Order</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Order&#39;</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">}</span></div></div></div></div></body></html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><title>app/models/address</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/models/address"><meta name="groc-project-path" content="app/models/address.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/models/address.js">app/models/address.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">Schema</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">Schema</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./client&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;underscore&#39;</span><span class="p">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Address schema</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">AddressSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span>
+  <span class="nx">client_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">last_name</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">address_line1</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">address_line2</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">region</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">provincia</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+  <span class="nx">comuna</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span> <span class="p">},</span>
+<span class="p">})</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Add your</span>
+<span class="cm"> * - pre-save hooks</span>
+<span class="cm"> * - validations</span>
+<span class="cm"> * - virtuals</span>
+<span class="cm"> */</span>
+<span class="nx">AddressSchema</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;remove&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">removed</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Address post remove&#39;</span><span class="p">);</span>
+
+  <span class="c1">//remove from Client</span>
+  <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">doc</span><span class="p">.</span><span class="nx">addresses</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">addresses</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">addresses</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">removed</span><span class="p">.</span><span class="nx">_id</span><span class="p">),</span><span class="mi">1</span><span class="p">);</span>
+      <span class="nx">doc</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+    <span class="p">};</span>
+  <span class="p">});</span>
+  
+<span class="p">});</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Methods</span>
+<span class="cm"> */</span>
+
+<span class="nx">AddressSchema</span><span class="p">.</span><span class="nx">method</span><span class="p">({</span>
+  <span class="nx">verbose</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">&#39;{0} {1}\n{2} {3}\n{4}, {5}\n{6}&#39;</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> 
+      <span class="k">this</span><span class="p">.</span><span class="nx">last_name</span><span class="p">,</span> 
+      <span class="k">this</span><span class="p">.</span><span class="nx">address_line1</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">address_line2</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">comuna</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">provincia</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">region</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Statics</span>
+<span class="cm"> */</span>
+
+<span class="nx">AddressSchema</span><span class="p">.</span><span class="kr">static</span><span class="p">({</span>
+
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Register</span>
+<span class="cm"> */</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Address&#39;</span><span class="p">,</span> <span class="nx">AddressSchema</span><span class="p">)</span></div></div></div></div></body></html>

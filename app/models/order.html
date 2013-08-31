@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en"><head><title>app/models/order</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/models/order"><meta name="groc-project-path" content="app/models/order.js"><meta name="groc-github-url" content="https://github.com/fluxa/ThePrintlabAPI"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/fluxa/ThePrintlabAPI/blob/master/app/models/order.js">app/models/order.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">/*!</span>
+<span class="cm"> * Module dependencies</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">mongoose</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mongoose&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">Schema</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">Schema</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./client&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;underscore&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">OrderStatus</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">PaymentPending</span><span class="o">:</span> <span class="s1">&#39;PAYMENT_PENDING&#39;</span><span class="p">,</span> <span class="c1">//set when registered and waiting for payment</span>
+  <span class="nx">PaymentError</span><span class="o">:</span> <span class="s1">&#39;PAYMENT_ERROR&#39;</span><span class="p">,</span> <span class="c1">//payment was rejected for some reason</span>
+  <span class="nx">PaymentAccepted</span><span class="o">:</span> <span class="s1">&#39;PAYMENT_ACCEPTED&#39;</span><span class="p">,</span> <span class="c1">//payment was accepted but still needs verification</span>
+  <span class="nx">PaymentVerified</span><span class="o">:</span> <span class="s1">&#39;PAYMENT_VERIFIED&#39;</span><span class="p">,</span> <span class="c1">//payment is completed</span>
+  <span class="nx">Printing</span><span class="o">:</span> <span class="s1">&#39;PRINTING&#39;</span><span class="p">,</span> <span class="c1">//order was sent for printing</span>
+  <span class="nx">Shipped</span><span class="o">:</span> <span class="s1">&#39;SHIPPED&#39;</span> <span class="c1">//order was shipped</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Order schema</span>
+<span class="cm"> */</span>
+
+<span class="kd">var</span> <span class="nx">OrderSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span>
+  <span class="nx">client_id</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">ObjectId</span><span class="p">},</span> <span class="c1">//Client _id</span>
+  <span class="nx">shipping_address_id</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Schema</span><span class="p">.</span><span class="nx">ObjectId</span> <span class="p">},</span> <span class="c1">//Address _id</span>
+  <span class="nx">photo_ids</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="p">[</span><span class="nb">String</span><span class="p">]</span> <span class="p">},</span> <span class="c1">//photoId is: uid + &#39;_&#39; + qty</span>
+  <span class="nx">photo_count</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span> <span class="p">},</span> <span class="c1">//total number of photos to print</span>
+  <span class="nx">cost_printing</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span> <span class="p">},</span>
+  <span class="nx">cost_shipping</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span> <span class="p">},</span>
+  <span class="nx">cost_total</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span> <span class="p">},</span>
+  <span class="nx">status</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="k">default</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentPending</span><span class="p">},</span>
+  <span class="nx">gift</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">is_gift</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">},</span>
+    <span class="nx">message</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">payment</span><span class="o">:</span> <span class="p">{</span> <span class="c1">//payment object</span>
+    <span class="nx">verification_code</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">},</span>
+    <span class="nx">message</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">verbose</span><span class="o">:</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">}</span> <span class="c1">//A verbal version of the Order</span>
+<span class="p">})</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Add your</span>
+<span class="cm"> * - pre-save hooks</span>
+<span class="cm"> * - validations</span>
+<span class="cm"> * - virtuals</span>
+<span class="cm"> */</span>
+<span class="nx">OrderSchema</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;remove&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">removed</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Order post remove&#39;</span><span class="p">);</span>
+
+  <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+  <span class="c1">//remove from Client</span>
+  <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;orders before: &#39;</span> <span class="o">+</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+      <span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">without</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span><span class="p">,[</span><span class="nx">self</span><span class="p">.</span><span class="nx">_id</span><span class="p">]);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;orders after: &#39;</span> <span class="o">+</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+      <span class="nx">doc</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+    <span class="p">};</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">OrderSchema</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">saved</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Order post save&#39;</span><span class="p">);</span>
+
+  <span class="c1">//add Order to Client</span>
+  <span class="nx">Client</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">_id</span><span class="o">:</span> <span class="nx">saved</span><span class="p">.</span><span class="nx">client_id</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span> <span class="o">&amp;&amp;</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span><span class="p">,</span><span class="nx">saved</span><span class="p">.</span><span class="nx">_id</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">doc</span><span class="p">.</span><span class="nx">orders</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">saved</span><span class="p">.</span><span class="nx">_id</span><span class="p">);</span>
+        <span class="nx">doc</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+  
+  
+<span class="p">});</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Methods</span>
+<span class="cm"> */</span>
+
+<span class="nx">OrderSchema</span><span class="p">.</span><span class="nx">method</span><span class="p">({</span>
+
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Statics</span>
+<span class="cm"> */</span>
+
+<span class="nx">OrderSchema</span><span class="p">.</span><span class="kr">static</span><span class="p">({</span>
+  
+  <span class="nx">OrderStatus</span> <span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">,</span>
+  <span class="nx">OrderStatusList</span> <span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentPending</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;PaymentPending&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentError</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;PaymentError&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentAccepted</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;PaymentAccepted&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">PaymentVerified</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;PaymentVerified&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">Printing</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Printing&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="nx">OrderStatus</span><span class="p">.</span><span class="nx">Shipped</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Shipped&#39;</span><span class="p">},</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Register</span>
+<span class="cm"> */</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Order&#39;</span><span class="p">,</span> <span class="nx">OrderSchema</span><span class="p">)</span></div></div></div></div></body></html>
