@@ -24,3 +24,7 @@ Server side APIs for ThePrintlab App
 * [Address](address.html)
 * [Order](order.html)
 
+### Controllers
+* [Clients](clients.html)
+* [Addresses](addresses.html)
+* [Orders](orders.html)

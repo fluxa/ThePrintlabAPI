@@ -1,4 +1,4 @@
 {
-  "glob": ["app/controllers/*.js", "README.md"],
+  "glob": ["app/controllers/*.js", "README.md", "app/models/*.js"],
   "github": true
 }
