@@ -221,7 +221,33 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
         "title": "addresses"
       },
       "depth": 1,
-      "outline": []
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 3,
+            "title": "Registers a new Address for a Client",
+            "slug": "registers-a-new-address-for-a-client"
+          },
+          "depth": 3
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 3,
+            "title": "Gets an Address by _id",
+            "slug": "gets-an-address-by-id"
+          },
+          "depth": 3
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 3,
+            "title": "Remove and Address from database",
+            "slug": "remove-and-address-from-database"
+          },
+          "depth": 3
+        }
+      ]
     }, {
       "type": "folder",
       "data": {
