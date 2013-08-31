@@ -55,7 +55,7 @@ OrderSchema.post('remove', function(removed) {
 	//} Remove removeed Order from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
-			doc.orders = doc.orders.splice(doc.orders.indexOf(removed._id),1);
+			doc.orders.splice(doc.orders.indexOf(removed._id),1);
 			doc.save();
 		};
 	});
