@@ -55,7 +55,4 @@ module.exports = function (app, auth) {
 	app.post(v+'/orders/payment', auth, orders.get);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
 
-
-	// redirect all others to the index (HTML5 history)
-	app.get('*', index.index);
 }
