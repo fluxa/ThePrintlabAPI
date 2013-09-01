@@ -29,30 +29,31 @@ module.exports = function (app, auth) {
 	app.get(v+'/logs', auth, index.logs);
 	
 	// Client
-	app.post(v+'/client/register', clients.register);
-	app.get(v+'/client/get', clients.get);
-	app.put(v+'/client/update', clients.update);
-	app.delete(v+'/client/remove/:_id', clients.remove);
-	app.post(v+'/client/coupon/consume', clients.coupon_consume);
-	app.get(v+'/client/coupon/get', clients.coupon_get);
+	app.post(v+'/clients/register', clients.register);
+	app.get(v+'/clients/get/:_id', clients.get);
+	app.post(v+'/clients/update', clients.update);
+	app.delete(v+'/clients/remove/:_id', clients.remove);
+	app.post(v+'/clients/coupon/consume', clients.coupon_consume);
+	app.get(v+'/clients/coupon/get/:_id', clients.coupon_get);
 	// -> auth
-	app.get(v+'/client/find', auth, clients.find);
+	app.post(v+'/clients/find/', auth, clients.find);
 
 
 	// Address
-	app.post(v+'/address/register', addresses.register);
-	app.get(v+'/address/get', addresses.get);
-	app.delete(v+'/address/remove/:_id', addresses.remove);
+	app.post(v+'/addresses/register', addresses.register);
+	app.get(v+'/addresses/get/:_id', addresses.get);
+	app.delete(v+'/addresses/remove/:_id', addresses.remove);
 
 	// Order
-	app.post(v+'/order/create', orders.create);
-	app.put(v+'/order/submit', orders.submit);
+	app.post(v+'/orders/create', orders.create);
+	app.post(v+'/orders/submit', orders.submit);
 	// -> auth
-	app.get(v+'/order/status_list', auth, orders.status_list);
-	app.get(v+'/order/find', auth, orders.find);
-	app.get(v+'/order/all', auth, orders.all);
-	app.get(v+'/order/get', auth, orders.get);
-	app.delete(v+'/order/remove/:_id', auth, orders.remove);
+	app.get(v+'/orders/status_list', auth, orders.status_list);
+	app.post(v+'/orders/find', auth, orders.find);
+	app.get(v+'/orders/all', auth, orders.all);
+	app.get(v+'/orders/get/:_id', auth, orders.get);
+	app.post(v+'/orders/payment', auth, orders.get);
+	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
 
 
 	// redirect all others to the index (HTML5 history)

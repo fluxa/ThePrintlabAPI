@@ -17,7 +17,7 @@ var suite = APIeasy.describe('API -> client');
 suite.discuss('When registering a client')
 .use(host, port)
 .path('/v1')
-.path('/client')
+.path('/clients')
 .setHeader('Content-Type', 'application/json')
 
 //Client register
@@ -39,7 +39,7 @@ suite.discuss('When registering a client')
 //Client get
 .undiscuss()
 .discuss('When getting a client')
-.get('/get', {_id: 'CLIENT_ID'})
+.get('/get/CLIENT_ID')
 .expect(200)
 .expect('should return Client', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -56,7 +56,7 @@ suite.discuss('When registering a client')
 //Client update
 .undiscuss()
 .discuss('When updating a client')
-.put('/update', {client : {_id: 'CLIENT_ID', email: 'jmfluxa@gmail.com', mobile:'8618616972923'} })
+.post('/update', {client : {_id: 'CLIENT_ID', email: 'jmfluxa@gmail.com', mobile:'8618616972923'} })
 .expect(200)
 .expect('should return Client', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -68,7 +68,7 @@ suite.discuss('When registering a client')
 
 //Address1 register
 .unpath()
-.path('/address')
+.path('/addresses')
 .undiscuss()
 .discuss('When adding first address to a client')
 .post('/register', {payload:{client:'CLIENT_ID',address:{name:'Juan',last_name:'Fluxa',address_line1:'Martin de Zamora 4965 d.75', address_line2:'', region:'Santiago', provincia:'Santiago', comuna:'Las Condes'}}})
@@ -89,7 +89,7 @@ suite.discuss('When registering a client')
 //Adress1 get
 .undiscuss()
 .discuss('When getting an Address')
-.get('/get', {_id: 'ADDRESS_ID'})
+.get('/get/ADDRESS_ID')
 .expect(200)
 .expect('should return Address', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -142,11 +142,11 @@ suite.discuss('When registering a client')
 
 //Coupon get
 .unpath()
-.path('client')
+.path('clients')
 .path('coupon')
 .undiscuss()
 .discuss('When getting available cupouns')
-.get('/get', {_id:'CLIENT_ID'})
+.get('/get/CLIENT_ID')
 .expect(200)
 .expect('should return Array of coupons', function (err, res, body) {
 	var body = JSON.parse(body);
@@ -196,7 +196,7 @@ suite.discuss('When registering a client')
 // Create Order
 .unpath()
 .unpath()
-.path('/order')
+.path('/orders')
 .undiscuss()
 .discuss('When creating an Order')
 .post('/create', {
@@ -237,7 +237,7 @@ suite.discuss('When registering a client')
 //Order submit
 .undiscuss()
 .discuss('When submitting an Order')
-.put('/submit', {
+.post('/submit', {
 	order: {
 		_id: 'ORDER_ID',
 		photo_ids: ['photoid1_1', 'photoid2_1', 'photoid3_1']
@@ -260,7 +260,7 @@ suite.discuss('When registering a client')
 
 // Client delete
 // .unpath()
-// .path('/client')
+// .path('/clients')
 // .undiscuss()
 // .discuss('When removing a client')
 // .del('/remove/CLIENT_ID')

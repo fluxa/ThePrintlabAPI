@@ -6,25 +6,24 @@ var mongoose = require('mongoose')
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var plerror = require('../../plerror');
+var _ = require('underscore');
  
 // ### Return all posible status codes nicely formatted for using on the web-admin
 // - @preturn {Array} list of all posible OrderStatus
 // - @method `GET`
-
+// - @api `private`
 exports.status_list = function (req, res) {
 	res.send(Order.OrderStatusList);
 }
 
-/**
- * Find Orders by {query:{'prop':'value'}}
- *
- * @param {Object} query in the form {'prop':'value'}
- * @return {Array} array of Order objects
- * @api private
- */
+// ### Find Orders by {query:{'prop':'value'}}
+// - @param {Object} query in the form {'prop':'value'}
+// - @return {Array} array of Order objects
+// - @method `POST`
+// - @api private
 exports.find = function (req, res) {
 
-	var  query = req.query.query;
+	var  query = req.body.query;
 	if (query) {
 		Order.find(query, function(err, docs) {
 			if(!err) {
@@ -34,14 +33,15 @@ exports.find = function (req, res) {
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
 
- // ### Find all Orders return full documents for references with ObjectId
- // @return {Array} array of full Order objects
- // @method `GET`
+// ### Find all Orders return full documents for references with ObjectId
+// - @return {Array} array of full Order objects
+// - @method `GET`
+// - @api `private`
 exports.all = function (req, res) {
 
 	Order.find({}).populate('address').populate('client').exec(function(err, docs) {
@@ -53,21 +53,67 @@ exports.all = function (req, res) {
 	});
 }
 
- // ### Get one Order by _id
- // @return {Object} Order object
- // @method `GET`
+// ### Get one Order by _id
+// - @return {Object} Order object
+// - @method `GET`
+// - @api `private`
 exports.get = function (req, res) {
-	var _id = req.query._id;
+	var _id = req.params['_id'];
 	if (_id) {
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
-				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id)));
+				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id), err));
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''));
+		res.send(400, plerror.MissingParameters('', null));
+	}
+	
+}
+
+
+// ### Manage the Order's payment lifecycle
+// - @param {String} Order _id
+// - @param {String} action ( start | complete )
+// - @return {Object} Order object
+// - @method `POST`
+// - @api `private`
+exports.payment = function (req, res) {
+	
+	var _id = req.param['_id'];
+	var action = req.param['action'];
+
+	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) {
+
+		Order.findOne({_id: _id}).exec(function(err, doc) {
+			if (!err && doc) {
+				
+				switch(action) {
+
+					case Order.OrderActions.Start:
+						doc.status = Order.OrderStatus.PaymentStarted;
+						break;
+
+					case Order.OrderActions.Complete:
+						doc.status = Order.OrderStatus.PaymentCompleted;
+						break;
+				}
+
+				doc.save(function(err, saveddoc) {
+					if (!err && saveddoc) {
+						res.send({order: saveddoc});	
+					} else {
+						res.send(400, plerror.CannotSaveDocument('/order/payment/ -> Cannto save Order _id: {0}'.format(_id), err));
+					}
+				});
+			} else {
+				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id), err));
+			}
+		});
+	} else {
+		res.send(400, plerror.MissingParameters('', null));
 	}
 	
 }
@@ -89,13 +135,12 @@ exports.create = function (req, res) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
-				console.log(err);
-				res.send(400, plerror.CannotSaveDocument('Cannot create Order'));
+				res.send(400, plerror.CannotSaveDocument('Cannot create Order', err));
 			}
 		});
 
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -140,30 +185,26 @@ exports.submit = function (req, res) {
 									if(!err) {
 										res.send({order: neworder});
 									} else {
-										console.log(err);
-										res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Client'));
+										res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Client', err));
 									}
 								})
 							} else {
-								console.log(err);
-								res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Order'));
+								res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Order', err));
 							}
 						});
 					} else {
-						console.log(err);
-						res.send(400, plerror.ClientNotFound('Order submit -> Client not found for _id: {0}'.format(neworder.client)));		
+						res.send(400, plerror.ClientNotFound('Order submit -> Client not found for _id: {0}'.format(neworder.client), err));		
 					}
 				});
 
 			} else {
-				console.log(err);
-				res.send(400, plerror.OrderNotFound('Order submit -> Order not found for _id: {0}'.format(order._id)));
+				res.send(400, plerror.OrderNotFound('Order submit -> Order not found for _id: {0}'.format(order._id), err));
 			}
 		});
 		
 
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -183,11 +224,10 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({order: doc});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Order remove -> not found for _id: {0}'.format(_id)));
+				res.send(400, plerror.ClientNotFound('Order remove -> not found for _id: {0}'.format(_id), err));
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }

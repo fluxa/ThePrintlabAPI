@@ -38,9 +38,7 @@ AddressSchema.post('remove', function(removed) {
 	//} Remove Address from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
-			console.log('before -> ' + doc.addresses);
 			doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
-			console.log('after -> ' + doc.addresses);
 			doc.save();
 		};
 	});

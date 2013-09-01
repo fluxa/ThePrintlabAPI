@@ -33,22 +33,19 @@ exports.register = function (req, res) {
 							if(!err) {
 								res.send({address: doc, client: client});
 							} else {
-								console.log(err);
-								res.send(400, plerror.CannotSaveDocument('Address register -> Cannot save Client'));
+								res.send(400, plerror.CannotSaveDocument('Address register -> Cannot save Client', null));
 							}
 						});
 					} else {
-						console.log(err);
-						res.send(400, plerror.CannotSaveDocument('Address register -> Cannot create Address'));
+						res.send(400, plerror.CannotSaveDocument('Address register -> Cannot create Address', err));
 					}
 				});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client), err));
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -58,21 +55,21 @@ exports.register = function (req, res) {
 // - @param {String} `_id`
 // - @return {Object} `{address: {}}` Address object
 // - @method `GET`
+// - @api `public`
 
 exports.get = function (req, res) {
 
-	var _id = req.query._id;
+	var _id = req.params['_id'];
 	if (_id) {
 		Address.findOne({_id:_id}, function(err, doc) {
 			if(!err && doc) {
 				res.send({address:doc});
 			} else {
-				console.log(err);
-				res.send(400,plerror.AddressNotFound('Address not found for _id: {0}'.format(_id)))
+				res.send(400,plerror.AddressNotFound('Address not found for _id: {0}'.format(_id), err))
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -82,6 +79,7 @@ exports.get = function (req, res) {
 // - @param {String} `_id` of the Address to remove
 // - @return {Object} `{address:{}}` Address object
 // - @method `DELETE`
+// - @api `public`
 
 exports.remove = function (req, res) {
 	
@@ -92,11 +90,10 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({address:doc});
 			} else {
-				console.log(err);
-				res.send(400, plerror.AddressNotFound('Address not found for _id: {0}'.format(_id)))
+				res.send(400, plerror.AddressNotFound('Address not found for _id: {0}'.format(_id), err))
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }

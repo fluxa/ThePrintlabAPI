@@ -1,36 +1,37 @@
-function e(verbose, error) {
+function e(verbose, error, err) {
+	console.log('{0} -> {1}'.format(verbose, err || error));
 	return {
 		verbose: verbose,
 		error: error
 	}
 }
 
-exports.ClientNotFound = function(verbose) {
-	var el = e(verbose, 'ClientNotFound');
+exports.ClientNotFound = function(verbose, err) {
+	var el = e(verbose, 'ClientNotFound', err);
 	return el;
 }
 
-exports.MissingParameters = function(verbose) {
-	var el = e(verbose, 'MissingParameters');
+exports.MissingParameters = function(verbose, err) {
+	var el = e(verbose, 'MissingParameters', err);
 	return el;
 }
 
-exports.AddressNotFound = function(verbose) {
-	var el = e(verbose, 'AddressNotFound');
+exports.AddressNotFound = function(verbose, err) {
+	var el = e(verbose, 'AddressNotFound', err);
 	return el;
 }
 
-exports.OrderNotFound = function(verbose) {
-	var el = e(verbose, 'OrderNotFound');
+exports.OrderNotFound = function(verbose, err) {
+	var el = e(verbose, 'OrderNotFound', err);
 	return el;
 }
 
-exports.CouponConsumed = function(verbose) {
-	var el = e(verbose, 'CouponConsumed');
+exports.CouponConsumed = function(verbose, err) {
+	var el = e(verbose, 'CouponConsumed', err);
 	return el;
 }
 
-exports.CannotSaveDocument = function(verbose) {
-	var el = e(verbose, 'CannotSaveDocument');
+exports.CannotSaveDocument = function(verbose, err) {
+	var el = e(verbose, 'CannotSaveDocument', err);
 	return el;
 }

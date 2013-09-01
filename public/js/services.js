@@ -16,22 +16,22 @@ angular.module('myApp.services', [])
 	.factory('api', function($http) {
 		return {
 			clientAll: function(){
-				return $http.get('/v1/client/find?query={}').then(function(result){
+				return $http.post('/v1/clients/find',{query:{}}).then(function(result){
 					return result.data;
 				});
 			},
 			orderAll: function() {
-				return $http.get('/v1/order/all?query={}').then(function(result){
+				return $http.get('/v1/orders/all').then(function(result){
 					return result.data;
 				});
 			},
 			orderDelete: function(orderId) {
-				return $http.delete('/v1/order/remove/'+orderId).then(function(result) {
+				return $http.delete('/v1/orders/remove/'+orderId).then(function(result) {
 					return result.data;
 				});
 			},
 			orderStatusList: function() {
-				return $http.get('/v1/order/status_list').then(function(result){
+				return $http.get('/v1/orders/status_list').then(function(result){
 					return result.data;
 				});
 			},

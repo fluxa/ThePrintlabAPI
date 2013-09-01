@@ -37,50 +37,48 @@ exports.register = function (req, res) {
 				if (!err) {
 					res.send({'client':doc});
 				} else {
-					console.log(err);
-					res.send(400, plerror.CannotSaveDocument('Client register -> Cannot save Client'));
+					res.send(400, plerror.CannotSaveDocument('Client register -> Cannot save Client', null));
 				}
 			});
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
 /**
  * Gets a Client by _id
  *
- * @param {String} _id from Client
- * @return {Object} Client object
- * @api public
+ * - @param {String} _id from Client
+ * - @return {Object} Client object
+ * - @method `GET`
+ * - @api public
  */
 exports.get = function (req, res) {
 
-	var _id = req.query._id;
+	var _id = req.params['_id'];
 	if (_id) {
 		Client.findOne({_id:_id}, function(err, doc) {
 			if(!err && doc) {
 				res.send({client:doc});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
-/**
- * Find Clients by {query:{'prop':'value'}}
- *
- * @param {Object} query in the form {'prop':'value'}
- * @return {Array} array of Client objects
- * @api private
- */
+
+// ### Find Clients by {query:{'prop':'value'}}
+// - @param {Object} query in the form {'prop':'value'}
+// - @return {Array} array of Client objects
+// - @method `POST`
+// - @api private
 exports.find = function (req, res) {
 
-	var  query = req.query.query;
+	var  query = req.body.query;
 	if (query) {
 		Client.find(query, function(err, docs) {
 			if(!err) {
@@ -90,7 +88,7 @@ exports.find = function (req, res) {
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -100,6 +98,7 @@ exports.find = function (req, res) {
  *
  * @param {Object} client partial Client object with updated fields
  * @return {Object} updated Client object
+ * - @method `POST`
  * @api public
  */
 exports.update = function (req, res) {
@@ -112,12 +111,11 @@ exports.update = function (req, res) {
 			if (!err && doc) {
 				res.send({client:doc});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(client._id)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(client._id), err));
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -137,12 +135,11 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({success:true});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null))
 	}
 }
 
@@ -167,15 +164,14 @@ exports.coupon_consume = function (req, res) {
 					client.save();
 					res.send({client:client});
 				} else {
-					res.send(400, plerror.CouponConsumed('coupon_id {0} already consumed by Client {1}'.format(payload.coupon_id,payload.client)));
+					res.send(400, plerror.CouponConsumed('coupon_id {0} already consumed by Client {1}'.format(payload.coupon_id,payload.client), null));
 				}
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client), err));
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters(''))
+		res.send(400, plerror.MissingParameters('', null));
 	}
 }
 
@@ -184,11 +180,12 @@ exports.coupon_consume = function (req, res) {
  *
  * @param {String} _id {_id:'xxx'}
  * @return {Array} array of coupons
+ * - @method `GET`
  * @api public
  */
 exports.coupon_get = function (req, res) {
 
-	var _id = req.query._id;
+	var _id = req.params['_id'];
 	if (_id) {
 		Client.findOne({_id: _id}, function(err, doc) {
 			if (!err && doc) {
@@ -202,11 +199,10 @@ exports.coupon_get = function (req, res) {
 				};
 				res.send({coupons: coupons, client: client._id});
 			} else {
-				console.log(err);
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id)));
+				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
 			};
 		});
 	} else {
-		res.send(400,{error:'missing parameters'})
+		res.send(400, plerror.MissingParameters('', null));
 	}
 }

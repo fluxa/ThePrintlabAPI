@@ -9,12 +9,12 @@ var Client = null
 var _ = require('underscore');
 
 var OrderStatus = {
-	PaymentPending: 'PAYMENT_PENDING', //set when registered and waiting for payment
-	PaymentError: 'PAYMENT_ERROR', //payment was rejected for some reason
-	PaymentAccepted: 'PAYMENT_ACCEPTED', //payment was accepted but still needs verification
-	PaymentVerified: 'PAYMENT_VERIFIED', //payment is completed
-	Printing: 'PRINTING', //order was sent for printing
-	Shipped: 'SHIPPED' //order was shipped
+	PaymentPending: 'PAYMENT_PENDING', // set when order is submitted but payment has not started
+	PaymentStarted: 'PAYMENT_STARTED', // set when the payment process starts but is not completed
+	PaymentError: 'PAYMENT_ERROR', // payment was rejected for some reason
+	PaymentCompleted: 'PAYMENT_COMPLETED', // set when the payment has been successfully complete
+	Printing: 'PRINTING', // order was sent for printing
+	Shipped: 'SHIPPED' // order was shipped
 }
 
 
@@ -97,12 +97,16 @@ OrderSchema.static({
 	OrderStatus : OrderStatus,
 	OrderStatusList : [
 		{id: OrderStatus.PaymentPending, name: 'PaymentPending'},
+		{id: OrderStatus.PaymentStarted, name: 'PaymentStarted'},
 		{id: OrderStatus.PaymentError, name: 'PaymentError'},
-		{id: OrderStatus.PaymentAccepted, name: 'PaymentAccepted'},
-		{id: OrderStatus.PaymentVerified, name: 'PaymentVerified'},
+		{id: OrderStatus.PaymentCompleted, name: 'PaymentCompleted'},
 		{id: OrderStatus.Printing, name: 'Printing'},
 		{id: OrderStatus.Shipped, name: 'Shipped'},
-	]
+	],
+	OrderActions: {
+		Start: 'start',
+		Complete: 'complete'
+	}
 })
 
 /**
