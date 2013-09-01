@@ -82,8 +82,8 @@ exports.get = function (req, res) {
 // - @api `private`
 exports.payment = function (req, res) {
 	
-	var _id = req.param['_id'];
-	var action = req.param['action'];
+	var _id = req.params['_id'];
+	var action = req.params['action'];
 
 	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) {
 
