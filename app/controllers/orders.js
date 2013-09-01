@@ -78,7 +78,7 @@ exports.get = function (req, res) {
 // - @param {String} Order _id
 // - @param {String} action ( start | complete )
 // - @return {Object} Order object
-// - @method `POST`
+// - @method `GET`
 // - @api `private`
 exports.payment = function (req, res) {
 	
