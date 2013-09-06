@@ -117,7 +117,7 @@ OrderSchema.static({
 	},
 	OrderDebugging: {
 		client: 'TEST',
-		cost_total: 650000
+		cost_total: 6500
 	}
 })
 
