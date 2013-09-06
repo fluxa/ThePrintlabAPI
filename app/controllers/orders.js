@@ -61,7 +61,7 @@ exports.get = function (req, res) {
 	var _id = req.params['_id'];
 
 	// For debugging Webpay
-	if (_id === 'SPECIAL_ORDER_ID_FOR_WEBPAY_DEBUGGING') {
+	if (_id === 'ORDER_ID_WEBPAY_DEBUGGING') {
 		res.send({order: Order.OrderDebugging});
 		return;
 	};
