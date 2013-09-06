@@ -59,6 +59,14 @@ exports.all = function (req, res) {
 // - @api `private`
 exports.get = function (req, res) {
 	var _id = req.params['_id'];
+
+	// For debugging Webpay
+	if (_id === 'SPECIAL_ORDER_ID_FOR_WEBPAY_DEBUGGING') {
+		res.send({order: Order.OrderDebugging});
+		return;
+	};
+	// End 
+
 	if (_id) {
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
@@ -165,33 +173,46 @@ exports.submit = function (req, res) {
 					if(!err && doc) {
 						var client = doc;
 
-						//{ TODO: verify payment???
-						neworder.status = Order.OrderStatus.PaymentVerified;
-						neworder.payment = {
-							verification_code: 'SUPER_VERIFICATION_CODE',
-							error:''
-						}
+						//{ Verifying payment
+						//{ Status should be PaymentComplete
+						//{ This is status is set internally when the payment 
+						//{ has been successfully completed
+						//{ and any other status should reject the order
+						if(neworder.status === Order.OrderStatus.PaymentComplete) {
 
-						//{ update Order
-						neworder.photo_ids = order.photo_ids;
-
-						//{ saving
-						neworder.save(function(err) {
-							if(!err) {
-								if (client.orders.indexOf(neworder._id) === -1) {
-									client.orders.push(neworder._id);	
-								};
-								client.save(function(err) {
-									if(!err) {
-										res.send({order: neworder});
-									} else {
-										res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Client', err));
-									}
-								})
-							} else {
-								res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Order', err));
+							//} Payment verified!!!
+							neworder.status = Order.OrderStatus.PaymentVerified;
+							neworder.payment = {
+								verification_code: 'SUPER_VERIFICATION_CODE',
+								error:''
 							}
-						});
+
+							//{ update Order
+							neworder.photo_ids = order.photo_ids;
+
+							//{ saving
+							neworder.save(function(err) {
+								if(!err) {
+									if (client.orders.indexOf(neworder._id) === -1) {
+										client.orders.push(neworder._id);	
+									};
+									client.save(function(err) {
+										if(!err) {
+											res.send({order: neworder});
+										} else {
+											res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Client', err));
+										}
+									})
+								} else {
+									res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Order', err));
+								}
+							});
+
+						} else {
+							res.send(400, plerror.CannotVerifyPayment('The Order _id {0} has status {1} and the payment cannot be verified.'.format(neworder._id, neworder.status), null));
+							return;
+						}
+						
 					} else {
 						res.send(400, plerror.ClientNotFound('Order submit -> Client not found for _id: {0}'.format(neworder.client), err));		
 					}

@@ -35,3 +35,8 @@ exports.CannotSaveDocument = function(verbose, err) {
 	var el = e(verbose, 'CannotSaveDocument', err);
 	return el;
 }
+
+exports.CannotVerifyPayment = function(verbose, err) {
+	var el = e(verbose, 'CannotVerifyPayment', err);
+	return el;
+}

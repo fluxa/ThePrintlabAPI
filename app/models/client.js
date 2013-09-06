@@ -8,6 +8,7 @@ var Schema = mongoose.Schema
 var Address = null
 var Order = null
 var _ = require('underscore');
+var time = require('time');
 
 
 // ## Client schema
@@ -21,6 +22,7 @@ var ClientSchema = new Schema({
 	addresses: { type: [Schema.ObjectId] , ref: 'Address'}, //Address _id
 	orders: { type: [Schema.ObjectId] , ref: 'Order'}, //Order _id
 	social_accounts: { type: [String] }, //social _id
+	updated_at: {type: Date}
 })
 
 
@@ -42,6 +44,12 @@ ClientSchema.post('remove', function(removed) {
 	//} Remove all Order
 	Order.remove({client: removed._id}).exec();
 	
+});
+
+// ### Client pre save hooks
+ClientSchema.pre('save', function(next) {
+	this.updated_at = new time.Date().setTimezone('UTC');
+	next();
 });
 
 /**

@@ -7,6 +7,7 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 var Client = null
 var _ = require('underscore');
+var time = require('time')
 
 var OrderStatus = {
 	PaymentPending: 'PAYMENT_PENDING', // set when order is submitted but payment has not started
@@ -37,7 +38,8 @@ var OrderSchema = new Schema({
 		verification_code: {type: String},
 		message: {type: String}
 	},
-	verbose: {type: String} //A verbal version of the Order
+	verbose: {type: String}, //A verbal version of the Order
+	updated_at: {type: Date}
 })
 
 
@@ -80,6 +82,12 @@ OrderSchema.post('save', function(saved) {
 	
 });
 
+// ### Order pre save hooks
+OrderSchema.pre('save', function(next) {
+	this.updated_at = new time.Date().setTimezone('UTC');
+	next();
+});
+
 /**
  * Methods
  */
@@ -106,6 +114,10 @@ OrderSchema.static({
 	OrderActions: {
 		Start: 'start',
 		Complete: 'complete'
+	},
+	OrderDebugging: {
+		client: 'TEST',
+		cost_total: 650000
 	}
 })
 

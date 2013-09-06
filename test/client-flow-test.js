@@ -215,7 +215,7 @@ suite.discuss('When registering a client')
 	}	
 })
 .expect(200)
-.expect('should reply with Address', function (err, res, body) {
+.expect('should return Order', function (err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/order/create  -> ' + JSON.stringify(body));
 	assert.isNotNull(body.order._id, 'response is not Order');
@@ -243,11 +243,11 @@ suite.discuss('When registering a client')
 		photo_ids: ['photoid1_1', 'photoid2_1', 'photoid3_1']
 	}
 })
-.expect(200)
-.expect('should return Order', function(err, res, body) {
+.expect(400)
+.expect('should return error', function(err, res, body) {
 	var body = JSON.parse(body);
 	console.log('/order/submit  -> ' + JSON.stringify(body));
-	assert.isNotNull(body.order._id, 'response is not Order');
+	assert.isNotNull(body.error, 'response is not Order');
 
 	// suite.unbefore('order-post2')
 	// suite.before('client-postxx', function(outgoing){

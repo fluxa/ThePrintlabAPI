@@ -19,7 +19,7 @@ var AddressSchema = new Schema({
 	address_line2: { type: String },
 	region: { type: String },
 	provincia: { type: String },
-	comuna: { type: String },
+	comuna: { type: String }
 })
 
 
