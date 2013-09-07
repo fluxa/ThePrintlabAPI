@@ -86,7 +86,7 @@ exports.get = function (req, res) {
 // - @param {String} Order _id
 // - @param {String} action ( start | complete )
 // - @return {Object} Order object
-// - @method `GET`
+// - @method `POST`
 // - @api `private`
 exports.payment = function (req, res) {
 	
@@ -105,7 +105,20 @@ exports.payment = function (req, res) {
 						break;
 
 					case Order.OrderActions.Complete:
-						doc.status = Order.OrderStatus.PaymentCompleted;
+						
+						// get payment object
+						if (req.body.payment) {
+							if (Order.PaymentProviders.indexOf(req.body.payment.provider) >= 0 && eq.body.payment.data) {
+								doc.payment = req.body.payment;
+								doc.status = Order.OrderStatus.PaymentCompleted;
+							} else {
+								res.send(400, plerror.MissingParameters('Cannot complete payment, unknown payment provider {0} or data is empty'.format(req.body.payment.provider), null));
+								return;
+							}
+						} else {
+							res.send(400, plerror.MissingParameters('Cannot complete payment, missing payment object', null));
+							return;
+						}
 						break;
 				}
 

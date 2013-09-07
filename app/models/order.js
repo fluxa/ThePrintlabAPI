@@ -35,8 +35,8 @@ var OrderSchema = new Schema({
 		message: {type: String}
 	},
 	payment: { //payment object
-		verification_code: {type: String},
-		message: {type: String}
+		provider: {type: String},
+		data: {type: String}
 	},
 	verbose: {type: String}, //A verbal version of the Order
 	updated_at: {type: Date}
@@ -115,6 +115,9 @@ OrderSchema.static({
 		Start: 'start',
 		Complete: 'complete'
 	},
+	PaymentProviders: [
+		'webpay'
+	],
 	OrderDebugging: {
 		client: 'TEST',
 		cost_total: 6500
