@@ -107,12 +107,14 @@ exports.payment = function (req, res) {
 					case Order.OrderActions.Complete:
 						
 						// get payment object
-						if (req.body.payment) {
-							if (Order.PaymentProviders.indexOf(req.body.payment.provider) >= 0 && eq.body.payment.data) {
-								doc.payment = req.body.payment;
+						var payment = req.body.data;
+						console.log(payment);
+						if (payment) {
+							if (Order.PaymentProviders.indexOf(payment.provider) >= 0 && payment.data) {
+								doc.payment = payment;
 								doc.status = Order.OrderStatus.PaymentCompleted;
 							} else {
-								res.send(400, plerror.MissingParameters('Cannot complete payment, unknown payment provider {0} or data is empty'.format(req.body.payment.provider), null));
+								res.send(400, plerror.MissingParameters('Cannot complete payment, unknown payment provider or data is empty => {0}'.format(payment), null));
 								return;
 							}
 						} else {
