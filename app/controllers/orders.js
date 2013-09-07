@@ -107,8 +107,8 @@ exports.payment = function (req, res) {
 					case Order.OrderActions.Complete:
 						
 						// get payment object
-						var payment = req.body.data;
-						console.log(req.body);
+						var payment = req.body.payment;
+						console.log(payment);
 						if (payment) {
 							if (Order.PaymentProviders.indexOf(payment.provider) >= 0 && payment.data) {
 								doc.payment = payment;
