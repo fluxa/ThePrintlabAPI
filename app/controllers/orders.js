@@ -110,8 +110,9 @@ exports.payment = function (req, res) {
 						var payment = req.body.payment;
 						if (payment) {
 							if (Order.PaymentProviders.indexOf(payment.provider) >= 0 && payment.data) {
+								// Order payment has been verified
 								doc.payment = payment;
-								doc.status = Order.OrderStatus.PaymentCompleted;
+								doc.status = Order.OrderStatus.PaymentVerified;
 							} else {
 								res.send(400, plerror.MissingParameters('Cannot complete payment, unknown payment provider or data is empty => {0}'.format(payment), null));
 								return;
@@ -188,19 +189,15 @@ exports.submit = function (req, res) {
 						var client = doc;
 
 						//{ Verifying payment
-						//{ Status should be PaymentComplete
+						//{ Status should be PaymentVerified
 						//{ This is status is set internally when the payment 
 						//{ has been successfully completed
 						//{ and any other status should reject the order
-						if(neworder.status === Order.OrderStatus.PaymentCompleted) {
+						if(neworder.status === Order.OrderStatus.PaymentVerified) {
 
-							//} Payment verified!!!
-							neworder.status = Order.OrderStatus.PaymentVerified;
-							neworder.payment = {
-								verification_code: 'SUPER_VERIFICATION_CODE',
-								error:''
-							}
-
+							//} Order is ready !!!
+							neworder.status = Order.OrderStatus.Submitted;
+							
 							//{ update Order
 							neworder.photo_ids = order.photo_ids;
 

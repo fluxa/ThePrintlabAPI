@@ -12,8 +12,9 @@ var time = require('time')
 var OrderStatus = {
 	PaymentPending: 'PAYMENT_PENDING', // set when order is submitted but payment has not started
 	PaymentStarted: 'PAYMENT_STARTED', // set when the payment process starts but is not completed
+	PaymentVerified: 'PAYMENT_VERIFIED', // set internally after payment has been verified with provider
 	PaymentError: 'PAYMENT_ERROR', // payment was rejected for some reason
-	PaymentCompleted: 'PAYMENT_COMPLETED', // set when the payment has been successfully complete
+	Submitted: 'SUBMITTED', // set when all elements for the order has been collected and order is ready for next step
 	Printing: 'PRINTING', // order was sent for printing
 	Shipped: 'SHIPPED' // order was shipped
 }
@@ -100,14 +101,16 @@ OrderSchema.method({
  * Statics
  */
 
+
 OrderSchema.static({
 	
 	OrderStatus : OrderStatus,
 	OrderStatusList : [
 		{id: OrderStatus.PaymentPending, name: 'PaymentPending'},
 		{id: OrderStatus.PaymentStarted, name: 'PaymentStarted'},
+		{id: OrderStatus.PaymentVerified, name: 'PaymentVerified'},
 		{id: OrderStatus.PaymentError, name: 'PaymentError'},
-		{id: OrderStatus.PaymentCompleted, name: 'PaymentCompleted'},
+		{id: OrderStatus.Submitted, name: 'Submitted'},
 		{id: OrderStatus.Printing, name: 'Printing'},
 		{id: OrderStatus.Shipped, name: 'Shipped'},
 	],
