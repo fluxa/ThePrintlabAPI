@@ -108,7 +108,7 @@ exports.payment = function (req, res) {
 						
 						// get payment object
 						var payment = req.body.data;
-						console.log(payment);
+						console.log(req.body);
 						if (payment) {
 							if (Order.PaymentProviders.indexOf(payment.provider) >= 0 && payment.data) {
 								doc.payment = payment;
