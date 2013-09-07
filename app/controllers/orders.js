@@ -192,7 +192,7 @@ exports.submit = function (req, res) {
 						//{ This is status is set internally when the payment 
 						//{ has been successfully completed
 						//{ and any other status should reject the order
-						if(neworder.status === Order.OrderStatus.PaymentComplete) {
+						if(neworder.status === Order.OrderStatus.PaymentCompleted) {
 
 							//} Payment verified!!!
 							neworder.status = Order.OrderStatus.PaymentVerified;
