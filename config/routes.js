@@ -55,4 +55,9 @@ module.exports = function (app, auth) {
 	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
 
+	//Angular virtual
+
+	// TODO: regex to reject /v1/
+	app.get('*', index.index);
+
 }

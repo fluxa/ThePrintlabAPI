@@ -50,14 +50,6 @@ exports.setup = function (app, config) {
 
 		// cookieParser should be above session
 		app.use(express.cookieParser())
-		app.use(express.session({
-			secret: pkg.name,
-			store: new mongoStore({
-				url: config.db,
-				collection : 'sessions'
-			})
-		}))
-
 
 		// expose pkg and node env to views
 		app.use(function (req, res, next) {
