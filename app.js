@@ -3,13 +3,13 @@
  * Module dependencies
  */
  
-require('./proto');
 var express = require('express')
 var env = process.env.NODE_ENV || 'development'
 var config = require('./config/config')[env]
 var mongoose = require('mongoose')
 var fs = require('fs')
 var time = require('time')
+var util = require('util')
 
 require('express-namespace')
 
@@ -33,7 +33,7 @@ require('./config/routes')(app, express_config.auth)
 var port = process.env.PORT || 5006
 console.log("==== START ========================================");
 app.listen(port, function() {
-	console.log('{0} | Express app started on port {1}'.format(new time.Date().setTimezone('UTC'),port));
+	console.log(util.format('%s | Express app started on port %d', new time.Date().setTimezone('UTC'),port));
 	console.log("=== LOGS ==========================================");
 });
 

@@ -6,6 +6,7 @@
 var mongoose = require('mongoose')
 var Client = mongoose.model('Client')
 var plerror = require('../../plerror');
+var util = require('util')
 
 /**
  * Registers a new Client into the system
@@ -62,7 +63,7 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({client:doc});
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
 			}
 		});
 	} else {
@@ -111,7 +112,7 @@ exports.update = function (req, res) {
 			if (!err && doc) {
 				res.send({client:doc});
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(client._id), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',client._id), err));
 			};
 		});
 	} else {
@@ -135,7 +136,7 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({success:true});
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
 			}
 		});
 	} else {
@@ -164,10 +165,10 @@ exports.coupon_consume = function (req, res) {
 					client.save();
 					res.send({client:client});
 				} else {
-					res.send(400, plerror.CouponConsumed('coupon_id {0} already consumed by Client {1}'.format(payload.coupon_id,payload.client), null));
+					res.send(400, plerror.CouponConsumed(util.format('coupon_id $s already consumed by Client %s',payload.coupon_id,payload.client), null));
 				}
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',payload.client), err));
 			};
 		});
 	} else {
@@ -199,7 +200,7 @@ exports.coupon_get = function (req, res) {
 				};
 				res.send({coupons: coupons, client: client._id});
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(_id), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
 			};
 		});
 	} else {

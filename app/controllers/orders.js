@@ -7,6 +7,8 @@ var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var plerror = require('../../plerror');
 var _ = require('underscore');
+var util = require('util');
+var async = require('async');
  
 // ### Return all posible status codes nicely formatted for using on the web-admin
 // - @preturn {Array} list of all posible OrderStatus
@@ -72,7 +74,7 @@ exports.get = function (req, res) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
-				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id), err));
+				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
 			}
 		});
 	} else {
@@ -114,7 +116,7 @@ exports.payment = function (req, res) {
 								doc.payment = payment;
 								doc.status = Order.OrderStatus.PaymentVerified;
 							} else {
-								res.send(400, plerror.MissingParameters('Cannot complete payment, unknown payment provider or data is empty => {0}'.format(payment), null));
+								res.send(400, plerror.MissingParameters(util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), null));
 								return;
 							}
 						} else {
@@ -128,11 +130,11 @@ exports.payment = function (req, res) {
 					if (!err && saveddoc) {
 						res.send({order: saveddoc});	
 					} else {
-						res.send(400, plerror.CannotSaveDocument('/order/payment/ -> Cannto save Order _id: {0}'.format(_id), err));
+						res.send(400, plerror.CannotSaveDocument(util.format('/order/payment/ -> Cannto save Order _id: %s',_id), err));
 					}
 				});
 			} else {
-				res.send(400, plerror.OrderNotFound('Order not found for _id: {0}'.format(_id), err));
+				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
 			}
 		});
 	} else {
@@ -144,7 +146,7 @@ exports.payment = function (req, res) {
 /**
  * Create a new Order for a Client and returns a partial Order object
  *
- * @param {Object} payload in the form { payload: { client: 'ObjectId', order:{Object}} }
+ * @param {Object} payload in the form { order: { client: 'ObjectId', ... (order fields) }, replace_order_id:'' }
  * @return {Object} order partial Order object
  * @api public
  */
@@ -154,13 +156,37 @@ exports.create = function (req, res) {
 	
 	if (order && order.client) {
 		
-		Order.create(order, function(err, doc) {
-			if (!err && doc) {
-				res.send({order: doc});
-			} else {
-				res.send(400, plerror.CannotSaveDocument('Cannot create Order', err));
+		async.series([ // using series to avoid saving same document in parallel
+			function(callback) { // check if already had submitted this Order and remove doc
+				if (req.body.replace_order_id) {
+					Order.findOne({_id: req.body.replace_order_id}, function(err, doc) {
+						if (!err && doc) {
+							doc.remove(function(err) {
+								if (!err) {
+									console.log('Order => create => removed previous order');
+								} else {
+									console.log(util.format('Order => create => error: %s',err));
+								}
+								callback(null, 'done');
+							});
+						} else {
+							callback(null, 'done');
+						}
+					});
+				} else {
+					callback(null, 'done');
+				}
+			},
+			function(callback) { // create new Order and return doc
+				Order.create(order, function(err, doc) {
+					if (!err && doc) {
+						res.send({order: doc});
+					} else {
+						res.send(400, plerror.CannotSaveDocument('Cannot create Order', err));
+					}
+				});
 			}
-		});
+		]);
 
 	} else {
 		res.send(400, plerror.MissingParameters('', null))
@@ -220,17 +246,17 @@ exports.submit = function (req, res) {
 							});
 
 						} else {
-							res.send(400, plerror.CannotVerifyPayment('The Order _id {0} has status {1} and the payment cannot be verified.'.format(neworder._id, neworder.status), null));
+							res.send(400, plerror.CannotVerifyPayment(util.format('The Order _id %s has status %s and the payment cannot be verified.',neworder._id, neworder.status), null));
 							return;
 						}
 						
 					} else {
-						res.send(400, plerror.ClientNotFound('Order submit -> Client not found for _id: {0}'.format(neworder.client), err));		
+						res.send(400, plerror.ClientNotFound(util.format('Order submit -> Client not found for _id: %s',neworder.client), err));		
 					}
 				});
 
 			} else {
-				res.send(400, plerror.OrderNotFound('Order submit -> Order not found for _id: {0}'.format(order._id), err));
+				res.send(400, plerror.OrderNotFound(util.format('Order submit -> Order not found for _id: %s',order._id), err));
 			}
 		});
 		
@@ -256,7 +282,7 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({order: doc});
 			} else {
-				res.send(400, plerror.ClientNotFound('Order remove -> not found for _id: {0}'.format(_id), err));
+				res.send(400, plerror.ClientNotFound(util.format('Order remove -> not found for _id: %s',_id), err));
 			}
 		});
 	} else {

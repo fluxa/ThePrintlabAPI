@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var util = require('util');
 
 //HELPER METHODS
 
@@ -13,7 +14,7 @@ exports.readFileAtPath = function(filePath, success) {
 		if(!err) {
 			success(data.toString('utf8'));
 		} else {
-			success('error: cannot open file at: {0}'.format(filePath));
+			success(util.format('error: cannot open file at: %s',filePath));
 		}
 	});
 }

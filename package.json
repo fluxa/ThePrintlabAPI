@@ -24,7 +24,8 @@
 		"api-easy": "latest",
 		"assert": "latest",
 		"less-middleware": "latest",
-		"nodemailer": "latest"
+		"nodemailer": "latest",
+		"async": "latest"
 	},
 	"scripts": {
 		"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",

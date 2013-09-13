@@ -7,6 +7,7 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 var Client = null
 var _ = require('underscore');
+var util = require('util')
 
 
 // ## Address schema
@@ -52,7 +53,7 @@ AddressSchema.post('remove', function(removed) {
 
 AddressSchema.method({
 	verbose : function() {
-		return '{0} {1}\n{2} {3}\n{4}, {5}\n{6}'.format(
+		return util.format('%s %s\n%s %s\n%s, %s\n%s',
 			this.name, 
 			this.last_name, 
 			this.address_line1,

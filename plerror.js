@@ -1,5 +1,7 @@
+var util = require('util')
+
 function e(verbose, error, err) {
-	console.log('{0} -> {1}'.format(verbose, err || error));
+	console.log(util.format('%s => %s',verbose, err || error));
 	return {
 		verbose: verbose,
 		error: error

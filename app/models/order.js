@@ -8,6 +8,7 @@ var Schema = mongoose.Schema
 var Client = null
 var _ = require('underscore');
 var time = require('time')
+var util = require('util')
 
 var OrderStatus = {
 	PaymentPending: 'PAYMENT_PENDING', // set when order is submitted but payment has not started
@@ -55,12 +56,16 @@ OrderSchema.post('remove', function(removed) {
 	
 	load_models();
 
-	//} Remove removeed Order from Client
+	//} Remove removed Order from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
-		console.log(err);
 		if (!err && doc) {
 			doc.orders.splice(doc.orders.indexOf(removed._id),1);
-			doc.save();
+			doc.save(function(err) {
+				if (err) {
+					console.log(util.format('Order => post remove error => %s',err));	
+				};
+			});
+			
 		};
 	});
 });
@@ -76,7 +81,11 @@ OrderSchema.post('save', function(saved) {
 			// Only add Order _id one time and save Client
 			if(doc.orders.indexOf(saved._id) === -1) {
 				doc.orders.push(saved._id);
-				doc.save();
+				doc.save(function(err) {
+					if (err) {
+						console.log(util.format('Order => post save error => %s',err));	
+					};
+				});
 			}
 		}
 	});

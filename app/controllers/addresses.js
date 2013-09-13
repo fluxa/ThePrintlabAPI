@@ -7,6 +7,7 @@ var Address = mongoose.model('Address');
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var plerror = require('../../plerror');
+var util = require('util')
 
 
 // ### Registers a new Address for a Client 
@@ -41,7 +42,7 @@ exports.register = function (req, res) {
 					}
 				});
 			} else {
-				res.send(400, plerror.ClientNotFound('Client not found with _id: {0}'.format(payload.client), err));
+				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',payload.client), err));
 			}
 		});
 	} else {
@@ -65,7 +66,7 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({address:doc});
 			} else {
-				res.send(400,plerror.AddressNotFound('Address not found for _id: {0}'.format(_id), err))
+				res.send(400,plerror.AddressNotFound(util.format('Address not found for _id: %s',_id), err))
 			}
 		});
 	} else {
@@ -90,7 +91,7 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({address:doc});
 			} else {
-				res.send(400, plerror.AddressNotFound('Address not found for _id: {0}'.format(_id), err))
+				res.send(400, plerror.AddressNotFound(util.format('Address not found for _id: %s',_id), err));
 			};
 		});
 	} else {
