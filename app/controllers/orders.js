@@ -95,8 +95,15 @@ exports.payment = function (req, res) {
 	var _id = req.params['_id'];
 	var action = req.params['action'];
 
-	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) {
+	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) { // check for query args
 
+		// For debugging Webpay
+		if (_id === 'ORDER_ID_WEBPAY_DEBUGGING') {
+			res.send({order: Order.OrderDebugging});
+			return;
+		};
+		// End 
+		
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
 				
@@ -130,7 +137,7 @@ exports.payment = function (req, res) {
 					if (!err && saveddoc) {
 						res.send({order: saveddoc});	
 					} else {
-						res.send(400, plerror.CannotSaveDocument(util.format('/order/payment/ -> Cannto save Order _id: %s',_id), err));
+						res.send(400, plerror.CannotSaveDocument(util.format('/order/payment/ -> Cannot save Order _id: %s',_id), err));
 					}
 				});
 			} else {

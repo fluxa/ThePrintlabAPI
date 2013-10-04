@@ -132,7 +132,11 @@ OrderSchema.static({
 	],
 	OrderDebugging: {
 		client: 'TEST',
-		cost_total: 6500
+		cost_total: 6500,
+		payment: {
+			provider: 'webpay',
+			data: 'DEBUGGING ORDER DATA'
+		}
 	}
 })
 
