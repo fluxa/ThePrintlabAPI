@@ -61,6 +61,14 @@ exports.setup = function (app, config) {
 		// View helpers
 		app.use(helpers(pkg.name))
 
+		// CORS cross-domain
+		app.use(function(req, res, next) {
+			res.header('Access-Control-Allow-Origin', 'https://secure.theprintlab.cl');
+    		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    		res.header('Access-Control-Allow-Headers', 'Content-Type');
+    		next();
+		});
+
 		// routes should be at the last
 		app.use(app.router)
 
