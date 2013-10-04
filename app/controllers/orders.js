@@ -62,13 +62,6 @@ exports.all = function (req, res) {
 exports.get = function (req, res) {
 	var _id = req.params['_id'];
 
-	// For debugging Webpay
-	if (_id === 'ORDER_ID_WEBPAY_DEBUGGING') {
-		res.send({order: Order.OrderDebugging});
-		return;
-	};
-	// End 
-
 	if (_id) {
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
@@ -97,13 +90,6 @@ exports.payment = function (req, res) {
 
 	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) { // check for query args
 
-		// For debugging Webpay
-		if (_id === 'ORDER_ID_WEBPAY_DEBUGGING') {
-			res.send({order: Order.OrderDebugging});
-			return;
-		};
-		// End 
-		
 		Order.findOne({_id: _id}).exec(function(err, doc) {
 			if (!err && doc) {
 				
