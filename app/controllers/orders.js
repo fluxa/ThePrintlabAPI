@@ -182,7 +182,7 @@ exports.create = function (req, res) {
 		]);
 
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		res.send(400, plerror.MissingParameters(JSON.stringify(req.body), null))
 	}
 }
 
