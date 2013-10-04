@@ -147,8 +147,6 @@ exports.create = function (req, res) {
 
 	var order = req.body.order;
 	
-	console.log(req.body);
-
 	if (order && order.client) {
 		
 		async.series([ // using series to avoid saving same document in parallel
