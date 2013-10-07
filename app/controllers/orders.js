@@ -63,7 +63,7 @@ exports.get = function (req, res) {
 	var _id = req.params['_id'];
 
 	if (_id) {
-		Order.findOne({_id: _id}).exec(function(err, doc) {
+		Order.findOne({_id: _id}).populate('client').populate('address').exec(function(err, doc) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
