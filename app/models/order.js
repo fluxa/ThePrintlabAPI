@@ -10,10 +10,11 @@ var _ = require('underscore');
 var time = require('time')
 var util = require('util')
 
+// IF VALUES CHANGE, ALSO SYNC IN FRONT_END
 var OrderStatus = {
-	PaymentPending: 'PAYMENT_PENDING', // set when order is submitted but payment has not started
-	PaymentStarted: 'PAYMENT_STARTED', // set when the payment process starts but is not completed
-	PaymentVerified: 'PAYMENT_VERIFIED', // set internally after payment has been verified with provider
+	PaymentPending: 'PAYMENT_PENDING', // default state, set when order create
+	PaymentStarted: 'PAYMENT_STARTED', // set when the payment process starts but has not completed
+	PaymentVerified: 'PAYMENT_VERIFIED', // set internally after payment has been verified by the provider
 	PaymentError: 'PAYMENT_ERROR', // payment was rejected for some reason
 	Submitted: 'SUBMITTED', // set when all elements for the order has been collected and order is ready for next step
 	Printing: 'PRINTING', // order was sent for printing
@@ -37,8 +38,9 @@ var OrderSchema = new Schema({
 		message: {type: String}
 	},
 	payment: { //payment object
-		provider: {type: String},
-		data: {type: String}
+		provider: { type: String, default: '' },
+		data: {type: String, default: ''},
+		logs: [{ type: String }]
 	},
 	verbose: {type: String}, //A verbal version of the Order
 	updated_at: {type: Date}
@@ -125,7 +127,8 @@ OrderSchema.static({
 	],
 	OrderActions: {
 		Start: 'start',
-		Complete: 'complete'
+		Complete: 'complete',
+		Fail: 'fail'		
 	},
 	PaymentProviders: [
 		'webpay'

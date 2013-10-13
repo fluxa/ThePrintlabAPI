@@ -97,16 +97,20 @@ exports.payment = function (req, res) {
 
 					case Order.OrderActions.Start:
 						doc.status = Order.OrderStatus.PaymentStarted;
+						doc.payment.logs.push(util.format('%s|Payment Started',new Date()));
 						break;
 
 					case Order.OrderActions.Complete:
 						
-						// get payment object
-						var payment = req.body.payment;
-						if (payment) {
-							if (Order.PaymentProviders.indexOf(payment.provider) >= 0 && payment.data) {
+						// Parse payment info
+						var payment_provider = req.body.payment_provider;
+						var payment_data = req.body.payment_date;
+						if (payment_provider && payment_data) {
+							if (Order.PaymentProviders.indexOf(payment_provider) >= 0) {
 								// Order payment has been verified
-								doc.payment = payment;
+								doc.payment.provider = payment_provider;
+								doc.payment.data = payment_data;
+								doc.payment.logs.push(util.format('%s|Payment Completed', new Date()));
 								doc.status = Order.OrderStatus.PaymentVerified;
 							} else {
 								res.send(400, plerror.MissingParameters(util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), null));
@@ -116,6 +120,14 @@ exports.payment = function (req, res) {
 							res.send(400, plerror.MissingParameters('Cannot complete payment, missing payment object', null));
 							return;
 						}
+						break;
+
+					case Order.OrderActions.Fail:
+						doc.status = Order.OrderStatus.PaymentError;
+						var payment_log = req.body.payment_log || 'unknown reason';
+						if (payment_log) {
+							doc.payment.logs.push(util.format('%s|Payment failed with reason: %s',new Date(),payment_log));
+						};
 						break;
 				}
 
