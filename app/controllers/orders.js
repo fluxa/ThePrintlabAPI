@@ -161,11 +161,15 @@ exports.create = function (req, res) {
 	
 	if (order && order.client) {
 		
+		// if we are replacing an order, save the current payment logs
+		var payment_logs = [];
+
 		async.series([ // using series to avoid saving same document in parallel
 			function(callback) { // check if already had submitted this Order and remove doc
 				if (req.body.replace_order_id) {
 					Order.findOne({_id: req.body.replace_order_id}, function(err, doc) {
 						if (!err && doc) {
+							payment_log = doc.payment.logs;
 							doc.remove(function(err) {
 								if (!err) {
 									console.log('Order => create => removed previous order');
@@ -185,6 +189,12 @@ exports.create = function (req, res) {
 			function(callback) { // create new Order and return doc
 				Order.create(order, function(err, doc) {
 					if (!err && doc) {
+						// push logs if exist
+						if (payment_logs.length > 0) {
+							_.each(payment_logs, function(e, i, l) {
+								doc.payment.logs.push(e);
+							});
+						};
 						res.send({order: doc});
 					} else {
 						res.send(400, plerror.CannotSaveDocument('Cannot create Order', err));
