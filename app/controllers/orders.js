@@ -55,27 +55,6 @@ exports.all = function (req, res) {
 	});
 }
 
-// ### Get one Order by _id
-// - @return {Object} Order object
-// - @method `GET`
-// - @api `private`
-exports.get = function (req, res) {
-	var _id = req.params['_id'];
-
-	if (_id) {
-		Order.findOne({_id: _id}).populate('client').populate('address').exec(function(err, doc) {
-			if (!err && doc) {
-				res.send({order: doc});
-			} else {
-				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
-			}
-		});
-	} else {
-		res.send(400, plerror.MissingParameters('', null));
-	}
-	
-}
-
 
 // ### Manage the Order's payment lifecycle
 // - @param {String} Order _id
@@ -138,6 +117,27 @@ exports.payment = function (req, res) {
 						res.send(400, plerror.CannotSaveDocument(util.format('/order/payment/ -> Cannot save Order _id: %s',_id), err));
 					}
 				});
+			} else {
+				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
+			}
+		});
+	} else {
+		res.send(400, plerror.MissingParameters('', null));
+	}
+	
+}
+
+// ### Get one Order by _id
+// - @return {Object} Order object
+// - @method `GET`
+// - @api `public`
+exports.get = function (req, res) {
+	var _id = req.params['_id'];
+
+	if (_id) {
+		Order.findOne({_id: _id}).populate('client').populate('address').exec(function(err, doc) {
+			if (!err && doc) {
+				res.send({order: doc});
 			} else {
 				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
 			}

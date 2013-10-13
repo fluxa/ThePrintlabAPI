@@ -45,13 +45,13 @@ module.exports = function (app, auth) {
 	app.delete(v+'/addresses/remove/:_id', addresses.remove);
 
 	// Order
+	app.get(v+'/orders/get/:_id', orders.get);
 	app.post(v+'/orders/create', orders.create);
 	app.post(v+'/orders/submit', orders.submit);
 	// -> auth
 	app.get(v+'/orders/status_list', auth, orders.status_list);
 	app.post(v+'/orders/find', auth, orders.find);
 	app.get(v+'/orders/all', auth, orders.all);
-	app.get(v+'/orders/get/:_id', auth, orders.get);
 	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
 
