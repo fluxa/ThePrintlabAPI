@@ -104,7 +104,7 @@ exports.payment = function (req, res) {
 						
 						// Parse payment info
 						var payment_provider = req.body.payment_provider;
-						var payment_data = req.body.payment_date;
+						var payment_data = req.body.payment_data;
 						if (payment_provider && payment_data) {
 							if (Order.PaymentProviders.indexOf(payment_provider) >= 0) {
 								// Order payment has been verified
