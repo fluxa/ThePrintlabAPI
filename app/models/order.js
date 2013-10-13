@@ -128,7 +128,7 @@ OrderSchema.static({
 	OrderActions: {
 		Start: 'start',
 		Complete: 'complete',
-		Fail: 'fail'		
+		Fail: 'failed'		
 	},
 	PaymentProviders: [
 		'webpay'
