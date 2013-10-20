@@ -38,12 +38,12 @@ exports.register = function (req, res) {
 				if (!err) {
 					res.send({'client':doc});
 				} else {
-					res.send(400, plerror.CannotSaveDocument('Client register -> Cannot save Client', null));
+					plerror.throw(plerror.c.DBError, err, res);
 				}
 			});
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters udid', res);
 	}
 }
 
@@ -63,11 +63,11 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({client:doc});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
+				plerror.throw(plerror.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -85,11 +85,11 @@ exports.find = function (req, res) {
 			if(!err) {
 				res.send({clients:docs});
 			} else {
-				res.send(400,{error:err})
+				plerror.throw(plerror.c.DBError, err, res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters query', res);
 	}
 }
 
@@ -112,11 +112,11 @@ exports.update = function (req, res) {
 			if (!err && doc) {
 				res.send({client:doc});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',client._id), err));
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',client._id), res);
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters client', res);
 	}
 }
 
@@ -136,11 +136,11 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({success:true});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -165,14 +165,14 @@ exports.coupon_consume = function (req, res) {
 					client.save();
 					res.send({client:client});
 				} else {
-					res.send(400, plerror.CouponConsumed(util.format('coupon_id $s already consumed by Client %s',payload.coupon_id,payload.client), null));
+					plerror.throw(plerror.c.CouponConsumed, util.format('coupon_id $s already consumed by Client %s',payload.coupon_id,payload.client), res);
 				}
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',payload.client), err));
+				plerror.throw(plerror.c.CouponConsumed, err || util.format('Client not found with _id: %s',payload.client), res);
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null));
+		plerror.throw(plerror.MissingParameters, 'Missing parameters payload', res);
 	}
 }
 
@@ -200,10 +200,10 @@ exports.coupon_get = function (req, res) {
 				};
 				res.send({coupons: coupons, client: client._id});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',_id), err));
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null));
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }

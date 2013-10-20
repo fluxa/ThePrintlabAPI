@@ -31,11 +31,11 @@ exports.find = function (req, res) {
 			if(!err) {
 				res.send({orders:docs});
 			} else {
-				res.send(400,{error:err})
+				plerror.throw(plerror.c.DBError, err, res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters query', res);
 	}
 }
 
@@ -50,7 +50,7 @@ exports.all = function (req, res) {
 		if (!err) {
 			res.send({orders: docs});
 		} else {
-			res.send(400, {error: err});
+			plerror.throw(plerror.c.DBError, err, res);
 		}
 	});
 }
@@ -92,11 +92,11 @@ exports.payment = function (req, res) {
 								doc.payment.logs.push(util.format('%s|Payment Completed', new Date()));
 								doc.status = Order.OrderStatus.PaymentVerified;
 							} else {
-								res.send(400, plerror.MissingParameters(util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), null));
+								plerror.throw(plerror.c.MissingParameters, util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), res);
 								return;
 							}
 						} else {
-							res.send(400, plerror.MissingParameters('Cannot complete payment, missing payment object', null));
+							plerror.throw(plerror.c.MissingParameters, 'Cannot complete payment, missing payment object', res);
 							return;
 						}
 						break;
@@ -114,15 +114,15 @@ exports.payment = function (req, res) {
 					if (!err && saveddoc) {
 						res.send({order: saveddoc});	
 					} else {
-						res.send(400, plerror.CannotSaveDocument(util.format('/order/payment/ -> Cannot save Order _id: %s',_id), err));
+						plerror.throw(plerror.c.DBError, err || util.format('/order/payment/ -> Cannot save Order _id: %s',_id), res);
 					}
 				});
 			} else {
-				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
+				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null));
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id or wrong action', res);
 	}
 	
 }
@@ -139,11 +139,11 @@ exports.get = function (req, res) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
-				res.send(400, plerror.OrderNotFound(util.format('Order not found for _id: %s',_id), err));
+				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null));
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 	
 }
@@ -161,6 +161,8 @@ exports.create = function (req, res) {
 	
 	if (order && order.client) {
 		
+		// TODO!!!
+		// THIS IS NOT WORKING!!
 		// if we are replacing an order, save the current payment logs
 		var payment_logs = [];
 
@@ -169,7 +171,10 @@ exports.create = function (req, res) {
 				if (req.body.replace_order_id) {
 					Order.findOne({_id: req.body.replace_order_id}, function(err, doc) {
 						if (!err && doc) {
+
+							// TODO, THIS IS NOT WORKING
 							payment_log = doc.payment.logs;
+							
 							doc.remove(function(err) {
 								if (!err) {
 									console.log('Order => create => removed previous order');
@@ -189,6 +194,8 @@ exports.create = function (req, res) {
 			function(callback) { // create new Order and return doc
 				Order.create(order, function(err, doc) {
 					if (!err && doc) {
+
+						// TODO THIS IS NOT WORKING
 						// push logs if exist
 						if (payment_logs.length > 0) {
 							_.each(payment_logs, function(e, i, l) {
@@ -197,14 +204,14 @@ exports.create = function (req, res) {
 						};
 						res.send({order: doc});
 					} else {
-						res.send(400, plerror.CannotSaveDocument('Cannot create Order', err));
+						plerror.throw(plerror.c.DBError, err || 'Cannot create Order', res);
 					}
 				});
 			}
 		]);
 
 	} else {
-		res.send(400, plerror.MissingParameters(JSON.stringify(req.body), null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters order', res);
 	}
 }
 
@@ -252,32 +259,28 @@ exports.submit = function (req, res) {
 										if(!err) {
 											res.send({order: neworder});
 										} else {
-											res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Client', err));
+											plerror.throw(plerror.c.DBError, err, res);
 										}
 									})
 								} else {
-									res.send(400, plerror.CannotSaveDocument('Order submit -> Cannot save Order', err));
+									plerror.throw(plerror.c.DBError, err, res);
 								}
 							});
-
 						} else {
-							res.send(400, plerror.CannotVerifyPayment(util.format('The Order _id %s has status %s and the payment cannot be verified.',neworder._id, neworder.status), null));
+							plerror.throw(plerror.c.CannotVerifyPayment, util.format('The Order _id %s has status %s and the payment cannot be verified.',neworder._id, neworder.status), res);
 							return;
 						}
 						
 					} else {
-						res.send(400, plerror.ClientNotFound(util.format('Order submit -> Client not found for _id: %s',neworder.client), err));		
+						plerror.throw(plerror.c.ClientNotFound, err || util.format('Order submit -> Client not found for _id: %s',neworder.client), res);
 					}
 				});
-
 			} else {
-				res.send(400, plerror.OrderNotFound(util.format('Order submit -> Order not found for _id: %s',order._id), err));
+				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order submit -> Order not found for _id: %s',order._id), res);
 			}
 		});
-		
-
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters order', res);
 	}
 }
 
@@ -297,10 +300,10 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({order: doc});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Order remove -> not found for _id: %s',_id), err));
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Order remove -> not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }

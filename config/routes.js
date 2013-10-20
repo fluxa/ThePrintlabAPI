@@ -10,6 +10,7 @@ var clients = require('clients')
 var addresses = require('addresses')
 var orders = require('orders')
 var index = require('index')
+var support = require('support')
 
 /**
  * Expose
@@ -54,6 +55,9 @@ module.exports = function (app, auth) {
 	app.get(v+'/orders/all', auth, orders.all);
 	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
+
+	// Support
+	app.post(v+'/support/send_message', support.send_message);
 
 	//Angular virtual
 

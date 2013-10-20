@@ -34,19 +34,19 @@ exports.register = function (req, res) {
 							if(!err) {
 								res.send({address: doc, client: client});
 							} else {
-								res.send(400, plerror.CannotSaveDocument('Address register -> Cannot save Client', null));
+								plerror.throw(plerror.c.DBError, err, res);
 							}
 						});
 					} else {
-						res.send(400, plerror.CannotSaveDocument('Address register -> Cannot create Address', err));
+						plerror.throw(plerror.c.DBError, err, res);
 					}
 				});
 			} else {
-				res.send(400, plerror.ClientNotFound(util.format('Client not found with _id: %s',payload.client), err));
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',payload.client), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters payload, address', res);
 	}
 }
 
@@ -66,11 +66,11 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({address:doc});
 			} else {
-				res.send(400,plerror.AddressNotFound(util.format('Address not found for _id: %s',_id), err))
+				plerror.throw(plerror.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -91,10 +91,10 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({address:doc});
 			} else {
-				res.send(400, plerror.AddressNotFound(util.format('Address not found for _id: %s',_id), err));
+				plerror.throw(plerror.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
 			};
 		});
 	} else {
-		res.send(400, plerror.MissingParameters('', null))
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }

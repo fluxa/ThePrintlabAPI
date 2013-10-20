@@ -14,7 +14,7 @@ var time = require('time');
 // ## Client schema
 
 var ClientSchema = new Schema({
-	udid: {type: String}, // unique id generated from the device
+	udid: { type: String, index: { unique: true } }, // unique id generated from the device
 	email: {type: String},
 	mobile: { type: String },
 	uaToken: { type: String },
