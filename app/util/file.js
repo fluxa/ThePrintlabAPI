@@ -4,7 +4,7 @@ var util = require('util');
 
 //HELPER METHODS
 
-exports.readFileAtPath = function(filePath, success) {
+exports.readAtPath = function(filePath, success) {
 	if(!filePath) {
 		success('not file specified')
 	}

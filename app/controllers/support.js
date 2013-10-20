@@ -6,7 +6,7 @@
 var mongoose = require('mongoose')
 var Support = mongoose.model('Support')
 var Client = mongoose.model('Client')
-var plerror = require('../../plerror');
+var plerror = require('../util/plerror');
 var util = require('util')
 
 

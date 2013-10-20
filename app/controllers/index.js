@@ -3,7 +3,7 @@
  * Module dependencies
  */
 
-var help = require('../../help');
+var file = require('../util/file');
 var config = require('../../config/config')
 
 
@@ -31,10 +31,10 @@ exports.ping = function(req, res) {
 exports.logs = function(req, res) {
 	var data = {};
 	var env = process.env.NODE_ENV;
-	help.readFileAtPath(config[env].std.out, function(logs) {
+	file.readAtPath(config[env].std.out, function(logs) {
 		data['stdout'] = logs;
 
-		help.readFileAtPath(config[env].std.err, function(logs) {
+		file.readAtPath(config[env].std.err, function(logs) {
 			data['stderr'] = logs;
 			res.send({logs:data});
 		});

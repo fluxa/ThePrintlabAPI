@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var Address = mongoose.model('Address');
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
-var plerror = require('../../plerror');
+var plerror = require('../util/plerror');
 var util = require('util')
 
 

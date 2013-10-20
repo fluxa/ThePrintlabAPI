@@ -5,7 +5,7 @@
 
 var mongoose = require('mongoose')
 var Client = mongoose.model('Client')
-var plerror = require('../../plerror');
+var plerror = require('../util/plerror');
 var util = require('util')
 
 /**
@@ -159,9 +159,9 @@ exports.coupon_consume = function (req, res) {
 		Client.findOne({_id: payload.client}, function(err, doc) {
 			if (!err && doc) {
 				var client = doc;
-				var consumed = client.coupons.indexOf(payload.coupon_id);
+				var consumed = client.consumed_coupons.indexOf(payload.coupon_id);
 				if(consumed < 0) {
-					client.coupons.push(payload.coupon_id);
+					client.consumed_coupons.push(payload.coupon_id);
 					client.save();
 					res.send({client:client});
 				} else {
@@ -194,7 +194,7 @@ exports.coupon_get = function (req, res) {
 				var coupons = [];
 				for (var i = Client.Coupons.length - 1; i >= 0; i--) {
 					var coupon = Client.Coupons[i];
-					if (client.coupons.indexOf(coupon.code) < 0) {
+					if (client.consumed_coupons.indexOf(coupon.code) < 0) {
 						coupons.push(coupon);
 					};
 				};

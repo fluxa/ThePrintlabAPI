@@ -18,7 +18,7 @@ var ClientSchema = new Schema({
 	email: {type: String},
 	mobile: { type: String },
 	uaToken: { type: String },
-	coupons: { type: [String] }, // consumed coupon ids
+	consumed_coupons: { type: [String] }, // consumed coupon ids
 	addresses: { type: [Schema.ObjectId] , ref: 'Address'}, //Address _id
 	orders: { type: [Schema.ObjectId] , ref: 'Order'}, //Order _id
 	social_accounts: { type: [String] }, //social _id
@@ -68,8 +68,8 @@ ClientSchema.static({
 	Coupons : [
 		{
 			code: 'FIRSTTIME_5FREE', 
-			title: 'Imprime 5 fotos gratis!', 
-			desc:'Para que pruebes nuestro servicio, te regalamos 5 impresiones incluyendo costos de envío en tu primera compra.'
+			title: 'Te regalamos 5 fotos gratis!', 
+			desc:'Bienvenido a The Printlab! Para que pruebes nuestro servicio, te regalamos 5 impresiones incluyendo costos de envío en tu primera compra.'
 		}
 	]
 })
