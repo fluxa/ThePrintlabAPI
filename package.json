@@ -25,7 +25,8 @@
 		"assert": "latest",
 		"less-middleware": "latest",
 		"nodemailer": "latest",
-		"async": "latest"
+		"async": "latest",
+		"newrelic": "latest"
 	},
 	"scripts": {
 		"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",
