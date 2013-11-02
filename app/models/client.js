@@ -69,7 +69,14 @@ ClientSchema.static({
 		{
 			code: 'FIRST_TIME_5FREE', 
 			title: 'Te regalamos 5 fotos gratis!', 
-			desc:'Bienvenido a The Printlab! Para que pruebes nuestro servicio, te regalamos 5 impresiones incluyendo costos de envío en tu primera compra. ¿Quieres usar esta promoción?'
+			desc:'Bienvenido a The Printlab! Para que pruebes nuestro servicio, te regalamos 5 impresiones incluyendo costos de envío en tu primera compra. ¿Quieres usar esta promoción?',
+			rules: {
+				cost_base: 0,
+				qty_base: 5,
+				cost_add: 1000,
+				qty_add: 5,
+				cost_shipping: 0
+			}
 		}
 	]
 })
