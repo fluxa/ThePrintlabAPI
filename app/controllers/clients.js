@@ -201,7 +201,7 @@ exports.coupon_get = function (req, res) {
 				};
 
 				var couponsStr = JSON.stringify(coupons);
-				var encrypted = security.pack(couponStr);
+				var encrypted = security.pack(couponsStr);
 				res.send({coupons: coupons, client: client._id, coupons_encrypted: encrypted});
 			} else {
 				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
