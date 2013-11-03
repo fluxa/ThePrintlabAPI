@@ -75,7 +75,7 @@ ClientSchema.static({
 				qty_base: 5,
 				cost_add: 1000,
 				qty_add: 5,
-				cost_shipping: 0
+				cost_shipping_flat: 0
 			}
 		}
 	]

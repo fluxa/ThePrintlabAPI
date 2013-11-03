@@ -199,7 +199,6 @@ exports.coupon_get = function (req, res) {
 						coupons.push(coupon);
 					};
 				};
-
 				var couponsStr = JSON.stringify(coupons);
 				var encrypted = security.pack(couponsStr);
 				res.send({coupons: coupons, client: client._id, coupons_encrypted: encrypted});
