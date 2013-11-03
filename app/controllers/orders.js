@@ -222,6 +222,8 @@ exports.create = function (req, res) {
 						// Check if coupon is not consumed
 						var consumed = client.consumed_coupons.indexOf(order.coupon_code);
 						if(consumed === -1) {
+							// Push to consumed
+							client.consumed_coupons.push(order.coupon_code);
 							callback(null, 'coupon is OK');
 						} else {
 							callback({
