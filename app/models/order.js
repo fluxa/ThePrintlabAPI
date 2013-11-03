@@ -37,6 +37,7 @@ var OrderSchema = new Schema({
 		is_gift: {type: Boolean},
 		message: {type: String}
 	},
+	coupon_code: { type: String },
 	payment: { //payment object
 		provider: { type: String, default: '' },
 		data: {type: String, default: ''},

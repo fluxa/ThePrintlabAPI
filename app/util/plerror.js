@@ -11,6 +11,7 @@ exports.c = {
 	AddressNotFound: 'AddressNotFound',
 	OrderNotFound: 'OrderNotFound',
 	CouponConsumed: 'CouponConsumed',
+	CouponInvalid: 'CouponInvalid',
 	DBError: 'DatabaseError',
 	CannotVerifyPayment: 'CannotVerifyPayment',
 	MissingParameters : 'MissingParameters'

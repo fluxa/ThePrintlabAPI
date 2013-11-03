@@ -161,19 +161,20 @@ exports.create = function (req, res) {
 	
 	if (order && order.client) {
 		
-		// TODO!!!
-		// THIS IS NOT WORKING!!
-		// if we are replacing an order, save the current payment logs
-		var payment_logs = [];
+		var client = null;
 
-		async.series([ // using series to avoid saving same document in parallel
-			function(callback) { // check if already had submitted this Order and remove doc
+		async.series([ 
+			// 1. Check if we are submitting an Order with an existing order id
+			function(callback) { 
 				if (req.body.replace_order_id) {
-					Order.findOne({_id: req.body.replace_order_id}, function(err, doc) {
+					Order.findOne({_id: req.body.replace_order_id})
+					.exec(function(err, doc) {
 						if (!err && doc) {
 
-							// TODO, THIS IS NOT WORKING
-							payment_log = doc.payment.logs;
+							// Move payment.logs to the new Order
+							if (doc.payment && doc.payment.logs) {
+								order['payment']['logs'] = doc.payment.logs;
+							};
 							
 							doc.remove(function(err) {
 								if (!err) {
@@ -181,35 +182,79 @@ exports.create = function (req, res) {
 								} else {
 									console.log(util.format('Order => create => error: %s',err));
 								}
-								callback(null, 'done');
+								callback(null, 'old order removed');
 							});
 						} else {
-							callback(null, 'done');
+							callback(null, 'could not remove old order');
 						}
 					});
 				} else {
-					callback(null, 'done');
+					callback(null, 'no order to replace');
 				}
 			},
-			function(callback) { // create new Order and return doc
-				Order.create(order, function(err, doc) {
-					if (!err && doc) {
-
-						// TODO THIS IS NOT WORKING
-						// push logs if exist
-						if (payment_logs.length > 0) {
-							_.each(payment_logs, function(e, i, l) {
-								doc.payment.logs.push(e);
-							});
+			// 2. Get Client
+			function(callback) {
+				Client.findOne({_id: order.client})
+				.exec(function(err, doc) {
+					if (!err) {
+						client = doc;
+						callback(null, 'got client');
+					} else {
+						callback({
+							code: plerror.c.ClientNotFound, 
+							verbose: err || 'Client not found'
+						}, null);
+					}
+				});
+			},
+			// 3. Validate Coupon if exists
+			function(callback) {
+				if (order.coupon_code) {
+					// Check for valid code
+					var isValid = false;
+					_.each(Client.Coupons, function(coupon, index, all) {
+						if (order.coupon_code === coupon.code) {
+							isValid = true;
 						};
+					});
+
+					if (isValid) {
+						// Check if coupon is not consumed
+						var consumed = client.consumed_coupons.indexOf(order.coupon_code);
+						if(consumed === -1) {
+							callback(null, 'coupon is OK');
+						} else {
+							callback({
+								code: plerror.c.CouponConsumed, 
+								verbose: 'Coupon is already consumed'
+							}, null);
+						}	
+					} else {
+						callback({
+							code: plerror.c.CouponInvalid, 
+							verbose: 'The coupon code is not valid' 
+						}, null);
+					}
+				} else {
+					callback(null, 'no coupon to be checked');
+				}
+			}
+		],
+		// Finally. Create new Order
+		function(err, results) {
+			if (!err) {
+				Order.create(order)
+				.exec(function(err, doc) {
+					if (!err && doc) {
 						res.send({order: doc});
 					} else {
 						plerror.throw(plerror.c.DBError, err || 'Cannot create Order', res);
 					}
 				});
+			} else {
+				plerror.throw(err.code, err.verbose, res);
 			}
-		]);
-
+		});
 	} else {
 		plerror.throw(plerror.MissingParameters, 'Missing parameters order', res);
 	}

@@ -12,4 +12,9 @@ exports.pack = function(data) {
 	var sender = secrets(master_key);
 	var packet = sender.pack(data);
 	return packet;
-}	
+}
+
+exports.unpack = function(encrypted) {
+	var sender = secrets(master_key);
+	return sender.unpack(encrypted);
+}
