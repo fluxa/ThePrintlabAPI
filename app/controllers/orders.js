@@ -243,15 +243,24 @@ exports.create = function (req, res) {
 		// Finally. Create new Order
 		function(err, results) {
 			if (!err) {
-				Order.create(order)
-				.exec(function(err, doc) {
+				Order.create(order, function(err, doc) {
 					if (!err && doc) {
-						res.send({order: doc});
+
+						// Save Client
+						client.save(function(err, saved) {
+							if (!err) {
+								res.send({order: doc, client: saved});
+							} else {
+								plerror.throw(plerror.c.DBError, err || 'Cannot Save Client and Cannot create Order', res);
+							}
+						});
+
 					} else {
 						plerror.throw(plerror.c.DBError, err || 'Cannot create Order', res);
 					}
 				});
 			} else {
+				// throw series err
 				plerror.throw(err.code, err.verbose, res);
 			}
 		});
@@ -286,6 +295,9 @@ exports.submit = function (req, res) {
 						//{ This is status is set internally when the payment 
 						//{ has been successfully completed
 						//{ and any other status should reject the order
+
+						// TODO
+						// ADD SPECIAL STATUS FOR ORDERS WITH COUPONS
 						if(neworder.status === Order.OrderStatus.PaymentVerified) {
 
 							//} Order is ready !!!
