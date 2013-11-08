@@ -75,8 +75,17 @@ exports.payment = function (req, res) {
 				switch(action) {
 
 					case Order.OrderActions.Start:
-						doc.status = Order.OrderStatus.PaymentStarted;
-						doc.payment.logs.push(util.format('%s|Payment Started',new Date()));
+
+						// Check if cost_total == 0
+						if (doc.cost_total == 0) {
+							doc.status = Order.OrderStatus.NoNeedPayment;
+							doc.payment.logs.push(util.format('%s|Payment Started but Order doesn\'t need payment',new Date()));
+						} else {
+							// Continue with normal Order
+							doc.status = Order.OrderStatus.PaymentStarted;
+							doc.payment.logs.push(util.format('%s|Payment Started',new Date()));
+						}
+
 						break;
 
 					case Order.OrderActions.Complete:
@@ -293,14 +302,13 @@ exports.submit = function (req, res) {
 						var client = doc;
 
 						//{ Verifying payment
-						//{ Status should be PaymentVerified
+						//{ Status should be PaymentVerified || NoNeedPayment
 						//{ This is status is set internally when the payment 
 						//{ has been successfully completed
 						//{ and any other status should reject the order
 
-						// TODO
-						// ADD SPECIAL STATUS FOR ORDERS WITH COUPONS
-						if(neworder.status === Order.OrderStatus.PaymentVerified) {
+						if(neworder.status === Order.OrderStatus.PaymentVerified || 
+							neworder.status === Order.OrderStatus.NoNeedPayment) {
 
 							//} Order is ready !!!
 							neworder.status = Order.OrderStatus.Submitted;
