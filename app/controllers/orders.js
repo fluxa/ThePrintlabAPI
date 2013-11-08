@@ -171,6 +171,7 @@ exports.create = function (req, res) {
 	if (order && order.client) {
 		
 		var client = null;
+		var oldOrder = null;
 
 		async.series([ 
 			// 1. Check if we are submitting an Order with an existing order id
@@ -179,20 +180,16 @@ exports.create = function (req, res) {
 					Order.findOne({_id: req.body.replace_order_id})
 					.exec(function(err, doc) {
 						if (!err && doc) {
+							
+							oldOrder = doc;
 
 							// Move payment.logs to the new Order
-							if (doc.payment && doc.payment.logs) {
-								order['payment'] = doc.payment;
+							if (oldOrder.payment && oldOrder.payment.logs) {
+								order['payment'] = oldOrder.payment;
 							};
 							
-							doc.remove(function(err) {
-								if (!err) {
-									console.log('Order => create => removed previous order');
-								} else {
-									console.log(util.format('Order => create => error: %s',err));
-								}
-								callback(null, 'old order removed');
-							});
+							callback(null, 'found old order');
+
 						} else {
 							callback(null, 'could not remove old order');
 						}
@@ -218,7 +215,9 @@ exports.create = function (req, res) {
 			},
 			// 3. Validate Coupon if exists
 			function(callback) {
+
 				if (order.coupon_code) {
+
 					// Check for valid code
 					var isValid = false;
 					_.each(Client.Coupons, function(coupon, index, all) {
@@ -228,6 +227,7 @@ exports.create = function (req, res) {
 					});
 
 					if (isValid) {
+
 						// Check if coupon is not consumed
 						var consumed = client.consumed_coupons.indexOf(order.coupon_code);
 						if(consumed === -1) {
@@ -235,10 +235,27 @@ exports.create = function (req, res) {
 							client.consumed_coupons.push(order.coupon_code);
 							callback(null, 'coupon is OK');
 						} else {
-							callback({
+
+							var consumedError = {
 								code: plerror.c.CouponConsumed, 
 								verbose: 'Coupon is already consumed'
-							}, null);
+							}
+
+							// The Coupon was consumed
+							// But is possible that a previous unfinished Order used it
+							// Let's check
+							if (oldOrder) {
+								if (oldOrder.coupon_code === order.coupon_code) {
+									// Return coupon OK
+									callback(null, 'coupon is OK');	
+								} else {
+									// Return coupon consumed error
+									callback(consumedError, null);
+								}
+							} else {
+								// Return coupon consumed error
+								callback(consumedError, null);
+							}
 						}	
 					} else {
 						callback({
@@ -260,7 +277,14 @@ exports.create = function (req, res) {
 						// Save Client
 						client.save(function(err, saved) {
 							if (!err) {
+								
 								res.send({order: doc, client: saved});
+
+								// Remove oldOrder if necessary
+								if (oldOrder) {
+									oldOrder.remove();
+								};
+
 							} else {
 								plerror.throw(plerror.c.DBError, err || 'Cannot Save Client and Cannot create Order', res);
 							}
