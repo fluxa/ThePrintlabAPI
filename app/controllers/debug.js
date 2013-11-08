@@ -27,7 +27,7 @@ exports.coupons_reset = function(req, res) {
 			if(err) {
 				console.log('coupons_reset error => ' + err || 'unknown');
 			}
-			res.send({status: 'OK'});
+			res.send({coupons: Client.Coupons});
 		})
 
 	};
