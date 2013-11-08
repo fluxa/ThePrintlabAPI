@@ -182,7 +182,7 @@ exports.create = function (req, res) {
 
 							// Move payment.logs to the new Order
 							if (doc.payment && doc.payment.logs) {
-								order['payment']['logs'] = doc.payment.logs;
+								order['payment'] = doc.payment;
 							};
 							
 							doc.remove(function(err) {
