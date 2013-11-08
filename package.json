@@ -27,7 +27,8 @@
 		"nodemailer": "latest",
 		"async": "latest",
 		"newrelic": "latest",
-		"simple-secrets": "latest"
+		"simple-secrets": "latest",
+		"cron": "latest"
 	},
 	"scripts": {
 		"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",

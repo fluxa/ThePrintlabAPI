@@ -45,7 +45,8 @@ var OrderSchema = new Schema({
 		logs: [{ type: String }]
 	},
 	verbose: {type: String}, //A verbal version of the Order
-	updated_at: {type: Date}
+	updated_at: {type: Date},
+	sent_email: { type: Boolean, default: false } // Wether the notification email was sent to the Client
 })
 
 

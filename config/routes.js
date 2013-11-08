@@ -11,6 +11,7 @@ var addresses = require('addresses')
 var orders = require('orders')
 var index = require('index')
 var support = require('support')
+var debug = require('debug')
 
 /**
  * Expose
@@ -59,7 +60,11 @@ module.exports = function (app, auth) {
 	// Support
 	app.post(v+'/support/send_message', support.send_message);
 
-	//Angular virtual
+	// Debug
+	if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+		console.log('DEBUG ROUTES ON');
+		app.post(v+'/debug/coupons/reset/:client_id', debug.coupons_reset);
+	};
 
 	// TODO: regex to reject /v1/
 	app.get('*', index.index);
