@@ -4,11 +4,14 @@
  * See lib/config.defaults.js in the agent distribution for a more complete
  * description of configuration variables and their potential values.
  */
+
+var appName = process.env.NODE_ENV === 'production' ? 'theprintlab-production' : 'theprintlab-development';
+
 exports.config = {
   /**
    * Array of application names.
    */
-  app_name : ['theprintlab-development'],
+  app_name : [appName],
   /**
    * Your New Relic license key.
    */
