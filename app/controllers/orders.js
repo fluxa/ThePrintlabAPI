@@ -90,24 +90,33 @@ exports.payment = function (req, res) {
 
 					case Order.OrderActions.Complete:
 						
-						// Parse payment info
-						var payment_provider = req.body.payment_provider;
-						var payment_data = req.body.payment_data;
-						if (payment_provider && payment_data) {
-							if (Order.PaymentProviders.indexOf(payment_provider) >= 0) {
-								// Order payment has been verified
-								doc.payment.provider = payment_provider;
-								doc.payment.data = payment_data;
-								doc.payment.logs.push(util.format('%s|Payment Completed', new Date()));
-								doc.status = Order.OrderStatus.PaymentVerified;
+						// Check if the Order has already been Verified || Submitted
+						if (_.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], doc.status) === -1) {
+
+							// Parse payment info
+							var payment_provider = req.body.payment_provider;
+							var payment_data = req.body.payment_data;
+							if (payment_provider && payment_data) {
+								if (Order.PaymentProviders.indexOf(payment_provider) >= 0) {
+									// Order payment has been verified
+									doc.payment.provider = payment_provider;
+									doc.payment.data = payment_data;
+									doc.payment.logs.push(util.format('%s|Payment Verified', new Date()));
+									doc.status = Order.OrderStatus.PaymentVerified;
+								} else {
+									plerror.throw(plerror.c.MissingParameters, util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), res);
+									return;
+								}
 							} else {
-								plerror.throw(plerror.c.MissingParameters, util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), res);
+								plerror.throw(plerror.c.MissingParameters, 'Cannot complete payment, missing payment object', res);
 								return;
 							}
+
 						} else {
-							plerror.throw(plerror.c.MissingParameters, 'Cannot complete payment, missing payment object', res);
+							plerror.throw(plerror.c.CannotVerifyPayment, 'Order is already Verified / Submitted, cannot pay twice', res);
 							return;
 						}
+						
 						break;
 
 					case Order.OrderActions.Fail:
