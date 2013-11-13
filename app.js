@@ -11,6 +11,9 @@ var mongoose = require('mongoose')
 var fs = require('fs')
 var time = require('time')
 var util = require('util')
+var http = require('http')
+// http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
+http.globalAgent.maxSockets = Infinity;
 
 require('express-namespace')
 
@@ -34,6 +37,7 @@ require('./config/routes')(app, express_config.auth)
 var port = process.env.PORT || 5006
 console.log("==== START ========================================");
 app.listen(port, function() {
+	console.log("http.globalAgent.maxSockets => " + http.globalAgent.maxSockets);
 	console.log(util.format('%s | Express app started on port %d', new time.Date().setTimezone('UTC'),port));
 	console.log("=== LOGS ==========================================");
 });
