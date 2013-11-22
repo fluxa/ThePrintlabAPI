@@ -25,9 +25,8 @@ exports.setup = function (app, config) {
 	app.set('showStackError', true)
 
 	// use express favicon
-	app.use(express.favicon())
+	app.use(express.favicon(__dirname + '/../public/img/favicon.ico'))
 
-	app.use(express.static(config.root + '/public'))
 	app.use(express.logger('dev'))
 
 	// views config
@@ -41,12 +40,14 @@ exports.setup = function (app, config) {
 		app.use(express.methodOverride())
 
 		app.use(lessMiddleware({
-			dest: __dirname + '/public',
-			src: __dirname + '/src/less',
+			dest: __dirname + '/../public',
+			src: __dirname + '/../src/less',
 			prefix: '/stylesheets',
 			compress : true,
 			debug: false
 		}));
+
+		app.use(express.static(config.root + '/public'))
 
 		// cookieParser should be above session
 		app.use(express.cookieParser())

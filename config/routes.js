@@ -12,6 +12,7 @@ var orders = require('orders')
 var index = require('index')
 var support = require('support')
 var debug = require('debug')
+var admin = require('admin')
 
 /**
  * Expose
@@ -22,10 +23,14 @@ var v = '/v1';
 module.exports = function (app, auth) {
 
 	// Routes
-	app.get('/', auth, index.index);
-	app.get('/partial/:name', auth, index.partial);
+	app.get('/', auth, index.admin);
 	app.get('/mu-c480b215-1f18b692-ac11b7c3-2db78a1a', index.blitz);
 	app.get(v+'/ping', index.ping);
+	
+	// Admin
+	app.get('/admin/dashboard', auth, admin.dashboard);
+	app.get('/admin/orders', auth, admin.orders);
+	
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);
@@ -66,7 +71,5 @@ module.exports = function (app, auth) {
 		app.post(v+'/debug/coupons/reset/:client_id', debug.coupons_reset);
 	};
 
-	// TODO: regex to reject /v1/
-	app.get('*', index.index);
 
 }

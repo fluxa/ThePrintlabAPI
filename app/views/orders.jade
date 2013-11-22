@@ -1,0 +1,117 @@
+!!! 5
+html
+	include includes/head
+	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+	body
+		include includes/navigation
+		
+		.container
+			h1 
+				| Orders
+				span.pl-label.label.label-info #{orders.length}
+
+			.panel
+				.btn-group.btn-group
+					button.btn.btn-default(onclick='doAllCheckboxes(true);')
+										span.fa.fa-check-square-o
+					button.btn.btn-default(onclick='doAllCheckboxes(false);')
+										span.fa.fa-times-circle-o
+					button.btn.reset Reset All Filters
+
+				.btn-group.btn-group.pull-right
+					button.btn.btn-primary(onclick='downloadPackages()')
+						span.fa.fa-download
+						|  Photo Packages
+					button.btn.btn-primary(onclick='setStatusPrinting()')
+						span.fa.fa-print
+						|  Set Status Printing
+					button.btn.btn-primary(onclick='setStatusShipping()')
+						span.fa.fa-truck
+						|  Set Status Shipping	
+
+
+
+			.form(method='post')#orders-form
+				table.table.table-hover#orders-table
+					thead
+						tr
+							th.sorter-false.filter-false
+							th Date
+							th OrderID
+							th(data-placeholder='All').filter-select Status
+							th(data-placeholder='All').filter-select Client
+							th(data-placeholder='All').filter-select Provincia
+							th(data-placeholder='All').filter-select Comuna
+							th Photos
+							th
+								span.fa.fa-usd
+								|  Total
+								
+					tbody
+						each order in orders
+							tr
+								td
+									input(type='checkbox')
+									input(type='hidden', name='_id', value='#{order._id}')
+								td
+									| #{toPrettyDate(order._id)}
+								td
+									| #{order._id}
+								td
+									| #{order.status}
+								td
+									| #{order.client.email}
+								td
+									| #{order.address.provincia}
+								td
+									| #{order.address.comuna}
+								td
+									| #{order.photo_count}
+								td
+									| #{order.cost_total}
+
+
+
+	include includes/scripts_common
+	script(src='/js/jquery.tablesorter.min.js')
+	script(src='/js/jquery.tablesorter.widgets.js')
+	script.
+		$(function(){
+			
+			$.extend($.tablesorter.themes.bootstrap, {
+				// these classes are added to the table. To see other table classes available,
+				// look here: http://twitter.github.com/bootstrap/base-css.html#tables
+				table      : 'table',
+				header     : '', // give the header a gradient background
+				footerRow  : '',
+				footerCells: '',
+				sortNone   : 'bootstrap-icon-unsorted',
+				sortAsc    : 'glyphicon glyphicon-chevron-up',
+				sortDesc   : 'glyphicon glyphicon-chevron-down',
+				active     : '', // applied when column is sorted
+				hover      : '', // use custom css here - bootstrap class may not override it
+				filterRow  : '', // filter row class
+				even       : '', // odd row zebra striping
+				odd        : ''  // even row zebra striping
+			});
+
+			$("#orders-table").tablesorter({
+				theme : 'bootstrap',
+				widthFixed: false,
+				headerTemplate : '{content} {icon}',
+				widgets : ['uitheme', 'filter' ],
+				sortReset: true,
+				widgetOptions : {
+					filter_reset : '.reset',
+					filter_hideFilters : false,
+					filter_ignoreCase  : true,
+					filter_childRows   : false,
+				},
+			});
+		});
+
+		function doAllCheckboxes(value) {
+			$('#orders-form > table > tbody > tr:not(.filtered) > td > input[type=checkbox]').each(function(i, e) {
+				this.checked = value;
+			});
+		}

@@ -28,7 +28,10 @@ var OrderStatus = {
 var OrderSchema = new Schema({
 	client: {type: Schema.ObjectId, ref: 'Client'}, // Client _id
 	address: { type: Schema.ObjectId, ref: 'Address' }, // Address _id
-	photo_ids: { type: [String] }, // Array of photo_id Strings: photo_uid + '_' + qty
+	photos: {
+		file_name: { type: String },
+		qty: { type: Number }
+	}, // Array of photo_id Strings: photo_uid + '_' + qty
 	photo_count: { type: Number },
 	cost_printing: { type: Number },
 	cost_shipping: { type: Number },

@@ -1,0 +1,29 @@
+- if (typeof info != 'undefined' && info.length)
+  .alert.alert-dismissable.alert-info
+    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+    ul
+      - each inf in info
+        li!= inf
+
+- if (typeof errors != 'undefined' && errors.length)
+  .alert.alert-dismissable.alert-danger
+    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+    ul
+      - each error in errors
+        li
+          strong Error:  
+          | #{error}
+
+- if (typeof success != 'undefined' && success.length)
+  .alert.alert-dismissable.alert-success
+    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+    ul
+      - each succ in success
+        li!= succ
+
+- if (typeof warning != 'undefined' && warning.length)
+  .alert.alert-dismissable.alert-warning
+    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+    ul
+      - each warn in warning
+        li!= warn

@@ -4,6 +4,7 @@
  */
  
 require('newrelic')
+console.log("==== STARTING SERVER ========================================");
 var express = require('express')
 var env = process.env.NODE_ENV || 'development'
 var config = require('./config/config')[env]
@@ -36,7 +37,6 @@ require('./config/routes')(app, express_config.auth)
 
 // Start the app by listening on <port>
 var port = process.env.PORT || 5006
-console.log("==== START ========================================");
 app.listen(port, function() {
 	console.log("http.globalAgent.maxSockets => " + http.globalAgent.maxSockets);
 	console.log(util.format('%s | Express app started on port %d', new time.Date().setTimezone('UTC'),port));

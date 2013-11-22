@@ -315,14 +315,14 @@ exports.create = function (req, res) {
 
 
 // ### Submits the Order and saves required information
-// - @param {Object} `{ order: {_id:'xx', photo_ids:[]} }`
+// - @param {Object} `{ order: {_id:'xx', photos:[]} }`
 // - @return {Object} `order` full Order object
 // - @method `PUT`
  
 exports.submit = function (req, res) {
 
 	var order = req.body.order;
-	if (order && order._id && order.photo_ids) {
+	if (order && order._id && order.photos) {
 
 		//{ find Order
 		Order.findOne({_id: order._id}, function(err, doc) {
@@ -347,7 +347,7 @@ exports.submit = function (req, res) {
 							neworder.status = Order.OrderStatus.Submitted;
 							
 							//{ update Order
-							neworder.photo_ids = order.photo_ids;
+							neworder.photos = order.photos;
 
 							//{ saving
 							neworder.save(function(err) {
