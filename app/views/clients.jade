@@ -21,7 +21,6 @@ html
 						th Orders
 				tbody
 					each client in clients
-						- var addesses = client.addresses
 						tr
 							td
 								| #{client._id}
@@ -32,7 +31,7 @@ html
 							td
 								| #{client.consumed_coupons}
 							td
-								| #{addesses}
+								| #{client.addresses.length}
 							td
 								| #{client.orders.length}
 							
