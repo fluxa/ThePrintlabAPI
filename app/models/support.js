@@ -12,7 +12,7 @@ var util = require('util')
 // ## Schema
 
 var SupportSchema = new Schema({
-	client: {type: Schema.ObjectId, ref: 'Client'},
+	client: { type: String, ref: 'Client' },
 	message: { type: String },
 	status: { type: String },
 	date: { type: Date }

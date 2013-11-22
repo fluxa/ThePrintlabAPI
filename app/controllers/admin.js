@@ -46,6 +46,28 @@ exports.orders = function(req, res) {
 	});
 }
 
+exports.clients = function(req, res) {
+	var clients = [];
+
+	async.series([
+		//Get all
+		function(callback) {
+			Client.find({})
+			.sort({_id: -1})
+			.populate('addresses')
+			.exec(function(err, docs) {
+				if (!err && docs) {
+					clients = docs;
+				};
+				callback(null, 'clients');
+			});
+		}
+	// Finish
+	], function(err, results) {
+		res.render('clients', {clients: clients});
+	});
+}
+
 /*
 * Utils
 */

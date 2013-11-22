@@ -30,6 +30,7 @@ module.exports = function (app, auth) {
 	// Admin
 	app.get('/admin/dashboard', auth, admin.dashboard);
 	app.get('/admin/orders', auth, admin.orders);
+	app.get('/admin/clients', auth, admin.clients);
 	
 
 	// -> auth

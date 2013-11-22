@@ -26,8 +26,8 @@ var OrderStatus = {
 // ## Order schema
 
 var OrderSchema = new Schema({
-	client: {type: Schema.ObjectId, ref: 'Client'}, // Client _id
-	address: { type: Schema.ObjectId, ref: 'Address' }, // Address _id
+	client: { type: String, ref: 'Client'}, // Client _id
+	address: { type: String, ref: 'Address' }, // Address _id
 	photos: {
 		file_name: { type: String },
 		qty: { type: Number }
@@ -47,8 +47,8 @@ var OrderSchema = new Schema({
 		data: {type: String, default: ''},
 		logs: [{ type: String }]
 	},
-	verbose: {type: String}, //A verbal version of the Order
-	updated_at: {type: Date},
+	verbose: { type: String }, //A verbal version of the Order
+	updated_at: { type: Date },
 	sent_email: { type: Boolean, default: false } // Wether the notification email was sent to the Client
 })
 
