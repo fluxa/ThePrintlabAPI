@@ -20,7 +20,8 @@ var AddressSchema = new Schema({
 	address_line2: { type: String },
 	region: { type: String },
 	provincia: { type: String },
-	comuna: { type: String }
+	comuna: { type: String },
+	removed: { type: Boolean, default: false }
 })
 
 
@@ -31,20 +32,22 @@ var AddressSchema = new Schema({
  * - virtuals
  */
 
- // ### Address post remove
-AddressSchema.post('remove', function(removed) {
+// WE ARE NOT REMOVING ADDRESS ANYMORE, JUST SETTING removed = true 
+
+// ### Address post remove
+// AddressSchema.post('remove', function(removed) {
 	
-	load_models();
+// 	load_models();
 	
-	//} Remove Address from Client
-	Client.findOne({_id: this.client}, function(err,doc) {
-		if (!err && doc) {
-			doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
-			doc.save();
-		};
-	});
+// 	//} Remove Address from Client
+// 	Client.findOne({_id: this.client}, function(err,doc) {
+// 		if (!err && doc) {
+// 			doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
+// 			doc.save();
+// 		};
+// 	});
 	
-});
+// });
 
 
 /**

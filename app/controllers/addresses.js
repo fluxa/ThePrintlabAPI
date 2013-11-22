@@ -88,8 +88,20 @@ exports.remove = function (req, res) {
 	if (_id) {
 		Address.findOne({_id: _id}, function(err, doc) {
 			if (!err && doc) {
-				doc.remove();
-				res.send({address:doc});
+
+				var address = doc;
+				address.removed = true;
+				address.save();
+
+				//} Remove Address from Client
+				Client.findOne({_id: doc.client}, function(err,client) {
+					if (!err && client) {
+						client.addresses.splice(client.addresses.indexOf(address._id),1);
+						client.save();
+					};
+					res.send({address:address});
+				});
+
 			} else {
 				plerror.throw(plerror.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
 			};
