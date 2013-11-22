@@ -18,10 +18,10 @@ var ClientSchema = new Schema({
 	email: {type: String},
 	mobile: { type: String },
 	uaToken: { type: String },
-	consumed_coupons: { type: [String] }, // consumed coupon ids
+	consumed_coupons: [{ type: String }], // consumed coupon ids
 	addresses: [ { type: String , ref: 'Address'} ] , //Address _id
 	orders: [ { type: String , ref: 'Order'} ], //Order _id
-	social_accounts: { type: [String] }, //social _id
+	social_accounts: [{ type: String }], //social _id
 	updated_at: {type: Date}
 })
 
