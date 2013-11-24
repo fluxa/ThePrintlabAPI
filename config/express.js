@@ -9,6 +9,7 @@ var helpers = require('view-helpers')
 var pkg = require('../package')
 var env = process.env.NODE_ENV || 'development'
 var lessMiddleware = require('less-middleware');
+var flash = require('connect-flash');
 
 var auth = express.basicAuth(function(user, pass) {
 	return user === 'theprintlab' && pass === 'theprintlabCL2013';
@@ -35,6 +36,7 @@ exports.setup = function (app, config) {
 
 
 	app.configure(function () {
+
 		// bodyParser should be above methodOverride
 		app.use(express.bodyParser())
 		app.use(express.methodOverride())
@@ -52,6 +54,27 @@ exports.setup = function (app, config) {
 		// cookieParser should be above session
 		app.use(express.cookieParser())
 
+		// express/mongo session storage
+		app.use(express.session({
+			secret: config.master,
+			store: new mongoStore({
+				url: config.db,
+				collection : 'sessions'
+			})
+		}))
+
+	
+		// CORS cross-domain
+		app.use(function(req, res, next) {
+			res.header('Access-Control-Allow-Origin', 'https://secure.theprintlab.cl');
+    		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    		res.header('Access-Control-Allow-Headers', 'Content-Type');
+    		next();
+		});
+
+		// flash
+		app.use(flash());
+		
 		// expose pkg and node env to views
 		app.use(function (req, res, next) {
 			res.locals.pkg = pkg
@@ -61,14 +84,6 @@ exports.setup = function (app, config) {
 
 		// View helpers
 		app.use(helpers(pkg.name))
-
-		// CORS cross-domain
-		app.use(function(req, res, next) {
-			res.header('Access-Control-Allow-Origin', 'https://secure.theprintlab.cl');
-    		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    		res.header('Access-Control-Allow-Headers', 'Content-Type');
-    		next();
-		});
 
 		// routes should be at the last
 		app.use(app.router)
@@ -80,8 +95,4 @@ exports.setup = function (app, config) {
 		app.locals.pretty = true;
 	})
 
-	// test specific stuff
-	app.configure('test', function () {
-		app.locals.pretty = true;
-	})
 }

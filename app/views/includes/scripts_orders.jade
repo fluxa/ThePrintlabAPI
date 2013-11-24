@@ -1,0 +1,57 @@
+script(src='/js/Blob.js')
+script(src='/js/FileSaver.js')
+script.
+
+	// Generate JSON string for ThePrintlabBucket tool
+	function downloadPackages() {
+		
+		// Check Selected Orders
+		var success = true;
+		var errors = '';
+		var result = [];
+		
+		$('#table-sort > tbody > tr > td > input[type=checkbox]:checked').each(function(index, elem) {
+			
+			var id = elem.id;
+			
+			// check status
+			if($('#status_'+id)[0].value === 'SUBMITTED') {
+				var photos = [];
+				try{
+					photos = JSON.parse($('#photos_' + id)[0].value);
+				} catch (e) {
+					success = false;
+					errors += 'Error parsing JSON photos \n';
+					return false;
+				}
+
+				result.push({order_id: id, photos: photos})
+				
+			} else {
+				success = false;
+				errors += 'Only Orders with status "SUBMITTED" should be selected for Photo Packages \n';
+				return false;
+			}
+
+		});
+
+		if(success) {
+			if(result.length > 0) {
+				var now = new moment();
+				var filename = now.format('YYYYMMDD_HHMMss')+'.json';
+				var blob = new Blob([JSON.stringify(result)], {type: 'text/plain;charset=utf-8'});
+				saveAs(blob, filename);
+			} else {
+				alert('Please select Orders first');
+			}
+		} else {
+			alert(errors);
+		}
+
+	}
+
+	function orderManage(action) {
+		// Set action and submit
+		$('#action')[0].value = action;
+		$('#orders-form').submit();
+	}

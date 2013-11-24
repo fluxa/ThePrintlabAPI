@@ -389,7 +389,7 @@ exports.submit = function (req, res) {
  *
  * @param {String} _id of the Order to remove
  * @return {String} 200 OK | 400 Error
- * @api public
+ * @api private
  */
 exports.remove = function (req, res) {
 
@@ -405,5 +405,73 @@ exports.remove = function (req, res) {
 		});
 	} else {
 		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+	}
+}
+
+/**
+ * Manage a group of Orders base on the action parameter
+ *
+ * @param [String] order_ids Array of Order _id
+ * @param {String} action
+ * @return {String} 200 OK | 400 Error
+ * @api private
+ */
+exports.manage = function (req, res) {
+
+	var order_ids = req.body.order_ids;
+	var action = req.body.action;
+	
+	var count_orders_modified = 0;
+	
+	if (order_ids && action) {
+
+		Order.find({
+			_id: {
+				$in: order_ids
+			}
+		})
+		.exec(function(err, docs) {
+
+			if (!err && docs) {
+				
+				async.eachSeries(docs, function(order, callback) {
+					var modified = false;
+					switch(action) {
+						case 'printing':
+							order.status = Order.OrderStatus.Printing;
+							modified = true;
+							break;
+						case 'shipped':
+							order.status = Order.OrderStatus.Shipped;
+							modified = true;
+							break;
+					}
+					if(modified) {
+						order.save(function(err, saved) {
+							count_orders_modified++;
+							callback(null);
+							if(err) {
+								console.log('Error saving Order in change_status => ' + err);	
+							}
+						});
+					} else {
+						callback(null);
+					}
+				},
+				// Finish
+				function(err) {
+					console.log('FINISH ASYNC EACH');
+					req.flash('success', util.format('%d Orders has been modified',count_orders_modified));
+					res.redirect('/admin/orders');
+				});
+
+			} else {
+				req.flash('errors', err || util.format('Order change_status -> not found for ids: %s',order_ids));
+				res.redirect('/admin/orders');
+			}
+		});
+	} else {
+		req.flash('errors', 'Missing parameters order_ids, action');
+		res.redirect('/admin/orders');
 	}
 }
