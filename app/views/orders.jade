@@ -13,10 +13,10 @@ html
 
 			.panel
 				.btn-group.btn-group
-					button.btn.btn-default(onclick='doAllCheckboxes(true);')
+					button.btn.btn-default(onclick='markAllFilteredCheckboxes(true);')
 										span.fa.fa-check-square-o
 										|  All
-					button.btn.btn-default(onclick='doAllCheckboxes(false);')
+					button.btn.btn-default(onclick='markAllFilteredCheckboxes(false);')
 										span.fa.fa-square-o
 										|  None
 					button.btn.btn-default.reset
@@ -25,6 +25,8 @@ html
 						|  Reset All Filters
 
 				.btn-group.btn-group.pull-right
+					button.btn.btn-default
+						span.badge#checked-count 0
 					button.btn.btn-primary(onclick='downloadPackages()')
 						span.fa.fa-download
 						|  Photo Packages
@@ -33,7 +35,14 @@ html
 						|  Set Status Printing
 					button.btn.btn-primary(onclick='orderManage(\'shipped\')')
 						span.fa.fa-truck
-						|  Set Status Shipping	
+						|  Set Status Shipping
+					button.btn.btn-primary(onclick='orderManage(\'shipped\')')
+						span.fa.fa-file-text-o
+						|  Export CSV
+					button.btn.btn-warning#delete-btn
+						span.fa.fa-times-circle
+						|  Delete
+					button.btn.btn-danger#delete-confirm(onclick='orderManage(\'delete\')') Delete
 
 
 

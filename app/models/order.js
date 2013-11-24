@@ -60,22 +60,24 @@ OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );
  * - validations
  * - virtuals
  */
- // ### Order post remove hook
-OrderSchema.post('remove', function(removed) {
+ // ### Order pre remove hook
+OrderSchema.pre('remove', function(next) {
 	
 	load_models();
 
-	//} Remove removed Order from Client
+	//} Remove Orders from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
-			doc.orders.splice(doc.orders.indexOf(removed._id),1);
+			doc.orders.splice(doc.orders.indexOf(this._id),1);
 			doc.save(function(err) {
 				if (err) {
 					console.log(util.format('Order => post remove error => %s',err));	
 				};
+				next();
 			});
-			
-		};
+		} else {
+			next();
+		}
 	});
 });
 

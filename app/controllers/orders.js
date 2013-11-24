@@ -420,7 +420,6 @@ exports.manage = function (req, res) {
 
 	var order_ids = req.body.order_ids;
 	var action = req.body.action;
-	
 	var count_orders_modified = 0;
 	
 	if (order_ids && action) {
@@ -435,32 +434,47 @@ exports.manage = function (req, res) {
 			if (!err && docs) {
 				
 				async.eachSeries(docs, function(order, callback) {
+					
 					var modified = false;
+					var finish = function() {
+						callback(null);
+					}
+					
 					switch(action) {
+
 						case 'printing':
 							order.status = Order.OrderStatus.Printing;
 							modified = true;
 							break;
+						
 						case 'shipped':
 							order.status = Order.OrderStatus.Shipped;
 							modified = true;
 							break;
+						
+						case 'delete':
+							finish = function(){};
+							order.remove(function(err, removed) {
+								count_orders_modified++;
+								callback(null);
+							});
+							break;
 					}
+
 					if(modified) {
 						order.save(function(err, saved) {
 							count_orders_modified++;
-							callback(null);
+							finish();
 							if(err) {
 								console.log('Error saving Order in change_status => ' + err);	
 							}
 						});
 					} else {
-						callback(null);
+						finish();
 					}
 				},
 				// Finish
 				function(err) {
-					console.log('FINISH ASYNC EACH');
 					req.flash('success', util.format('%d Orders has been modified',count_orders_modified));
 					res.redirect('/admin/orders');
 				});

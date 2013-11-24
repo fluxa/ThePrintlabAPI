@@ -2,3 +2,23 @@ script(src='/js/jquery-1.10.2.min.js')
 script(src='/bootstrap/js/bootstrap.min.js')
 script(src='/js/underscore.min.js')
 script(src='/js/moment.min.js')
+script.
+	$(function() {
+		
+		// Delete confirmation	
+		$('#delete-btn').click(function(){
+			var btn = $(this);
+			if (btn.data('confirm')){
+				btn[0].innerHTML = btn.data('normalstate');
+				btn.data('confirm',false);
+				$('#delete-confirm').fadeOut();
+			} else {
+				btn.data('normalstate', btn[0].innerHTML);
+				btn.text('Don\'t Delete').data('confirm',true);
+				$('#delete-confirm').fadeIn();
+			}
+			return false;
+		});
+
+		$('#delete-confirm').hide();
+	});
