@@ -30,13 +30,13 @@ html
 					button.btn.btn-primary(onclick='downloadPackages()')
 						span.fa.fa-download
 						|  Photo Packages
-					button.btn.btn-primary(onclick='orderManage(\'printing\')')
+					button.btn.btn-primary(onclick='ordersManage(\'printing\')')
 						span.fa.fa-print
 						|  Set Status Printing
-					button.btn.btn-primary(onclick='orderManage(\'shipped\')')
+					button.btn.btn-primary(onclick='ordersManage(\'shipped\')')
 						span.fa.fa-truck
 						|  Set Status Shipping
-					button.btn.btn-primary(onclick='orderManage(\'shipped\')')
+					button.btn.btn-primary(onclick='ordersExport()')
 						span.fa.fa-file-text-o
 						|  Export CSV
 					button.btn.btn-warning#delete-btn
@@ -46,7 +46,7 @@ html
 
 
 
-			form(action='/v1/orders/manage', method='post')#orders-form
+			form(action='/admin/orders/manage', method='post')#orders-form
 				input(type='hidden', name='action', value='', id='action')
 				table.table.table-hover#table-sort
 					thead

@@ -31,7 +31,8 @@ module.exports = function (app, auth) {
 	app.get('/admin/dashboard', auth, admin.dashboard);
 	app.get('/admin/orders', auth, admin.orders);
 	app.get('/admin/clients', auth, admin.clients);
-	
+	app.post('/admin/orders/manage', auth, admin.orders_manage);
+	app.post('/admin/orders/export', auth, admin.orders_export);
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);
@@ -62,7 +63,6 @@ module.exports = function (app, auth) {
 	app.get(v+'/orders/all', auth, orders.all);
 	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
-	app.post(v+'/orders/manage', auth, orders.manage);
 
 	// Support
 	app.post(v+'/support/send_message', support.send_message);

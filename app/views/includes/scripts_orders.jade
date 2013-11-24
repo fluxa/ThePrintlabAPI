@@ -94,8 +94,16 @@ script.
 
 	}
 
-	function orderManage(action) {
+	function ordersManage(action) {
 		// Set action and submit
 		$('#action')[0].value = action;
+		$('#orders-form').get(0).setAttribute('action', '/admin/orders/manage');
+		$('#orders-form').get(0).setAttribute('method', 'post');
+		$('#orders-form').submit();
+	}
+
+	function ordersExport() {
+		$('#orders-form').get(0).setAttribute('action', '/admin/orders/export');
+		$('#orders-form').get(0).setAttribute('method', 'post');
 		$('#orders-form').submit();
 	}
