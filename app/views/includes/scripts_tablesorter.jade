@@ -20,7 +20,7 @@ script.
 			odd        : ''  // even row zebra striping
 		});
 
-		$("#orders-table").tablesorter({
+		$("#table-sort").tablesorter({
 			theme : 'bootstrap',
 			widthFixed: false,
 			headerTemplate : '{content} {icon}',
@@ -36,7 +36,7 @@ script.
 	});
 
 	function doAllCheckboxes(value) {
-		$('#orders-form > table > tbody > tr:not(.filtered) > td > input[type=checkbox]').each(function(i, e) {
+		$('#table-sort > tbody > tr:not(.filtered) > td > input[type=checkbox]').each(function(i, e) {
 			this.checked = value;
 		});
 	}

@@ -10,14 +10,14 @@ html
 				| Clients
 				span.pl-label.label.label-info #{clients.length}
 
-			table.table.table-hover#clients-table
+			table.table.table-hover#table-sort
 				thead
 					tr
 						th ClientID
 						th Email
 						th Mobile
 						th(data-placeholder='All').filter-select Used Coupons
-						th(data-placeholder='All').filter-select Addresses
+						th Addresses
 						th Orders
 				tbody
 					each client in clients

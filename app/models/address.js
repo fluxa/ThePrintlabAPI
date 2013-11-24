@@ -24,6 +24,7 @@ var AddressSchema = new Schema({
 	removed: { type: Boolean, default: false }
 })
 
+AddressSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 /**
  * Add your

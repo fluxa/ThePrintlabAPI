@@ -18,6 +18,7 @@ var SupportSchema = new Schema({
 	date: { type: Date }
 })
 
+SupportSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 /**
  * Add your

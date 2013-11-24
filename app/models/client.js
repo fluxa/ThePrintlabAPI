@@ -25,6 +25,7 @@ var ClientSchema = new Schema({
 	updated_at: {type: Date}
 })
 
+ClientSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 /**
  * Add your

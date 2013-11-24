@@ -28,10 +28,10 @@ var OrderStatus = {
 var OrderSchema = new Schema({
 	client: { type: String, ref: 'Client'}, // Client _id
 	address: { type: String, ref: 'Address' }, // Address _id
-	photos: {
+	photos: [ { // Array of photos and quantities
 		file_name: { type: String },
 		qty: { type: Number }
-	}, // Array of photo_id Strings: photo_uid + '_' + qty
+	} ],
 	photo_count: { type: Number },
 	cost_printing: { type: Number },
 	cost_shipping: { type: Number },
@@ -52,6 +52,7 @@ var OrderSchema = new Schema({
 	sent_email: { type: Boolean, default: false } // Wether the notification email was sent to the Client
 })
 
+OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 /**
  * Add your

@@ -14,9 +14,13 @@ html
 				.btn-group.btn-group
 					button.btn.btn-default(onclick='doAllCheckboxes(true);')
 										span.fa.fa-check-square-o
+										|  All
 					button.btn.btn-default(onclick='doAllCheckboxes(false);')
-										span.fa.fa-times-circle-o
-					button.btn.reset Reset All Filters
+										span.fa.fa-square-o
+										|  None
+					button.btn.btn-default.reset
+						span.fa.fa-ban
+						|  Reset All Filters
 
 				.btn-group.btn-group.pull-right
 					button.btn.btn-primary(onclick='downloadPackages()')
@@ -32,7 +36,7 @@ html
 
 
 			.form(method='post')#orders-form
-				table.table.table-hover#orders-table
+				table.table.table-hover#table-sort
 					thead
 						tr
 							th.sorter-false.filter-false
@@ -51,8 +55,11 @@ html
 						each order in orders
 							tr
 								td
-									input(type='checkbox')
+									input(type='checkbox', id='#{order._id}')
 									input(type='hidden', name='_id', value='#{order._id}')
+									input(type='hidden', id='status_#{order._id}', value='#{order.status}')
+									input(type='hidden', id='photos_#{order._id}', value='#{JSON.stringify(order.photos)}')
+									
 								td
 									| #{toPrettyDate(order._id)}
 								td
@@ -74,3 +81,48 @@ html
 
 	include includes/scripts_common
 	include includes/scripts_tablesorter
+	script(src='/js/Blob.js')
+	script(src='/js/FileSaver.js')
+	script.
+
+		// Generate JSON string for plbucket tool
+		function downloadPackages() {
+			
+			// Check Selected Orders
+			var success = true;
+			var errors = '';
+			var result = [];
+			
+			$('#table-sort > tbody > tr > td > input[type=checkbox]:checked').each(function(index, elem) {
+				
+				var id = elem.id;
+				
+				// check status
+				if($('#status_'+id)[0].value === 'SUBMITTED') {
+					var photos = [];
+					try{
+						photos = JSON.parse($('#photos_' + id)[0].value);
+					} catch (e) {
+						success = false;
+						errors += 'Error parsing JSON photos';
+					}
+
+					result.push({order_id: id, photos: photos})
+					
+				} else {
+					success = false;
+					errors += 'Make sure you have selected only Orders with status SUBMITTED \n';
+				}
+
+			});
+
+			if(success) {
+				var now = new moment();
+				var filename = now.format('YYYYMMDD_HHMMss')+'.json';
+				var blob = new Blob([JSON.stringify(result)], {type: 'text/plain;charset=utf-8'});
+				saveAs(blob, filename);
+			} else {
+				alert(errors);
+			}
+
+		}
