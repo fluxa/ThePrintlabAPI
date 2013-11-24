@@ -2,6 +2,26 @@ script(src='/js/Blob.js')
 script(src='/js/FileSaver.js')
 script.
 
+	$(function() {
+		$('#table-sort').bind('filterEnd', function(e){
+			if (e.type === 'filterEnd') {
+				updateFilterCount();
+			}
+		});
+		updateFilterCount();
+	});
+
+	function updateFilterCount() {
+		var total = $('#table-sort > tbody > tr').length;
+		var count = $('#table-sort > tbody > tr:not(.filtered)').length;
+		if(count != total) {
+			$('#filter-count').show();
+		} else {
+			$('#filter-count').hide();
+		}
+		$('#filter-count')[0].innerHTML = count;
+	}
+
 	// Generate JSON string for ThePrintlabBucket tool
 	function downloadPackages() {
 		
