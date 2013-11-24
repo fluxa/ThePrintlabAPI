@@ -42,7 +42,7 @@ exports.orders = function(req, res) {
 
 	// Finish
 	], function(err, results) {
-		res.render('orders', {orders: orders, toPrettyDate: toPrettyDate});
+		res.render('orders', {orders: orders, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
 	});
 }
 
@@ -71,9 +71,13 @@ exports.clients = function(req, res) {
 /*
 * Utils
 */
-function toPrettyDate(_id) {
+function getTimestamp(_id) {
 	var timehex = String(_id).substring(0,8);
 	var secondsSinceEpoch = parseInt(timehex, 16);
-	//return new Date(secondsSinceEpoch*1000);
-	return new moment(secondsSinceEpoch*1000).format('YYYY-MM-DD HH:mm');
+	return (secondsSinceEpoch*1000);
+}
+
+function toPrettyDate(_id) {
+	var timestamp = getTimestamp(_id);
+	return new moment(timestamp).format('YYYY-MM-DD HH:mm');
 }

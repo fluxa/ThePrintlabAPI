@@ -43,6 +43,7 @@ html
 						tr
 							th.sorter-false.filter-false
 							th Date
+							th Hours Ago
 							th OrderID
 							th(data-placeholder='All').filter-select Status
 							th(data-placeholder='All').filter-select Client
@@ -55,6 +56,11 @@ html
 								
 					tbody
 						each order in orders
+							- var timestamp = getTimestamp(order._id)
+							- var m = new moment(timestamp)
+							- var now = new moment()
+							- var date = m.format('YYYY-MM-DD HH:mm')
+							- var diff = now.diff(m, 'hours')
 							tr
 								td
 									input(type='checkbox', name='order_ids[]', value='#{order._id}', id='#{order._id}')
@@ -62,7 +68,9 @@ html
 									input(type='hidden', id='photos_#{order._id}', value='#{JSON.stringify(order.photos)}')
 									
 								td
-									| #{toPrettyDate(order._id)}
+									| #{date}
+								td
+									| #{diff}
 								td
 									| #{order._id}
 								td
