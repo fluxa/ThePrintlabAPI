@@ -13,7 +13,7 @@ var mailer = require('./mailer')
 // Daily updates
 function _jobOrderConfirmationEmail() {
 	
-	console.log('_jobOrderConfirmationEmail started');
+	//console.log('_jobOrderConfirmationEmail started');
 
 	// Stop calling this job until we finish
 	this.stop();
@@ -38,7 +38,7 @@ function _jobOrderConfirmationEmail() {
 				if (!err && docs) {
 					orders = docs;
 				};
-				console.log(util.format('got %d order for confirmation email', orders.length));
+				console.log(util.format('OrderConfirmationEmail => got %d order for confirmation email', orders.length));
 				callback(null, 'got orders');
 			});
 		}
@@ -62,7 +62,8 @@ function _jobOrderConfirmationEmail() {
 			}
 
 			var subject = util.format('ThePrintlab: Confirmación de Pedido (%s)', order._id);
-			mailer.send('order_confirm', locals, 'ThePrintlab <orders@theprintlab.cl>', order.client.email, subject, function(err, response) {
+			var bcc = 'luis@theprintlab.cl, fluxa@theprintlab.cl';
+			mailer.send('order_confirm', locals, 'ThePrintlab <orders@theprintlab.cl>', order.client.email, bcc, subject, function(err, response) {
 				if(err) {
 					console.log(util.format('Error sending order_confirm for order %s => %s', order._id, err));
 				}
@@ -76,7 +77,7 @@ function _jobOrderConfirmationEmail() {
 			});
 		}, function(err) {
 			// Done!
-			console.log('_jobOrderEmalNotification finished');
+			//console.log('_jobOrderEmalNotification finished');
 		});
 		
 	});

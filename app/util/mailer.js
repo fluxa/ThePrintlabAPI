@@ -11,7 +11,7 @@ var config = require('../../config/config')[process.env.NODE_ENV];
 // create reusable transport method (opens pool of SMTP connections)
 var smtpTransport = nodemailer.createTransport("SMTP", config.smtp_options);
 
-exports.send = function(template_name, template_locals, from_email, to_email, subject, callback) {
+exports.send = function(template_name, template_locals, from_email, to_email, bcc, subject, callback) {
 
 	//get templates
 	emailTemplates(templatesDir, function(err, template) {
@@ -26,6 +26,7 @@ exports.send = function(template_name, template_locals, from_email, to_email, su
 					var mailOptions = {
 						from: from_email,
 						to: to_email,
+						bcc: bcc,
 						subject: subject,
 						html: html,
 						//generateTextFromHTML: false
