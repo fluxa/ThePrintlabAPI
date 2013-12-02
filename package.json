@@ -25,6 +25,7 @@
 		"assert": "latest",
 		"less-middleware": "latest",
 		"nodemailer": "latest",
+		"email-templates": "latest",
 		"async": "latest",
 		"newrelic": "latest",
 		"simple-secrets": "latest",

@@ -13,6 +13,7 @@ var fs = require('fs')
 var time = require('time')
 var util = require('util')
 var http = require('http')
+var cron = require('./app/util/cron')
 
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
@@ -45,3 +46,6 @@ app.listen(port, function() {
 
 // Expose app
 module.exports = app
+
+// Cronjobs
+cron.schedule();
