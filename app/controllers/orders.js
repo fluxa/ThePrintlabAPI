@@ -407,3 +407,28 @@ exports.remove = function (req, res) {
 		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
 	}
 }
+
+/**
+ * Marks an Order as Canceled by User
+ *
+ * @param {String} _id of the Order
+ * @return {String} 200 OK | 400 Error
+ * @api public
+ */
+ exports.cancel = function(req, res) {
+ 	var _id = req.params['_id'];
+ 	if (_id) {
+ 		Order.findOne({_id: _id})
+ 		.exec(function(err, doc) {
+ 			if(!err && doc) {
+ 				doc.status = Order.OrderStatus.CanceledByUser;
+ 				doc.save();
+ 				res.send({order: doc});
+ 			} else {
+ 				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order cancel -> not found for _id: %s',_id), res);
+ 			}
+ 		});
+ 	} else {
+		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+	}
+ }

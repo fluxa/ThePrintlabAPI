@@ -71,7 +71,7 @@ html
 							- var now = new moment()
 							- var date = m.format('YYYY-MM-DD HH:mm')
 							- var diff = now.diff(m, 'hours')
-							tr
+							tr.pl-row
 								td
 									input(type='checkbox', name='order_ids[]', value='#{order._id}', id='#{order._id}')
 									input(type='hidden', id='status_#{order._id}', value='#{order.status}')

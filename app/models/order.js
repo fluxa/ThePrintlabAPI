@@ -17,6 +17,7 @@ var OrderStatus = {
 	PaymentVerified: 'PAYMENT_VERIFIED', // set internally after payment has been verified by the provider
 	NoNeedPayment: 'NO_NEED_PAYMENT', // when Order total == $0, due to coupon use
 	PaymentError: 'PAYMENT_ERROR', // payment was rejected for some reason
+	CanceledByUser: 'CANCELED_BY_USER', // the order was canceled by the user
 	Submitted: 'SUBMITTED', // set when all elements for the order has been collected and order is ready for next step
 	Printing: 'PRINTING', // order was sent for printing
 	Shipped: 'SHIPPED' // order was shipped
