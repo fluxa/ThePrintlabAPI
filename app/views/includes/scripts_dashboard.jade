@@ -1,0 +1,177 @@
+script(type='text/javascript', src='/js/accounting.min.js')
+script(type='text/javascript', src='/js/spin.min.js')
+script(type='text/javascript', src='/js/jquery.spin.js')
+script(type='text/javascript', src='https://www.google.com/jsapi')
+script.
+	
+	var orders = !{JSON.stringify(orders)};
+	var clients = !{JSON.stringify(clients)};
+	var ostatus = !{JSON.stringify(ostatus)};
+
+	var ordersTotal = orders.length;
+	var clientsTotal = clients.length;
+	var ordersByStatus = {};
+	var ordersById = {};
+	var clientsWithOrders = 0; // Order PaymentVerified as min
+	var totalSales = 0;
+	var couponsUsedByCouponCode = {};
+	var couponsUsedTotal = 0;
+
+	var isDataReady = false;
+	var isGoogleReady = false;
+
+	var opts = { // Spin
+		lines: 5, // The number of lines to draw
+		length: 0, // The length of each line
+		width: 10, // The line thickness
+		radius: 5, // The radius of the inner circle
+		corners: 1, // Corner roundness (0..1)
+		rotate: 0, // The rotation offset
+		direction: 1, // 1: clockwise, -1: counterclockwise
+		color: '#353c44', // #rgb or #rrggbb or array of colors
+		speed: 1.7, // Rounds per second
+		trail: 41, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: true, // Whether to use hardware acceleration
+		className: 'spinner', // The CSS class to assign to the spinner
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		top: 'auto', // Top position relative to parent in px
+		left: 'auto' // Left position relative to parent in px
+	};
+	
+	$('#box-sales').spin(opts);
+	$('#box-clients').spin(opts);
+	$('#box-clients-orders').spin(opts);
+	$('#box-coupons').spin(opts);
+	$('#box-orders').spin(opts);
+
+	$(function(){
+		
+		$('.container').tooltip({
+			selector: "[data-toggle=tooltip]",
+			container: "body"
+		});
+
+		// Prepare data
+		var revStatus = [ostatus.PaymentVerified, ostatus.Submitted, ostatus.Printing, ostatus.Shipped, ostatus.Archived];
+
+		_.each(orders, function(order, index, all) {
+
+			// By status
+			var o = ordersByStatus[order.status] || [];
+			o.push(order);
+			ordersByStatus[order.status] = o;
+
+			// By id
+			ordersById[order._id] = order;
+
+			// Rev
+			if(revStatus.indexOf(order.status) >= 0) {
+
+				totalSales += order.cost_total;
+
+				// Coupons
+				if(order.coupon_code && order.coupon_code != '') {
+					var o = couponsUsedByCouponCode[order.coupon_code] || 0;
+					o++;
+					couponsUsedByCouponCode[order.coupon_code] = o;
+					couponsUsedTotal++;
+				}
+			}
+
+		});
+
+		_.each(clients, function(client, index, all) {
+			_.each(client.orders, function(orderId, index1, all1) {
+				var order = ordersById[orderId];
+				if(order) {
+					if(revStatus.indexOf(order.status) >= 0) {
+						clientsWithOrders++;
+					}
+				} else {
+					console.log('order id not found: ' + orderId);
+				}
+				
+			})
+		});
+
+		isDataReady = true;
+		console.log('data is ready!');
+		updateUI();
+		drawCharts();
+	})
+
+	// Load library
+	google.load("visualization", "1", {packages:["corechart"]});
+	google.setOnLoadCallback(googleReady);
+	
+	function googleReady() {
+		isGoogleReady = true;
+		console.log('google is ready!');
+		drawCharts();
+	}
+
+	function updateUI() {
+		if(isDataReady) {
+			
+			// Sales
+			$('#box-sales').spin(false);
+			var salesFormatted = accounting.formatMoney(totalSales, '$', 0, '.', ',');
+			$('#sales').html(salesFormatted);
+
+			// Clients
+			$('#box-clients').spin(false);
+			$('#clients').html(clientsTotal);
+
+			// Clients-Orders
+			$('#box-clients-orders').spin(false);
+			$('#clients-orders').html(clientsWithOrders);
+
+			// Coupons
+			$('#box-coupons').spin(false);
+			$('#coupons').html(couponsUsedTotal);
+
+			// Orders
+			$('#box-orders').spin(false);
+			$('#orders').html(ordersTotal);
+
+		}
+	}
+
+	function drawCharts() {
+		if(isDataReady && isGoogleReady) {
+
+			console.log('draw charts');
+		
+			// Orders
+			var ordersDataRaw = [['Status', 'Number']];
+			_.each(Object.keys(ordersByStatus), function(key, index, all) { 
+				var o = [key, ordersByStatus[key].length];
+				ordersDataRaw.push(o);
+			});
+			ordersData = google.visualization.arrayToDataTable(ordersDataRaw);
+			var ordersOptions = {
+				fontName: 'Lato',
+				title: 'Orders by Status',
+				titleTextStyle: {
+					fontSize: 14
+				},
+				backgroundColor: '#f3f5f6',
+				is3D: false,
+				pieHole: 0.3,
+				legend: {
+					position: 'right', 
+					textStyle: {
+						color: '#353c44',
+						fontSize: 14
+					}
+				},
+				pieSliceText: 'percent',
+				pieSliceTextStyle: {
+					fontSize: 12
+				}
+			};
+			var ordersChart = new google.visualization.PieChart($('#orders-chart')[0]);
+			ordersChart.draw(ordersData, ordersOptions);
+		}
+	}

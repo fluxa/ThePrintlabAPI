@@ -17,8 +17,33 @@ var csv = require('csv');
 
 exports.dashboard = function(req, res) {
 
-	res.render('dashboard', {});
+	var orders = [];
+	var clients = [];
 
+	async.series([
+		// Get all Orders
+		function(callback) {
+			Order.find({})
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					orders = docs;
+				}
+				callback(null, 'orders');
+			})
+		},
+		//Get all Clients
+		function(callback) {
+			Client.find({})
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					clients = docs;
+				}
+				callback(null, 'clients');
+			})
+		}
+	], function(err, results) {
+		res.render('dashboard', {orders: orders, clients: clients, ostatus: Order.OrderStatus});
+	});
 }
 
 exports.orders = function(req, res) {

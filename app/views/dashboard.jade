@@ -1,10 +1,36 @@
 !!! 5
 html
 	include includes/head
+	link(href='/css/dashboard.css', rel='stylesheet', media='screen')
 	body
 		include includes/navigation
-		
+
 		.container
 			h1 Dashboard
 
+			.row.pl-row
+				.col-md-3
+					.pl-box#box-sales
+						abbr(data-toggle='tooltip', data-original-title='Total Sales') Sales
+						span#sales
+				.col-md-3
+					.pl-box#box-clients
+						abbr(data-toggle='tooltip', data-original-title='Total Number of Clients') Clients
+						span#clients
+				.col-md-3
+					.pl-box#box-clients-orders
+						abbr(data-toggle='tooltip', data-original-title='Clients with Orders at least PaymentVerified') Cli-Orders
+						span#clients-orders
+				.col-md-3
+					.pl-box#box-coupons
+						abbr(data-toggle='tooltip', data-original-title='Total Coupons used in Orders') Coupons
+						span#coupons
+			.row.pl-row
+				.col-md-12
+					.pl-box#box-orders
+						abbr(data-toggle='tooltip', data-original-title='Total Number of Orders') Orders
+						span#orders
+						.chart#orders-chart
+
 	include includes/scripts_common
+	include includes/scripts_dashboard

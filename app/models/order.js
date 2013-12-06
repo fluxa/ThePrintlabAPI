@@ -20,7 +20,8 @@ var OrderStatus = {
 	CanceledByUser: 'CANCELED_BY_USER', // the order was canceled by the user
 	Submitted: 'SUBMITTED', // set when all elements for the order has been collected and order is ready for next step
 	Printing: 'PRINTING', // order was sent for printing
-	Shipped: 'SHIPPED' // order was shipped
+	Shipped: 'SHIPPED', // order was shipped
+	Archived: 'ARCHIVED' // order has completed whole cycle and has been archived
 }
 
 
