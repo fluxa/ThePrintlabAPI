@@ -13,6 +13,7 @@ script.
 	var ordersByStatus = {};
 	var ordersById = {};
 	var clientsWithOrders = 0; // Order PaymentVerified as min
+	var clientsWithOrdersPercent = 0;
 	var totalSales = 0;
 	var couponsUsedByCouponCode = {};
 	var couponsUsedTotal = 0;
@@ -95,6 +96,8 @@ script.
 			})
 		});
 
+		clientsWithOrdersPercent = clientsWithOrders/clientsTotal;
+
 		isDataReady = true;
 		console.log('data is ready!');
 		updateUI();
@@ -125,7 +128,7 @@ script.
 
 			// Clients-Orders
 			$('#box-clients-orders').spin(false);
-			$('#clients-orders').html(clientsWithOrders);
+			$('#clients-orders').html(clientsWithOrders + ' (' + Math.round(clientsWithOrdersPercent*100) + '%)');
 
 			// Coupons
 			$('#box-coupons').spin(false);

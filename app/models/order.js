@@ -51,7 +51,9 @@ var OrderSchema = new Schema({
 	},
 	verbose: { type: String }, //A verbal version of the Order
 	updated_at: { type: Date },
-	sent_email: { type: Boolean, default: false } // Wether the notification email was sent to the Client
+	sent_email: { type: Boolean, default: false }, // Wether the notification email was sent to the Client
+	sent_printing_notification: { type: Boolean, default: false },
+	sent_shipped_notification: { type: Boolean, default: false }
 })
 
 OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );

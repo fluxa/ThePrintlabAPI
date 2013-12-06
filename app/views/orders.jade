@@ -21,11 +21,12 @@ html
 										|  None
 					button.btn.btn-default.reset
 						span.fa.fa-ban
-						span.badge.pull-right#filter-count= 0
 						|  Reset All Filters
+					button.btn
+						span.badge#filter-count= 0
 
 				.btn-group.btn-group.pull-right
-					button.btn.btn-default
+					button.btn
 						span.badge#checked-count 0
 					button.btn.btn-primary(onclick='downloadPackages()')
 						span.fa.fa-download

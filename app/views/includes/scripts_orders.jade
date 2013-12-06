@@ -24,11 +24,11 @@ script.
 		var total = $('#table-sort > tbody > tr').length;
 		var count = $('#table-sort > tbody > tr:not(.filtered)').length;
 		if(count != total) {
-			$('#filter-count').show();
+			$('#filter-count').text(count);
 		} else {
-			$('#filter-count').hide();
+			$('#filter-count').text(0);
 		}
-		$('#filter-count').text(count);
+		
 	}
 
 	function updateCheckedCount() {
