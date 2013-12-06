@@ -71,6 +71,7 @@ ClientSchema.static({
 			code: 'FIRST_TIME_5FREE', 
 			title: 'Te regalamos 5 fotos gratis, incluyendo costos de envío', 
 			desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
+			reminder_all_selected: 'RECUERDA QUE SIEMPRE PUEDES SELECCIONAR MÁS FOTOS POR UN MÍNIMO VALOR Y APROVECHAR EL COSTO DE ENVÍO GRATIS!!',
 			rules: {
 				cost_base: 0,
 				qty_base: 5,
