@@ -283,6 +283,13 @@ exports.create = function (req, res) {
 				Order.create(order, function(err, doc) {
 					if (!err && doc) {
 
+						// Remove OldOrder Id if neccesary
+						// We are also doing this on pre Order remove hook
+						// But we need to return to the Client the right model
+						if(oldOrder) {
+							client.orders.splice(client.orders.indexOf(oldOrder._id),1);
+						}
+
 						// Save Client
 						client.save(function(err, saved) {
 							if (!err) {
@@ -291,7 +298,6 @@ exports.create = function (req, res) {
 
 								// Remove oldOrder if necessary
 								if (oldOrder) {
-									console.log('removing old older with id => ' + oldOrder._id);
 									oldOrder.remove();
 								};
 
