@@ -49,7 +49,14 @@ ClientSchema.post('remove', function(removed) {
 
 // ### Client pre save hooks
 ClientSchema.pre('save', function(next) {
+	
 	this.updated_at = new time.Date().setTimezone('UTC');
+
+	// lowercase emails
+	if(this.email) {
+		this.email = this.email.toLowerCase();
+	}
+
 	next();
 });
 

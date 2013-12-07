@@ -29,7 +29,7 @@ exports.send_message = function(req, res) {
 
 		Client.findOne({_id: client_id}).exec(function(err, doc) {
 			if (!err && doc) {
-				// Update email id necessary
+				// Update email if necessary
 				if (!doc.email && email) {
 					doc.email = email;
 					doc.save();

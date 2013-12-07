@@ -15,7 +15,7 @@ var SupportSchema = new Schema({
 	client: { type: String, ref: 'Client' },
 	message: { type: String },
 	status: { type: String },
-	date: { type: Date }
+	replied: { type: Boolean, default: false }
 })
 
 SupportSchema.set( 'toJSON', { virtuals: false, getters: true } );
@@ -41,7 +41,8 @@ SupportSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 SupportSchema.static({
 	Status: {
-		New: 'new'
+		New: 'NEW',
+		Archived: 'ARCHIVED'
 	}
 })
 

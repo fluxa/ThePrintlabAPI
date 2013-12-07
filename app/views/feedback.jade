@@ -1,0 +1,45 @@
+!!! 5
+html
+	include includes/head
+	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+	body
+		include includes/navigation
+		
+		.container
+			h1 
+				| Feedback
+				span.pl-label.label.label-info #{supports.length}
+
+			table.table.table-hover#table-sort
+				thead
+					tr
+						th Date
+						th Email
+						th Mobile
+						th Message
+						th(data-placeholder='All').filter-select Replied
+						th(data-placeholder='All').filter-select Status
+
+				tbody
+					each support in supports
+						- var timestamp = getTimestamp(support._id)
+						- var m = new moment(timestamp)
+						- var now = new moment()
+						- var date = m.format('YYYY-MM-DD')
+						tr.pl-row
+							td
+								| #{date}
+							td
+								| #{support.client.email}
+							td
+								| #{support.client.mobile}
+							td
+								| #{support.message}
+							td
+								| #{support.replied}
+							td
+								| #{support.status}
+							
+
+	include includes/scripts_common
+	include includes/scripts_tablesorter

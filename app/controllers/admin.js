@@ -5,6 +5,7 @@
 var mongoose = require('mongoose')
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
+var Support = mongoose.model('Support');
 var async = require('async');
 var _ = require('underscore');
 var moment = require('moment');
@@ -243,7 +244,7 @@ exports.orders_export = function(req, res) {
 			csv()
 			.from.array(rows)
 			.to(function(data) {
-				console.log(data);
+				//console.log(data);
 				var m = new moment();
 				var filename = util.format('%s-ThePrintlabOrders.csv',m.format('YYYY-MM-DD'));
 				res.setHeader('Content-disposition', 'attachment; filename='+filename);
@@ -269,6 +270,23 @@ exports.orders_export = function(req, res) {
 		res.redirect('/admin/orders');
 	}
 	
+}
+
+// Feedback
+exports.feedback = function(req, res) {
+
+	var supports = [];
+
+	Support.find({})
+	.sort({_id: -1})
+	.populate('client')
+	.exec(function(err, docs) {
+		if(!err && docs){
+			supports = docs;
+		}
+		res.render('feedback', {supports: supports, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
+	});
+
 }
 
 /*

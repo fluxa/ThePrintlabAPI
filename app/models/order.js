@@ -70,13 +70,17 @@ OrderSchema.pre('remove', function(next) {
 	load_models();
 
 	//} Remove Orders from Client
+	console.log('pre Order remove');
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
+			console.log('found Client orders before => ' + doc.orders);
 			doc.orders.splice(doc.orders.indexOf(this._id),1);
+			console.log('found Client orders after => ' + doc.orders);
 			doc.save(function(err) {
 				if (err) {
 					console.log(util.format('Order => post remove error => %s',err));	
 				};
+				console.log('pre Order remove, client saved succcess');
 				next();
 			});
 		} else {

@@ -31,6 +31,7 @@ module.exports = function (app, auth) {
 	app.get('/admin/dashboard', auth, admin.dashboard);
 	app.get('/admin/orders', auth, admin.orders);
 	app.get('/admin/clients', auth, admin.clients);
+	app.get('/admin/feedback', auth, admin.feedback);
 	app.post('/admin/orders/manage', auth, admin.orders_manage);
 	app.post('/admin/orders/export', auth, admin.orders_export);
 

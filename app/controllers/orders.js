@@ -291,6 +291,7 @@ exports.create = function (req, res) {
 
 								// Remove oldOrder if necessary
 								if (oldOrder) {
+									console.log('removing old older with id => ' + oldOrder._id);
 									oldOrder.remove();
 								};
 
