@@ -75,9 +75,6 @@ html
 							tr.pl-row
 								td
 									input(type='checkbox', name='order_ids[]', value='#{order._id}', id='#{order._id}')
-									input(type='hidden', id='status_#{order._id}', value='#{order.status}')
-									input(type='hidden', id='photos_#{order._id}', value='#{JSON.stringify(order.photos)}')
-									
 								td
 									| #{date}
 								td

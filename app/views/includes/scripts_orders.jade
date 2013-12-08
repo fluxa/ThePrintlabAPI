@@ -2,8 +2,16 @@ script(src='/js/Blob.js')
 script(src='/js/FileSaver.js')
 script.
 
+	var orders = !{JSON.stringify(orders)};
+	var ordersDict = {};
+
 	$(function() {
 		
+		// Prepare data
+		_.each(orders, function(order, index, all) {
+			ordersDict[order._id] = order;
+		});
+
 		// Listen to filterEnd
 		$('#table-sort').bind('filterEnd', function(e){
 			if (e.type === 'filterEnd') {
@@ -59,18 +67,9 @@ script.
 			var id = elem.id;
 			
 			// check status
-			if($('#status_'+id)[0].value === 'SUBMITTED') {
-				var photos = [];
-				try{
-					photos = JSON.parse($('#photos_' + id)[0].value);
-				} catch (e) {
-					success = false;
-					errors += 'Error parsing JSON photos \n';
-					return false;
-				}
-
-				result.push({order_id: id, photos: photos})
-				
+			var order = ordersDict[id];
+			if(order.status === 'SUBMITTED') {
+				result.push({order_id: order._id, photos: order.photos, gift: order.gift})
 			} else {
 				success = false;
 				errors += 'Only Orders with status "SUBMITTED" should be selected for Photo Packages \n';
