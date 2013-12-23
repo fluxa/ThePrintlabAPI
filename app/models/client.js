@@ -76,7 +76,7 @@ ClientSchema.method({
 ClientSchema.static({
 	// Coupon Policy
 	// 0: Give Away
-	// 1: Only Special
+	// 1: Only in Special (special_coupons)
 	Coupons : [
 		{
 			code: 'FIRST_TIME_5FREE', 
@@ -93,12 +93,12 @@ ClientSchema.static({
 			policy: 0
 		},
 		{
-			code: '20132312_40_1',
+			code: '20132312_200_1',
 			title: 'Cupón de Prepago', 
-			desc:'Puedes elegir hasta un máximo de 40 impresiones',
+			desc:'Puedes elegir hasta un máximo de 200 impresiones. Las primeras 5 impresiones y costos de envío son gratis. Luego se te cobrará $5.000 por cada 5 impresiones.',
 			rules: {
 				cost_base: 0,
-				qty_base: 40,
+				qty_base: 100,
 				cost_add: 1000,
 				qty_add: 5,
 				cost_shipping_flat: 0
