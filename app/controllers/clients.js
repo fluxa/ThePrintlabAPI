@@ -194,9 +194,25 @@ exports.coupon_get = function (req, res) {
 				var client = doc;
 				var coupons = [];
 				for (var i = Client.Coupons.length - 1; i >= 0; i--) {
+					
 					var coupon = Client.Coupons[i];
+
+					// Check if coupon has been already consumed
 					if (client.consumed_coupons.indexOf(coupon.code) < 0) {
-						coupons.push(coupon);
+						
+						switch(coupon.policy) {
+							
+							case 0: // Give Away
+								coupons.push(coupon);
+								break;
+
+							case 1: // Special
+								if(client.special_coupons.indexOf(coupon.code) > -1) {
+									coupons.push(coupon);
+								}
+								break;
+						}
+						
 					};
 				};
 				var couponsStr = JSON.stringify(coupons);

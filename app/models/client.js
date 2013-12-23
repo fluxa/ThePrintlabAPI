@@ -19,6 +19,7 @@ var ClientSchema = new Schema({
 	mobile: { type: String },
 	uaToken: { type: String },
 	consumed_coupons: [{ type: String }], // consumed coupon ids
+	special_coupons: [{ type: String }], // special coupons
 	addresses: [ { type: String , ref: 'Address'} ] , //Address _id
 	orders: [ { type: String , ref: 'Order'} ], //Order _id
 	social_accounts: [{ type: String }], //social _id
@@ -73,6 +74,9 @@ ClientSchema.method({
  */
 
 ClientSchema.static({
+	// Coupon Policy
+	// 0: Give Away
+	// 1: Only Special
 	Coupons : [
 		{
 			code: 'FIRST_TIME_5FREE', 
@@ -85,7 +89,21 @@ ClientSchema.static({
 				cost_add: 1000,
 				qty_add: 5,
 				cost_shipping_flat: 0
-			}
+			},
+			policy: 0
+		},
+		{
+			code: '20132312_40_1',
+			title: 'Cupón de Prepago', 
+			desc:'Puedes elegir hasta un máximo de 40 impresiones',
+			rules: {
+				cost_base: 0,
+				qty_base: 40,
+				cost_add: 1000,
+				qty_add: 5,
+				cost_shipping_flat: 0
+			},
+			policy: 1
 		}
 	]
 })
