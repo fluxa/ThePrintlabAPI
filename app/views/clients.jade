@@ -1,4 +1,4 @@
-!!! 5
+doctype html
 html
 	include includes/head
 	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
@@ -6,7 +6,7 @@ html
 		include includes/navigation
 		
 		.container
-			h1 
+			h1
 				| Clients
 				span.pl-label.label.label-info #{clients.length}
 
@@ -31,7 +31,10 @@ html
 							td
 								| #{client.consumed_coupons}
 							td
-								| #{client.addresses.length}
+								if client.addresses
+									| #{client.addresses.length}
+								else
+									| 0
 							td
 								| #{client.orders.length}
 							

@@ -76,10 +76,10 @@ exports.setup = function (app, config) {
 		app.use(flash());
 		
 		// expose pkg and node env to views
-		app.use(function (req, res, next) {
-			res.locals.pkg = pkg
-			res.locals.env = env
-			next()
+		app.locals({
+			pkg: pkg,
+			env: env,
+			moment: require('moment')
 		})
 
 		// View helpers
