@@ -78,14 +78,27 @@ ClientSchema.static({
 	// 0: Give Away
 	// 1: Only in Special (special_coupons)
 	Coupons : [
+		// {
+		// 	code: 'FIRST_TIME_5FREE', 
+		// 	title: 'Te regalamos 5 fotos gratis, incluyendo costos de envío', 
+		// 	desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
+		// 	reminder_all_selected: 'RECUERDA QUE SIEMPRE PUEDES SELECCIONAR MÁS FOTOS POR UN VALOR MÍNIMO Y APROVECHAR EL COSTO DE ENVÍO GRATIS!!',
+		// 	rules: {
+		// 		cost_base: 0,
+		// 		qty_base: 5,
+		// 		cost_add: 1000,
+		// 		qty_add: 5,
+		// 		cost_shipping_flat: 0
+		// 	},
+		// 	policy: 0
+		// },
 		{
 			code: 'FIRST_TIME_5FREE', 
-			title: 'Te regalamos 5 fotos gratis, incluyendo costos de envío', 
+			title: 'En tu primera compra, te regalamos el envío!', 
 			desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
-			reminder_all_selected: 'RECUERDA QUE SIEMPRE PUEDES SELECCIONAR MÁS FOTOS POR UN VALOR MÍNIMO Y APROVECHAR EL COSTO DE ENVÍO GRATIS!!',
 			rules: {
-				cost_base: 0,
-				qty_base: 5,
+				cost_base: 5000,
+				qty_base: 20,
 				cost_add: 1000,
 				qty_add: 5,
 				cost_shipping_flat: 0
