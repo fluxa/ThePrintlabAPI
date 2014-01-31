@@ -32,7 +32,8 @@
 		"cron": "latest",
 		"moment": "latest",
 		"connect-flash": "latest",
-		"csv": "latest"
+		"csv": "latest",
+		"mail-listener2": "latest"
 	},
 	"scripts": {
 		"start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",

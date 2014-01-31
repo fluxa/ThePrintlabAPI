@@ -1,0 +1,42 @@
+doctype html
+html
+	include includes/head
+	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+	body
+		include includes/navigation
+		
+		.container
+			h1
+				| Client
+				span.pl-label.label.label-info #{client._id}
+
+			table.table.table-hover#table-sort
+				thead
+					tr
+						th Email
+						th Mobile
+						th(data-placeholder='All').filter-select Used Coupons
+						th Addresses
+						th Orders
+				tbody
+					each client in clients
+						tr.pl-row
+							td
+								| #{client._id}
+							td
+								| #{client.email}
+							td
+								| #{client.mobile}
+							td
+								| #{client.consumed_coupons}
+							td
+								if client.addresses
+									| #{client.addresses.length}
+								else
+									| 0
+							td
+								| #{client.orders.length}
+							
+
+	include includes/scripts_common
+	include includes/scripts_tablesorter

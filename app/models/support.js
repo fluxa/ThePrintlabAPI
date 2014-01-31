@@ -42,7 +42,8 @@ SupportSchema.set( 'toJSON', { virtuals: false, getters: true } );
 SupportSchema.static({
 	Status: {
 		New: 'NEW',
-		Archived: 'ARCHIVED'
+		Open: 'OPEN',
+		Closed: 'CLOSED'
 	}
 })
 

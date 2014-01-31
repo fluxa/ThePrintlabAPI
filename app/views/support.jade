@@ -17,8 +17,8 @@ html
 						th Email
 						th Mobile
 						th Message
-						th(data-placeholder='All').filter-select Replied
 						th(data-placeholder='All').filter-select Status
+						th.sorter-false.filter-false Actions
 
 				tbody
 					each support in supports
@@ -36,10 +36,21 @@ html
 							td
 								| #{support.message}
 							td
-								| #{support.replied}
-							td
 								| #{support.status}
+							td
+								- if(support.status != 'CLOSED')
+									a(onclick='close_support("#{support._id}");').btn.btn-sm.btn-primary Close
 							
 
 	include includes/scripts_common
 	include includes/scripts_tablesorter
+	script.
+		function close_support(support_id) {
+			$.post('/admin/support/close', {support_id: support_id}, function(data) {
+				if(!data.success) {
+					alert('Error: ' + data.error);
+				} else {
+					location.reload();
+				}
+			});
+		}

@@ -272,8 +272,8 @@ exports.orders_export = function(req, res) {
 	
 }
 
-// Feedback
-exports.feedback = function(req, res) {
+// Support
+exports.support = function(req, res) {
 
 	var supports = [];
 
@@ -284,9 +284,38 @@ exports.feedback = function(req, res) {
 		if(!err && docs){
 			supports = docs;
 		}
-		res.render('feedback', {supports: supports, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
+		res.render('support', {supports: supports, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
 	});
+}
 
+exports.support_close = function(req, res) {
+	var support_ids = [req.body.support_id];
+	if(support_ids) {
+		Support.update({
+			_id: {
+				$in: support_ids
+			}
+		},
+		{
+			$set:{
+				status: Support.Status.Closed
+			}
+		},
+		{
+			multiple: true
+		})
+		.exec(function(err, docs) {
+
+			if(err) {
+				res.send({success: false, error: err});
+			} else {
+				res.send({success: true});
+			}
+			
+		});
+	} else {
+		res.send({succcess: false, error: 'Missing parameters'});
+	}
 }
 
 /*

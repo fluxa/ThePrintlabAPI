@@ -14,6 +14,7 @@ var time = require('time')
 var util = require('util')
 var http = require('http')
 var cron = require('./app/util/cron')
+var robot = require('./app/util/robot')
 
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
@@ -49,3 +50,6 @@ module.exports = app
 
 // Cronjobs
 cron.schedule();
+
+// Start robots
+//robot.start();
