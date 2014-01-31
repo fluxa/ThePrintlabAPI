@@ -20,7 +20,7 @@ var _jobs = [
 	},
 	{
 		name: 'Support Notification Email',
-		cronTime: '0 */5 * * * *', // every 5 minutes
+		cronTime: '0 */1 * * * *', // every 5 minutes
 		onTick: jobs.SupportNotificationEmail,
 		onComplete:function(){_cronjobs['suportnotificationemail'].start();},
 		start: true,

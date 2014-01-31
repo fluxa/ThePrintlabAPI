@@ -10,6 +10,7 @@ var Support = require('../models/support');
 var mailer = require('./mailer')
 var _ = require('underscore')
 var config =  require('../../config/config')[process.env.NODE_ENV];
+var plutil = require('./plutil');
 
 // Daily updates
 exports.OrderConfirmationEmail = function() {
@@ -127,13 +128,13 @@ exports.SupportNotificationEmail = function() {
 				message: support.message,
 				email: support.client.email,
 				mobile: support.client.mobile,
+				date: plutil.mongoIdToPrettyDate(support._id),
 				current_year: today.getFullYear()
 			}
 
 			var subject = util.format('[ThePrintlab Support] (%s)', support._id);
-			//var bcc = 'luis@theprintlab.cl, fluxa@theprintlab.cl';
-			mailer.send('support', locals, 'ThePrintlab <hola@theprintlab.cl>', 'ThePrintlab <hola@theprintlab.cl>', '', subject, function(err, response) {
-			//mailer.send('support', locals, support.client.email, 'fluxa@theprintlab.cl', '', subject, function(err, response) {
+			var bcc = 'luis@theprintlab.cl, fluxa@theprintlab.cl';
+			mailer.send('support', locals, 'fluxa@theprintlab.cl', 'hola@theprintlab.cl', bcc, subject, function(err, response) {
 				if(err) {
 					console.log(util.format('Error sending support => %s', support._id, err));
 				}
