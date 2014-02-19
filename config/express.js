@@ -10,10 +10,20 @@ var pkg = require('../package')
 var env = process.env.NODE_ENV || 'development'
 var lessMiddleware = require('less-middleware');
 var flash = require('connect-flash');
+var log4js = require('log4js');
 
 var auth = express.basicAuth(function(user, pass) {
 	return user === 'theprintlab' && pass === 'theprintlabCL2013';
 });
+
+// Logging setup
+log4js.configure({
+	appenders: [
+		{ type: 'console' }
+  	],
+  	replaceConsole: true
+});
+var logger = log4js.getLogger();
 
 /*!
  * Expose
@@ -24,6 +34,10 @@ exports.auth = auth;
 exports.setup = function (app, config) {
 	
 	app.set('showStackError', true)
+
+	//  logger
+	app.use(log4js.connectLogger(logger, { level: 'auto' }));
+
 
 	// use express favicon
 	app.use(express.favicon(__dirname + '/../public/img/favicon.ico'))
