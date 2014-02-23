@@ -73,10 +73,12 @@ exports.get = function (req, res) {
 					_id: client_id
 				})
 				.exec(function(err, doc) {
-					if(!err) {
+					if(!err && doc) {
 						client = doc;
+						callback(null, 'client');
+					} else {
+						callback(err || plerror.c.ClientNotFound, null);
 					}
-					callback(err, 'client');
 				})
 			},
 
@@ -129,7 +131,11 @@ exports.get = function (req, res) {
 					coupons_encrypted: encrypted
 				});
 			} else {
-				plerror.throw(plerror.c.DBError, err || 'Unknown error', res);
+				if(err === plerror.c.ClientNotFound) {
+					plerror.throw(err, 'Client not found for id provided', res);
+				} else {
+					plerror.throw(plerror.c.DBError, err || 'Unknown error', res);
+				}
 			}
 		});
 	} else {
