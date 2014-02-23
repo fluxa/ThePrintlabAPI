@@ -37,7 +37,7 @@ exports.consume = function (req, res) {
 					client.save();
 					res.send({client:client});
 				} else {
-					plerror.throw(plerror.c.CouponConsumed, util.format('coupon_id $s already consumed by Client %s',payload.coupon_id,payload.client), res);
+					plerror.throw(plerror.c.CouponConsumed, util.format('coupon_id %s already consumed by Client %s',payload.coupon_id,payload.client), res);
 				}
 			} else {
 				plerror.throw(plerror.c.CouponConsumed, err || util.format('Client not found with _id: %s',payload.client), res);
