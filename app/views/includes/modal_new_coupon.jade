@@ -1,0 +1,66 @@
+.modal.fade(role='dialog', aria-labelledby='new_cupon_label', aria-hidden='true')#modal_new_coupon
+	.modal-dialog
+		form.form(role='form', method='POST', action='/admin/coupons/add')
+			.modal-content
+				.modal-header
+					button.close(type='button', data-dismiss='modal', aria-hidden='true')&times;
+					h4.modal-title#new_cupon_label New Coupon
+				.modal-body
+					form.form(role='form', method='POST', action='/admin/coupons/add')
+						
+						.form-group
+							label(for='coupon_title') Title
+							small  (for app popup)
+							input.form-control(type='text', name='coupon[title]', placeholder='i.e. En tu primera compra, te regalamos el envío!')#coupon_title
+
+						.form-group
+							label(for='coupon_description') Description
+							small  (for app popup)
+							input.form-control(type='text', name='coupon[description]', placeholder='i.e. Para que pruebes nuestro servicio de impresión con envío a tu casa')#coupon_description
+	
+						.form-group
+							label(for='coupon_currency') Currency
+							select.form-control(name='coupon[currency]')#coupon_currency
+								option(value='CLP') CLP
+								option(value='USD') USD
+							
+						.form-group
+							.row
+								.col-sm-4
+									label(for='coupon_rules_qty_base') Base Qty.
+									small  (#photos)
+									.input-group
+										span.input-group-addon #
+										input.form-control(type='number', name='coupon[rules][qty_base]', placeholder='10')#coupon_rules_qty_base
+								.col-sm-4
+									label(for='coupon_rules_cost_base') Base Cost
+									.input-group
+										span.input-group-addon $
+										input.form-control(type='number', name='coupon[rules][cost_base]', placeholder='5000')#coupon_rules_cost_base
+								.col-sm-4
+									label(for='coupon_rules_cost_shipping_flat') Shipping Cost
+									.input-group
+										span.input-group-addon $
+										input.form-control(type='number', name='coupon[rules][cost_shipping_flat]', placeholder='500')#coupon_rules_cost_shipping_flat
+						.form-group
+							.row
+								.col-sm-4
+									label(for='coupon_rules_qty_add') Add Qty.
+									.input-group
+										span.input-group-addon #
+										input.form-control(type='number', name='coupon[rules][qty_add]', onchange='on_qty_add_change()', onkeyup='on_qty_add_change()', placeholder='5')#coupon_rules_qty_add
+								.col-sm-4
+									label(for='coupon_rules_cost_add') Add
+										span#coupon_rules_qty_add_value  #
+										|  Cost
+									.input-group
+										span.input-group-addon $
+										input.form-control(type='number', name='coupon[rules][cost_add]', placeholder='1000')#coupon_rules_cost_add
+								
+				.modal-footer
+					button.btn.btn-default(data-dismiss='modal') Close
+					button.btn.btn-primary(type='submit') Save Coupon
+script.
+	function on_qty_add_change() {
+		$('#coupon_rules_qty_add_value')[0].innerHTML = ' #' + $('#coupon_rules_qty_add')[0].value;
+	}

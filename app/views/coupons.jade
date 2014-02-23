@@ -1,0 +1,44 @@
+doctype html
+html
+	include includes/head
+	link(href='/css/coupons.css', rel='stylesheet', media='screen')
+	body
+		include includes/messages
+		include includes/navigation
+		
+		.container
+			h1
+				| Coupons
+				span.pl-label.label.label-info #{coupons.length}
+			.panel
+				.btn-group.btn-group
+					button.btn.btn-default(data-toggle='modal', data-target='#modal_new_coupon') New Coupon
+			include includes/modal_new_coupon
+
+			table.table.table-hover
+					thead
+						tr
+							th Popup Title
+							th Popup Description
+							th Currency
+							th Rules
+							th In Policies
+							th					
+					tbody
+						each coupon in coupons
+							tr
+								td #{coupon.title}
+								td #{coupon.description}
+								td #{coupon.currency}
+								td
+									.row
+										small Base:&nbsp##{coupon.rules.qty_base}&nbspx&nbsp$#{coupon.rules.cost_base}
+									.row
+										small Add:&nbsp##{coupon.rules.qty_add}&nbspx&nbsp$#{coupon.rules.cost_add}
+									.row
+										small Shipping:&nbsp$#{coupon.rules.cost_shipping_flat}
+								
+								td [TODO]
+
+	include includes/scripts_common
+	include includes/scripts_tablesorter

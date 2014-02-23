@@ -6,6 +6,8 @@ var mongoose = require('mongoose')
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var Support = mongoose.model('Support');
+var Coupon = mongoose.model('Coupon');
+var Policy = mongoose.model('Policy');
 var async = require('async');
 var _ = require('underscore');
 var moment = require('moment');
@@ -268,6 +270,179 @@ exports.orders_export = function(req, res) {
 	} else {
 		req.flash('errors', 'Missing parameters order_ids');
 		res.redirect('/admin/orders');
+	}
+	
+}
+
+// Coupons
+exports.coupons = function(req, res) {
+
+	var coupons = [];
+
+	async.series([
+		// Get All
+		function(callback) {
+			Coupon.find({})
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					coupons = docs;
+				}
+				callback(null, 'coupons');
+			});
+		}
+	],
+	// Finally
+	function(err, results) {
+		res.render('coupons', {
+			coupons: coupons
+		});
+	});
+}
+
+exports.coupons_add = function(req, res) {
+
+	var coupon = req.body.coupon || {};
+
+	if(coupon.title && coupon.description && coupon.rules) {
+
+		var c = new Coupon(coupon);
+		c.save(function(err, saved) {
+			if(!err) {
+				req.flash('success', 'New Coupon Saved!');
+			} else {
+				req.flash('errors', err ? JSON.stringify(err) : 'Error trying to save coupon, please try again.');
+			}
+			res.redirect('admin/coupons');
+		});
+	} else {
+		req.flash('errors', 'Missing parameters');
+		res.redirect('admin/coupons');
+	}
+
+}
+
+// Coupons
+exports.policies = function(req, res) {
+
+	var policies = [];
+	var coupons = [];
+	var clients = [];
+
+	async.series([
+
+		// Get All Policies
+		function(callback) {
+			Policy.find({})
+			.populate('coupon')
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					policies = docs;
+				}
+				callback(null, 'policies');
+			});
+		},
+
+		// Get all Coupons
+		function(callback) {
+			Coupon.find({})
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					coupons = docs;
+				}
+				callback(null, 'coupons');
+			});
+		},
+
+		// Get all Clients
+		function(callback) {
+			Client.find({})
+			.exec(function(err, docs){
+				if(!err && docs){
+					clients = docs;
+				}
+				callback(null, 'clients');
+			})
+		}
+
+	],
+	// Finally
+	function(err, results) {
+		res.render('policies', {
+			policies: policies,
+			coupons: coupons,
+			clients: clients
+		});
+	});
+}
+
+exports.policies_add = function(req, res) {
+
+	var policy = req.body.policy || {};
+
+	if(policy.name && policy.type && policy.coupon && policy.expiry_date) {
+
+		// Validations
+		var valid = true;
+		var errors = [];
+		
+		if(policy.type === Policy.Types.Specific && !policy.target_clients) {
+			valid = false;
+			errors.push('Must select at least 1 Client for SPECIFIC policy type');
+		}
+
+		if(policy.type === Policy.Types.Global) {
+			policy.target_clients = [];
+		}
+
+		policy.active = policy.active ? true : false;
+
+		if(policy.never_expires) {
+			policy.expiry_date = '2999-01-01';
+		}
+
+		var now = moment().utc().format('YYYY-MM-DD');
+		if(policy.expiry_date < now) {
+			valid = false;
+			errors.push('Expiry Date should be in the future');
+		}
+
+		if(valid) {
+			var p = new Policy(policy);
+			p.save(function(err, saved) {
+				if(!err) {
+					req.flash('success', 'New Policy Saved!');
+				} else {
+					req.flash('errors', err ? JSON.stringify(err) : 'Error trying to save policy, please try again.');
+				}
+				res.redirect('admin/policies');
+			});
+		} else {
+			req.flash('errors', errors);
+			res.redirect('admin/policies');
+		}
+	} else {
+		req.flash('errors', 'Missing parameters');
+		res.redirect('admin/policies');
+	}
+}
+
+exports.policies_active = function(req, res) {
+	
+	var policy = req.body.policy;
+	if(policy._id && policy.active != null) {
+		Policy.findOne({_id: policy._id})
+		.exec(function(err, doc) {
+			if(!err) {
+				doc.active = policy.active === 'true' ? true : false;
+				doc.save(function(err, saved) {
+					res.send({success: err ? false : true, policy: saved});
+				});
+			} else {
+				res.send({success: false, policy: policy});
+			}
+		});
+	} else {
+		res.send({success:false, policy: policy});
 	}
 	
 }

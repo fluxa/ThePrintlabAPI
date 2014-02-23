@@ -1,0 +1,88 @@
+.modal.fade(role='dialog', aria-labelledby='new_policy_label', aria-hidden='true')#modal_new_policy
+	.modal-dialog
+		form.form(role='form', method='POST', action='/admin/policies/add')
+			.modal-content
+				.modal-header
+					button.close(type='button', data-dismiss='modal', aria-hidden='true')&times;
+					h4.modal-title#new_policy_label New Policy
+				.modal-body
+					form.form(role='form', method='POST', action='/admin/coupons/add')
+						
+						.form-group
+							label(for='policy_name') Name
+							input.form-control(type='text', name='policy[name]', placeholder='i.e. Primer pedido envío gratis')#policy_name
+
+						.form-group
+							label(for='policy_coupon') Coupon
+							select.form-control(name='policy[coupon]', data-placeholder='Choose a coupon')#policy_coupon
+								each coupon in coupons
+									option(value='#{coupon._id}') 
+										span #{coupon.title}
+										small  | #{coupon.currency}
+										small  | Base ##{coupon.rules.qty_base} x $#{coupon.rules.cost_base}
+										small  | Add ##{coupon.rules.qty_add} x $#{coupon.rules.cost_add}
+										small  | Shipping: $#{coupon.rules.cost_shipping_flat}
+
+						.row
+							.col-sm-4
+								.form-group.date
+									label(for='policy_expiry_date') Expiry Date
+									.input-group
+										input.form-control(type='text', name='policy[expiry_date]', placeholder='2014-08-22')#policy_expiry_date
+										span.input-group-addon
+											i.glyphicon.glyphicon-th
+									
+							.col-sm-4
+								.form-group
+									.checkbox
+									label
+										input(name='policy[never_expires]', type='checkbox', value='true', onclick='policy_never_expires()')#policy_expiry_box
+										|  Never Expires
+
+						.form-group
+							label(for='policy_type') Type
+							select.form-control(name='policy[type]', onchange='policy_type_changed()')#policy_type
+								option(value='GLOBAL') GLOBAL
+								option(value='SPECIFIC') SPECIFIC
+							span.help-block GLOBAL: Applies to ALL clients | SPECIFIC: Applies only to selected clients
+
+						.form-group(style='display:none')#policy_target_clients_group
+							label(for='policy_target_clients') Target Clients
+							select.form-control.chosen-select(name='policy[target_clients]', data-placeholder='Choose Clients', multiple)#policy_target_clients
+								each client in clients
+									if client.email
+										option(value='#{client._id}') #{client.email} #{client.mobile}
+
+						.form-group
+							.checkbox
+							label
+								input(type='checkbox', name='policy[active]', value='true')#policy_active 
+								|  Do you want to activate this policy after saving?
+	
+						
+				.modal-footer
+					button.btn.btn-default(data-dismiss='modal') Close
+					button.btn.btn-primary(type='submit') Save Policy
+script.
+	function policy_never_expires() {
+		var checked = $('#policy_expiry_box')[0].checked;
+		var exp = $('#policy_expiry_date');
+		exp.attr('readonly', checked);
+		if(checked) {
+			exp[0].value = '2999-01-01';
+		} else {
+			exp[0].value = '';
+		}
+	}
+
+	function policy_type_changed() {
+		var ptype = $('#policy_type')[0];
+		var grp = $('#policy_target_clients_group')[0];
+		if(ptype.value === 'SPECIFIC') {
+			grp.style['display'] = 'block';
+		} else {
+			grp.style['display'] = 'none';
+		}
+
+	}
+	

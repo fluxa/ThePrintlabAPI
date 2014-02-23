@@ -11,6 +11,7 @@ var addresses = require('addresses')
 var orders = require('orders')
 var index = require('index')
 var support = require('support')
+var coupons = require('coupons')
 var debug = require('debug')
 var admin = require('admin')
 
@@ -31,10 +32,15 @@ module.exports = function (app, auth) {
 	app.get('/admin/dashboard', auth, admin.dashboard);
 	app.get('/admin/orders', auth, admin.orders);
 	app.get('/admin/clients', auth, admin.clients);
+	app.get('/admin/coupons', auth, admin.coupons);
+	app.get('/admin/policies', auth, admin.policies);
 	app.get('/admin/support', auth, admin.support);
 	app.post('/admin/orders/manage', auth, admin.orders_manage);
 	app.post('/admin/orders/export', auth, admin.orders_export);
 	app.post('/admin/support/close', auth, admin.support_close);
+	app.post('/admin/coupons/add', auth, admin.coupons_add);
+	app.post('/admin/policies/add', auth, admin.policies_add);
+	app.post('/admin/policies/active', auth, admin.policies_active);
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);
@@ -44,11 +50,17 @@ module.exports = function (app, auth) {
 	app.get(v+'/clients/get/:_id', clients.get);
 	app.post(v+'/clients/update', clients.update);
 	app.delete(v+'/clients/remove/:_id', clients.remove);
-	app.post(v+'/clients/coupon/consume', clients.coupon_consume);
-	app.get(v+'/clients/coupon/get/:_id', clients.coupon_get);
+	
 	// -> auth
 	app.post(v+'/clients/find/', auth, clients.find);
 
+	// Coupons
+	app.get(v+'/coupons/get/:client_id', coupons.get);
+	app.post(v+'/coupons/consume', coupons.consume);
+
+	//Deprecated - Backwards compatibility
+	app.post(v+'/clients/coupon/consume', coupons.consume);
+	app.get(v+'/clients/coupon/get/:client_id', coupons.get);
 
 	// Address
 	app.post(v+'/addresses/register', addresses.register);

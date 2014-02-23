@@ -28,3 +28,5 @@ Server side APIs for ThePrintlab App
 * [Clients](clients.html)
 * [Addresses](addresses.html)
 * [Orders](orders.html)
+
+# db.clients.update({'consumed_coupons.0':{$exists:true}},{$set:{consumed_coupons:['53096be67de0a1ce45d90f01']}},false,true)

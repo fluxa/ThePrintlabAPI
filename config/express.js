@@ -3,11 +3,11 @@
  * Module dependencies.
  */
 
-var express = require('express')
-var mongoStore = require('connect-mongo')(express)
-var helpers = require('view-helpers')
-var pkg = require('../package')
-var env = process.env.NODE_ENV || 'development'
+var express = require('express');
+var mongoStore = require('connect-mongo')(express);
+var helpers = require('view-helpers');
+var pkg = require('../package');
+var env = process.env.NODE_ENV || 'development';
 var lessMiddleware = require('less-middleware');
 var flash = require('connect-flash');
 var log4js = require('log4js');
@@ -40,13 +40,11 @@ exports.setup = function (app, config) {
 
 
 	// use express favicon
-	app.use(express.favicon(__dirname + '/../public/img/favicon.ico'))
-
-	app.use(express.logger('dev'))
+	app.use(express.favicon(__dirname + '/../public/img/favicon.ico'));
 
 	// views config
-	app.set('views', config.root + '/app/views')
-	app.set('view engine', 'jade')
+	app.set('views', config.root + '/app/views');
+	app.set('view engine', 'jade');
 
 
 	app.configure(function () {
@@ -63,10 +61,10 @@ exports.setup = function (app, config) {
 			debug: false
 		}));
 
-		app.use(express.static(config.root + '/public'))
+		app.use(express.static(config.root + '/public'));
 
 		// cookieParser should be above session
-		app.use(express.cookieParser())
+		app.use(express.cookieParser());
 
 		// express/mongo session storage
 		app.use(express.session({
@@ -75,7 +73,7 @@ exports.setup = function (app, config) {
 				url: config.db,
 				collection : 'sessions'
 			})
-		}))
+		}));
 
 	
 		// CORS cross-domain
@@ -90,17 +88,24 @@ exports.setup = function (app, config) {
 		app.use(flash());
 		
 		// expose pkg and node env to views
-		app.locals({
-			pkg: pkg,
-			env: env,
-			moment: require('moment')
-		})
-
+		// expose pkg and node env to views
+		app.use(function (req, res, next) {
+			res.locals.pkg = pkg;
+			res.locals.env = env;
+			res.locals.session = req.session;
+			res.locals.moment = require('moment'),
+			res.locals.msg_errors = req.flash('errors');
+			res.locals.msg_info = req.flash('info');
+			res.locals.msg_success = req.flash('success');
+			res.locals.msg_warning = req.flash('warning');
+			next()
+		});
+		
 		// View helpers
-		app.use(helpers(pkg.name))
+		app.use(helpers(pkg.name));
 
 		// routes should be at the last
-		app.use(app.router)
+		app.use(app.router);
 
 	})
 

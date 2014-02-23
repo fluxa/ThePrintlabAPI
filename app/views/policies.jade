@@ -1,0 +1,82 @@
+doctype html
+html
+	include includes/head
+	link(href='/css/datepicker3.css', rel='stylesheet', media='screen')
+	link(href='/css/chosen.min.css', rel='stylesheet', media='screen')
+	link(href='/css/bootstrap-switch.min.css', rel='stylesheet', media='screen')
+	link(href='/css/coupons.css', rel='stylesheet', media='screen')
+	body
+		include includes/messages
+		include includes/navigation
+		
+		.container
+			h1
+				| Policies
+				span.pl-label.label.label-info #{policies.length}
+			.panel
+				.btn-group.btn-group
+					button.btn.btn-default(data-toggle='modal', data-target='#modal_new_policy') New Policy
+			include includes/modal_new_policy
+
+			table.table.table-hover
+					thead
+						tr
+							th Name
+							th Coupon
+							th Expiry Date
+							th Type
+							th Target Clients
+							th Active
+							th					
+					tbody
+						each policy in policies
+							tr
+								- var years = moment(policy.expiry_date).diff(moment(), 'years');
+								- var expiry_string = years > 50 ? 'NEVER' : policy.expiry_date;
+					
+								td #{policy.name}
+								td #{policy.coupon.title}
+								td #{expiry_string}
+								td #{policy.type}
+								td #{policy.target_clients.length}
+								td
+									if policy.active
+										input.switch(type='checkbox', data-id='#{policy._id}', data-size='mini', data-on-color='success', data-off-color='danger', checked)
+									else
+										input.switch(type='checkbox', data-id='#{policy._id}', data-on-color='success', data-off-color='danger', data-size='mini')
+								td
+
+	include includes/scripts_common
+	script(src='/js/bootstrap-datepicker.js')
+	script(src='/js/bootstrap-switch.min.js')
+	script(src='/js/chosen.jquery.min.js')
+	script.
+		
+		$('#policy_expiry_date').datepicker({
+			format: 'yyyy-mm-dd',
+			startDate: 'today',
+			autoclose: true
+		});
+
+		$('.chosen-select').chosen({
+			width: '100%'
+		});
+
+		$('.switch').bootstrapSwitch();
+
+		$('.switch').on('switchChange', function (e, data) {
+			var $element = $(data.el),
+			value = data.value;
+			var _id = $element.attr('data-id');
+			
+			$.post('policies/active', {
+				policy: {
+					_id: _id,
+					active: value
+				}
+			}, function(res) {
+				if(!res.success) {
+					location.reload();
+				}
+			});
+		});
