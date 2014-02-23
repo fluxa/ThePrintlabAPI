@@ -121,7 +121,7 @@ exports.get = function (req, res) {
 			if(!err) {
 				var coupons = [];
 				_.each(policies, function(policy, index, all) {
-					coupons.push(policy.coupon);
+					coupons.push(policy.coupon.pack());
 				});
 				var couponsStr = JSON.stringify(coupons);
 				var encrypted = security.pack(couponsStr);
