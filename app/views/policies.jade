@@ -38,7 +38,7 @@ html
 								td #{policy.coupon.title}
 								td #{expiry_string}
 								td #{policy.type}
-								td #{policy.target_clients.length}
+								td #{policy.type === 'GLOBAL' ? 'ALL' : policy.target_clients.length}
 								td
 									if policy.active
 										input.switch(type='checkbox', data-id='#{policy._id}', data-size='mini', data-on-color='success', data-off-color='danger', checked)
