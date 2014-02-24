@@ -119,10 +119,15 @@ exports.get = function (req, res) {
 		// Finally
 		function(err, results) {
 			if(!err) {
+
+				// Only 1
 				var coupons = [];
-				_.each(policies, function(policy, index, all) {
-					coupons.push(policy.coupon.pack());
-				});
+				if(policies.length > 0) {
+					coupons.push(policy[0].coupon.pack());
+				}
+				// _.each(policies, function(policy, index, all) {
+				// 	coupons.push(policy.coupon.pack());
+				// });
 				var couponsStr = JSON.stringify(coupons);
 				var encrypted = security.pack(couponsStr);
 				res.send({
