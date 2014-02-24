@@ -123,7 +123,7 @@ exports.get = function (req, res) {
 				// Only 1
 				var coupons = [];
 				if(policies.length > 0) {
-					coupons.push(policy[0].coupon.pack());
+					coupons.push(policies[0].coupon.pack());
 				}
 				// _.each(policies, function(policy, index, all) {
 				// 	coupons.push(policy.coupon.pack());
