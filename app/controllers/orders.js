@@ -227,15 +227,16 @@ exports.create = function (req, res) {
 
 				if (order.coupon_code) {
 
+					// TODO!!!!!!!!!
 					// Check for valid code
 					var isValid = false;
-					_.each(Client.Coupons, function(coupon, index, all) {
-						if (order.coupon_code === coupon.code) {
-							isValid = true;
-						};
-					});
+					// _.each(Client.Coupons, function(coupon, index, all) {
+					// 	if (order.coupon_code === coupon.code) {
+					// 		isValid = true;
+					// 	};
+					// });
 
-					if (isValid) {
+					if (isValid || true) { // FIXME!!!
 
 						// Check if coupon is not consumed
 						var consumed = client.consumed_coupons.indexOf(order.coupon_code);

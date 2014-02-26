@@ -64,7 +64,7 @@ exports.OrderConfirmationEmail = function() {
 			}
 
 			var subject = util.format('ThePrintlab: Confirmación de Pedido (%s)', order._id);
-			var bcc = 'luis@theprintlab.cl, fluxa@theprintlab.cl';
+			var bcc = config.admin_emails.join(', ');
 			mailer.send('order_confirm', locals, 'ThePrintlab <orders@theprintlab.cl>', order.client.email, bcc, subject, function(err, response) {
 				if(err) {
 					console.log(util.format('Error sending order_confirm for order %s => %s', order._id, err));
@@ -133,7 +133,7 @@ exports.SupportNotificationEmail = function() {
 			}
 
 			var subject = util.format('[ThePrintlab Support] (%s)', support._id);
-			var bcc = 'luis@theprintlab.cl, fluxa@theprintlab.cl';
+			var bcc = config.admin_emails.join(', ');
 			mailer.send('support', locals, 'fluxa@theprintlab.cl', 'hola@theprintlab.cl', bcc, subject, function(err, response) {
 				if(err) {
 					console.log(util.format('Error sending support => %s', support._id, err));
