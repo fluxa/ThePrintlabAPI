@@ -14,7 +14,9 @@ exports.c = {
 	CouponInvalid: 'CouponInvalid',
 	DBError: 'DatabaseError',
 	CannotVerifyPayment: 'CannotVerifyPayment',
-	MissingParameters : 'MissingParameters'
+	MissingParameters : 'MissingParameters',
+	OldAppVersion: 'OldAppVersion',
+	CustomError: 'CustomError'
 }
 
 

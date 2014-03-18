@@ -17,7 +17,10 @@ var ClientSchema = new Schema({
 	udid: { type: String, index: { unique: true } }, // unique id generated from the device
 	email: {type: String},
 	mobile: { type: String },
-	uaToken: { type: String },
+	pushtoken: {
+		token: { type: String },
+		platform: { type: String }
+	},
 	consumed_coupons: [{ type: String }], // consumed coupon ids
 	addresses: [ { type: String , ref: 'Address'} ] , //Address _id
 	orders: [ { type: String , ref: 'Order'} ], //Order _id

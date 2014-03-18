@@ -5,23 +5,21 @@
  
 require('newrelic')
 console.log("==== STARTING SERVER ========================================");
-var express = require('express')
-var env = process.env.NODE_ENV || 'development'
-var config = require('./config/config')[env]
-var mongoose = require('mongoose')
-var fs = require('fs')
-var time = require('time')
-var util = require('util')
-var http = require('http')
-var cron = require('./app/util/cron')
-var robot = require('./app/util/robot')
+var common = require('./app/util/common');
+var express = require('express');
+var mongoose = require('mongoose');
+var fs = require('fs');
+var time = require('time');
+var http = require('http');
+var cron = require('./app/util/cron');
+var robot = require('./app/util/robot');
 
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
 
 require('express-namespace')
 
-mongoose.connect(config.db)
+mongoose.connect(common.config.db)
 
 // Bootstrap models
 fs.readdirSync(__dirname + '/app/models').forEach(function (file) {
@@ -32,7 +30,7 @@ var app = express()
 
 // Bootstrap application settings
 var express_config = require('./config/express')
-express_config.setup(app, config)
+express_config.setup(app, common.config)
 
 // Bootstrap routes
 require('./config/routes')(app, express_config.auth)
@@ -41,7 +39,7 @@ require('./config/routes')(app, express_config.auth)
 var port = process.env.PORT || 5006
 app.listen(port, function() {
 	console.log("http.globalAgent.maxSockets => " + http.globalAgent.maxSockets);
-	console.log(util.format('%s | Express app started on port %d', new time.Date().setTimezone('UTC'),port));
+	console.log(common.util.format('%s | Express app started on port %d', common.moment.utc(),port));
 	console.log("=== LOGS ==========================================");
 });
 

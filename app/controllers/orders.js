@@ -35,7 +35,7 @@ exports.find = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters query', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters query', res);
 	}
 }
 
@@ -140,7 +140,7 @@ exports.payment = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id or wrong action', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id or wrong action', res);
 	}
 	
 }
@@ -161,7 +161,7 @@ exports.get = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 	
 }
@@ -317,7 +317,7 @@ exports.create = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters order', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters order', res);
 	}
 }
 
@@ -388,7 +388,7 @@ exports.submit = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters order', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters order', res);
 	}
 }
 
@@ -412,7 +412,7 @@ exports.remove = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -437,6 +437,6 @@ exports.remove = function (req, res) {
  			}
  		});
  	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
  }

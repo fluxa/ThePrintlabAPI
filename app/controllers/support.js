@@ -48,7 +48,7 @@ exports.send_message = function(req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters client_id, message', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters client_id, message', res);
 	}
 
 }

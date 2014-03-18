@@ -50,6 +50,7 @@ module.exports = function (app, auth) {
 	app.get(v+'/clients/get/:_id', clients.get);
 	app.post(v+'/clients/update', clients.update);
 	app.delete(v+'/clients/remove/:_id', clients.remove);
+	app.post(v+'/clients/pushtoken', clients.pushtoken);
 	
 	// -> auth
 	app.post(v+'/clients/find/', auth, clients.find);
@@ -57,6 +58,7 @@ module.exports = function (app, auth) {
 	// Coupons
 	app.get(v+'/coupons/get/:client_id', coupons.get);
 	app.post(v+'/coupons/consume', coupons.consume);
+	app.post(v+'/coupons/redeem', coupons.redeem);
 
 	//Deprecated - Backwards compatibility
 	app.post(v+'/clients/coupon/consume', coupons.consume);

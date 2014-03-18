@@ -44,7 +44,7 @@ exports.consume = function (req, res) {
 			};
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters payload', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters payload', res);
 	}
 }
 
@@ -144,6 +144,68 @@ exports.get = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
+}
+
+/**
+ * Redeem a Coupon for Client
+ *
+ * @param {String} client_id {client_id:'xxx'}
+ * @param {String} coupon_code
+ * @return {Object} {success:true} || {success:false}
+ * - @method `POST`
+ * @api public
+ */
+exports.redeem = function (req, res) {
+
+	var client_id = req.body.client_id;
+	var coupon_code = req.body.coupon_code;
+
+	var client = null;
+
+	if(client_id && coupon_code) {
+
+		common.async.series([
+			// Get Client
+			function(callback){
+				Client
+				.findOne({
+					_id: client_id
+				})
+				.exec(function(err, doc) {
+					if(!err && doc) {
+						client = doc;
+						callback();
+					} else {
+						callback({code: plerror.c.ClientNotFound, verbose: 'Client not found'});
+					}
+				})
+			},
+			// Get Coupon
+			function(callback) {
+				// TODO!
+				callback();
+			}
+		],
+		// Finally
+		function(err, results) {
+			if(!err) {
+				// TODO
+				if (coupon_code === 'XXX') {
+					plerror.throw(plerror.c.CouponInvalid, 'Coupon no valido', res);
+				} else {
+					res.send({success:true});
+				}
+				
+			} else {
+				plerror.throw(err.code, err.verbose, res);
+			}
+		});
+
+	} else {
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters client_id or coupon_code', res);
+	}
+
+
 }

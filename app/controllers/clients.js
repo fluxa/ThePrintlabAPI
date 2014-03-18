@@ -23,7 +23,11 @@ exports.register = function (req, res) {
 	if (udid) {
 		
 		//try to find client first
-		Client.findOne({udid: udid}, function(err, doc) {
+		Client
+		.findOne({
+			udid: udid
+		})
+		.exec(function(err, doc) {
 			if(!err && doc) {
 				//Client found, return
 				res.send({'client':doc});
@@ -44,8 +48,65 @@ exports.register = function (req, res) {
 			});
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters udid', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters udid', res);
 	}
+}
+
+/**
+ * Sets Push Notification Token
+ *
+ * @param {String} uuid
+ * @param {String} platform ios or android
+ * @param {String} token push token
+ * @return {Object} { success: true } || { success: false }
+ * @api public
+ */ 
+exports.pushtoken = function(req, res) {
+
+	var platform = req.body.platform;
+	var pushtoken = req.body.token;
+	var udid = req.body.udid;
+
+	var client = null;
+
+	if((platform === 'ios' || platform === 'android') && pushtoken && udid) {
+		common.async.series([
+
+			// Find Client
+			function(callback) {
+
+				Client
+				.findOne({
+					udid: udid
+				})
+				.exec(function(err, doc) {
+					if(!err && doc) {
+						client = doc;
+						callback();
+					} else {
+						callback({code: plerror.c.ClientNotFound, verbose: common.util.format('Client not found for udid => %s',udid)});
+					}
+				})
+			}
+
+		],
+		// Finally
+		function(err, results) {
+			if(!err) {
+				client.pushtoken = {
+					token: pushtoken,
+					platform: platform
+				}
+				client.save();
+				res.send({success: true});
+			} else {
+				plerror.throw(err.code, err.verbose, res);
+			}
+		});
+	} else {
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
+	}
+
 }
 
 /**
@@ -64,11 +125,11 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({client:doc});
 			} else {
-				plerror.throw(plerror.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
+				plerror.throw(plerror.c.ClientNotFound, err || util.format('Client not found with _id: %s',_id), res);
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -90,7 +151,7 @@ exports.find = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters query', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters query', res);
 	}
 }
 
@@ -117,7 +178,7 @@ exports.update = function (req, res) {
 			};
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters client', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters client', res);
 	}
 }
 
@@ -141,6 +202,6 @@ exports.remove = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }

@@ -46,7 +46,7 @@ exports.register = function (req, res) {
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters payload, address', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters payload, address', res);
 	}
 }
 
@@ -66,11 +66,11 @@ exports.get = function (req, res) {
 			if(!err && doc) {
 				res.send({address:doc});
 			} else {
-				plerror.throw(plerror.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
+				plerror.throw(plerror.c.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -103,10 +103,10 @@ exports.remove = function (req, res) {
 				});
 
 			} else {
-				plerror.throw(plerror.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
+				plerror.throw(plerror.c.AddressNotFound, err || util.format('Address not found for _id: %s',_id), res);
 			};
 		});
 	} else {
-		plerror.throw(plerror.MissingParameters, 'Missing parameters _id', res);
+		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }
