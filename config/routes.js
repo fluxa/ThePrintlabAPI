@@ -27,6 +27,7 @@ module.exports = function (app, auth) {
 	app.get('/', auth, index.admin);
 	app.get('/mu-c480b215-1f18b692-ac11b7c3-2db78a1a', index.blitz);
 	app.get(v+'/ping', index.ping);
+	app.get(v+'/ping/server', index.ping_server);
 	
 	// Admin
 	app.get('/admin/dashboard', auth, admin.dashboard);

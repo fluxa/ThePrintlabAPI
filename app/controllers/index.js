@@ -17,6 +17,10 @@ exports.blitz = function(req, res) {
 	res.send('42');
 }
 
+exports.ping_server = function(req, res) {
+	res.send('OK');
+}
+
 exports.ping = function(req, res) {
 
 	var is_allowed = false;
