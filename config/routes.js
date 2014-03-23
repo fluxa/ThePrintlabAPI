@@ -3,17 +3,18 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 
 // controllers
-var clients = require('clients')
-var addresses = require('addresses')
-var orders = require('orders')
-var index = require('index')
-var support = require('support')
-var coupons = require('coupons')
-var debug = require('debug')
-var admin = require('admin')
+var clients = require('clients');
+var addresses = require('addresses');
+var orders = require('orders');
+var index = require('index');
+var support = require('support');
+var coupons = require('coupons');
+var debug = require('debug');
+var admin = require('admin');
+var maintenance = require('maintenance');
 
 /**
  * Expose
@@ -44,6 +45,9 @@ module.exports = function (app, auth) {
 	app.post('/admin/policies/active', auth, admin.policies_active);
 	app.get('/admin/policies/manage_codes/:_id', auth, admin.policies_manage_codes);
 	app.post('/admin/policies/generate_codes', auth, admin.policies_generate_codes);
+
+	// Maintenance
+	app.get('/maintenance/fix_consumed',auth,maintenance.fix_consumed);
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);
