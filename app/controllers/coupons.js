@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var Coupon = mongoose.model('Coupon');
 var Policy = mongoose.model('Policy');
 var Client = mongoose.model('Client');
+var Redeem = mongoose.model('Redeem');
 var plerror = require('../util/plerror');
 var util = require('util');
 var security = require('../util/security');
@@ -82,10 +83,16 @@ exports.get = function (req, res) {
 				})
 			},
 
-			// Suitable Policies
+			// GLOBAL and SPECIFIC Policies
+			// (not REDEEMABLE)
 			function(callback) {
+				
 				var now = moment().format('YYYY-MM-DD');
+				
 				Policy.find({
+					type: {
+						$ne: Policy.Types.REDEEMABLE.key,
+					},
 					coupon:{
 						$nin: client.consumed_coupons
 					},
@@ -101,19 +108,65 @@ exports.get = function (req, res) {
 						}
 					},
 					{
-						type: Policy.Types.Global
+						type: Policy.Types.GLOBAL.key
 					}
 				])
 				.populate('coupon')
-				.sort({
-					type: -1
-				})
 				.exec(function(err, docs) {
 					if(!err && docs) {
-						policies = docs;
+						// filter
+						common._.each(docs, function(policy) {
+							if(client.consumed_coupons.indexOf(policy._id.toString()) === -1) {
+								var type = Policy.Types[policy.type];
+								policy.type_obj = type;
+								policy.sorting_priority = type.sorting_priority;
+								policies.push(policy);
+							}
+						});
 					}
 					callback(err, 'policies');
 				});
+			},
+
+			// REDEEMABLE
+			// Append policies found in redeemed codes
+			function(callback) {
+				Redeem
+				.find({
+					client: client._id
+				})
+				.populate('policy')
+				.sort({date: -1})
+				.exec(function(err, docs) {
+					if(!err && docs && docs.length > 0) {
+						// **LIFO**
+						// Last in First out
+						Policy
+						.populate([docs[0]], {
+							path: 'policy.coupon',
+							model: Coupon
+						},
+						function(err, docs2) {
+							if(!err && docs2 && docs2.length > 0) {
+								var redeem = docs[0];
+								var policy = redeem.policy;
+								var coupon = policy.coupon;
+								if(client.consumed_coupons.indexOf(redeem.code) === -1) {
+									var type = Policy.Types[policy.type];
+									policy.type_obj = type;
+									policy.sorting_priority = type.sorting_priority;
+									policy.redeem = redeem;
+									policies.push(policy);
+								}
+								callback();
+							} else {
+								callback();
+							}
+						});
+					} else {
+						callback();
+					}
+				});		
 			}
 		],
 		// Finally
@@ -122,12 +175,20 @@ exports.get = function (req, res) {
 
 				// Only 1
 				var coupons = [];
-				if(policies.length > 0) {
-					coupons.push(policies[0].coupon.pack());
+
+				// Sort
+				var sorted_policies = common._.sortBy(policies, 'sorting_priority');
+				
+				if(sorted_policies && sorted_policies.length > 0) {
+					var policy = sorted_policies[0];
+					var packed = policy.coupon.pack(policy._id);
+					// change response code if redeemable
+					if(policy.redeem) {
+						packed.code = policy.redeem.code;
+					}
+					coupons.push(packed);
 				}
-				// _.each(policies, function(policy, index, all) {
-				// 	coupons.push(policy.coupon.pack());
-				// });
+				
 				var couponsStr = JSON.stringify(coupons);
 				var encrypted = security.pack(couponsStr);
 				res.send({
@@ -160,13 +221,15 @@ exports.get = function (req, res) {
 exports.redeem = function (req, res) {
 
 	var client_id = req.body.client_id;
-	var coupon_code = req.body.coupon_code;
+	var redeem_code = req.body.coupon_code;
 
 	var client = null;
+	var redeem = null;
 
-	if(client_id && coupon_code) {
+	if(client_id && redeem_code) {
 
 		common.async.series([
+
 			// Get Client
 			function(callback){
 				Client
@@ -182,22 +245,67 @@ exports.redeem = function (req, res) {
 					}
 				})
 			},
-			// Get Coupon
+
+			// Find Redeem
 			function(callback) {
-				// TODO!
+				
+				Redeem
+				.findOne({
+					code: redeem_code
+				})
+				.populate('policy')
+				.exec(function(err, doc) {
+					if(!err && doc) {
+						redeem = doc;
+						callback();
+					} else {
+						callback({code: plerror.c.CouponInvalid, error: common.util.format('%s => Redeem code not found',redeem_code)});
+					}
+				})
+			},
+
+			// Validations
+			function(callback) {
+				
+				if(redeem.redeemed) {
+					callback({code: plerror.c.CouponInvalid, error: common.util.format('%s => Redeem code already used',redeem_code)});
+					return;
+				}
+
+				if(!redeem.policy.active) {
+					callback({code: plerror.c.CouponInvalid, error: common.util.format('%s => Redeem code policy is not active',redeem_code)});
+					return;
+				}
+
+				var now = common.moment().format('YYYY-MM-DD');
+				if(redeem.policy.expiry_date < now) {
+					callback({code: plerror.c.CouponInvalid, error: common.util.format('%s => Redeem code policy already expired',redeem_code)});
+					return;
+				}
+
 				callback();
+
+			},
+
+			// Redeem
+			function(callback) {
+				redeem.redeemed = true;
+				redeem.client = client._id;
+				redeem.date = common.moment().format('YYYY-MM-DD HH:mm');
+				redeem.save(function(err, saved){
+					if(!err && saved) {
+						redeem = saved;
+						callback();
+					} else {
+						callback({code: plerror.c.DBError, error:'Failed to save Redeem'});
+					}
+				});
 			}
 		],
 		// Finally
 		function(err, results) {
 			if(!err) {
-				// TODO
-				if (coupon_code === 'XXX') {
-					plerror.throw(plerror.c.CouponInvalid, 'Coupon no valido', res);
-				} else {
-					res.send({success:true});
-				}
-				
+				res.send({success:true, redeem: redeem});
 			} else {
 				plerror.throw(err.code, err.verbose, res);
 			}

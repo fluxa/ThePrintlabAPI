@@ -42,6 +42,8 @@ module.exports = function (app, auth) {
 	app.post('/admin/coupons/add', auth, admin.coupons_add);
 	app.post('/admin/policies/add', auth, admin.policies_add);
 	app.post('/admin/policies/active', auth, admin.policies_active);
+	app.get('/admin/policies/manage_codes/:_id', auth, admin.policies_manage_codes);
+	app.post('/admin/policies/generate_codes', auth, admin.policies_generate_codes);
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);

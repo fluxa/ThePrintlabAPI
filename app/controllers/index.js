@@ -21,16 +21,11 @@ exports.ping_server = function(req, res) {
 	res.send('OK');
 }
 
+// App Ping | Headers => user-agent | ThePrintlab/x.x
 exports.ping = function(req, res) {
 
-	var is_allowed = false;
 	var user_agent = req.headers['user-agent'];
-	
-	common._.each(common.config.allowed_ios_user_agents, function(ios_user_agent){
-		if(user_agent.indexOf(ios_user_agent) > -1) {
-			is_allowed = true;
-		}
-	});
+	var is_allowed = user_agent >= common.config.minimum_app_version_allowed;
 
 	if(is_allowed) {
 		res.send('OK');

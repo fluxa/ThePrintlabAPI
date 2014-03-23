@@ -93,12 +93,8 @@ exports.setup = function (app, config) {
 			res.locals.pkg = pkg;
 			res.locals.env = env;
 			res.locals.session = req.session;
-			res.locals.moment = require('moment'),
-			res.locals.msg_errors = req.flash('errors');
-			res.locals.msg_info = req.flash('info');
-			res.locals.msg_success = req.flash('success');
-			res.locals.msg_warning = req.flash('warning');
-			next()
+			res.locals.moment = require('moment');
+			next();
 		});
 		
 		// View helpers

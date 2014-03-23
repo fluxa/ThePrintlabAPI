@@ -8,6 +8,7 @@ var Client = mongoose.model('Client');
 var Support = mongoose.model('Support');
 var Coupon = mongoose.model('Coupon');
 var Policy = mongoose.model('Policy');
+var Redeem = mongoose.model('Redeem');
 var async = require('async');
 var _ = require('underscore');
 var moment = require('moment');
@@ -170,12 +171,12 @@ exports.orders_manage = function (req, res) {
 				});
 
 			} else {
-				req.flash('errors', err || util.format('Order change_status -> not found for ids: %s',order_ids));
+				req.flash('error', err || util.format('Order change_status -> not found for ids: %s',order_ids));
 				res.redirect('/admin/orders');
 			}
 		});
 	} else {
-		req.flash('errors', 'Missing parameters order_ids, action');
+		req.flash('error', 'Missing parameters order_ids, action');
 		res.redirect('/admin/orders');
 	}
 }
@@ -268,7 +269,7 @@ exports.orders_export = function(req, res) {
 		});
 
 	} else {
-		req.flash('errors', 'Missing parameters order_ids');
+		req.flash('error', 'Missing parameters order_ids');
 		res.redirect('/admin/orders');
 	}
 	
@@ -310,12 +311,12 @@ exports.coupons_add = function(req, res) {
 			if(!err) {
 				req.flash('success', 'New Coupon Saved!');
 			} else {
-				req.flash('errors', err ? JSON.stringify(err) : 'Error trying to save coupon, please try again.');
+				req.flash('error', err ? JSON.stringify(err) : 'Error trying to save coupon, please try again.');
 			}
 			res.redirect('admin/coupons');
 		});
 	} else {
-		req.flash('errors', 'Missing parameters');
+		req.flash('error', 'Missing parameters');
 		res.redirect('admin/coupons');
 	}
 
@@ -327,6 +328,7 @@ exports.policies = function(req, res) {
 	var policies = [];
 	var coupons = [];
 	var clients = [];
+	var policy_types = [];
 
 	async.series([
 
@@ -338,7 +340,14 @@ exports.policies = function(req, res) {
 				if(!err && docs) {
 					policies = docs;
 				}
-				callback(null, 'policies');
+
+				// types
+				var keys = Object.keys(Policy.Types);
+				common._.each(keys, function(key) {
+					var obj = Policy.Types[key];
+					policy_types.push(obj);
+				});
+				callback();
 			});
 		},
 
@@ -349,7 +358,7 @@ exports.policies = function(req, res) {
 				if(!err && docs) {
 					coupons = docs;
 				}
-				callback(null, 'coupons');
+				callback();
 			});
 		},
 
@@ -360,7 +369,7 @@ exports.policies = function(req, res) {
 				if(!err && docs){
 					clients = docs;
 				}
-				callback(null, 'clients');
+				callback();
 			})
 		}
 
@@ -370,7 +379,8 @@ exports.policies = function(req, res) {
 		res.render('policies', {
 			policies: policies,
 			coupons: coupons,
-			clients: clients
+			clients: clients,
+			policy_types: policy_types
 		});
 	});
 }
@@ -385,12 +395,12 @@ exports.policies_add = function(req, res) {
 		var valid = true;
 		var errors = [];
 		
-		if(policy.type === Policy.Types.Specific && !policy.target_clients) {
+		if(policy.type === Policy.Types.SPECIFIC.key && !policy.target_clients) {
 			valid = false;
 			errors.push('Must select at least 1 Client for SPECIFIC policy type');
 		}
 
-		if(policy.type === Policy.Types.Global) {
+		if(policy.type === Policy.Types.GLOBAL.key) {
 			policy.target_clients = [];
 		}
 
@@ -409,19 +419,19 @@ exports.policies_add = function(req, res) {
 		if(valid) {
 			var p = new Policy(policy);
 			p.save(function(err, saved) {
-				if(!err) {
+				if(!err && saved) {
 					req.flash('success', 'New Policy Saved!');
 				} else {
-					req.flash('errors', err ? JSON.stringify(err) : 'Error trying to save policy, please try again.');
+					req.flash('error', err ? JSON.stringify(err) : 'Error trying to save policy, please try again.');
 				}
 				res.redirect('admin/policies');
 			});
 		} else {
-			req.flash('errors', errors);
+			req.flash('error', errors);
 			res.redirect('admin/policies');
 		}
 	} else {
-		req.flash('errors', 'Missing parameters');
+		req.flash('error', 'Missing parameters');
 		res.redirect('admin/policies');
 	}
 }
@@ -445,6 +455,144 @@ exports.policies_active = function(req, res) {
 		res.send({success:false, policy: policy});
 	}
 	
+}
+
+exports.policies_manage_codes = function(req, res) {
+
+	var _id = req.params._id;
+
+	var policy;
+	var redeems = [];
+
+	common.async.series([
+
+		// Valid
+		function(callback) {
+			if(_id) {
+				callback();
+			} else {
+				callback('Missing parameter _id');
+			}
+		},
+
+		// Policy
+		function(callback) {
+			Policy
+			.findOne({
+				_id: _id
+			})
+			.populate('coupon')
+			.exec(function(err, doc) {
+				if(!err && doc) {
+					policy = doc;
+					callback();
+				} else {
+					callback('Policy not found');
+				}
+			});
+		},
+
+		// Redeems
+		function(callback) {
+			Redeem
+			.find({
+				policy: policy._id
+			})
+			.populate('client')
+			.sort({_id: -1})
+			.exec(function(err, docs) {
+				if(!err && docs) {
+					redeems = docs;
+				}
+				callback();
+			})
+		}
+	],
+	// Finally
+	function(err) {
+		if(!err) {
+			res.render('manage_codes',{
+				policy: policy,
+				redeems: redeems
+			});
+		} else {
+			req.flash('error',err);
+			res.redirect('/policies');
+		}
+	});
+
+}
+
+exports.policies_generate_codes = function(req, res) {
+
+	var policy_id = req.body.policy_id;
+	var num_codes = parseInt(req.body.num_codes);
+
+	common.async.series([
+
+		// Valid
+		function(callback) {
+			if(policy_id && num_codes && num_codes > 0) {
+				callback();
+			} else {
+				callback('Missing parameter policy_id, num_codes');
+			}
+		},
+
+		// Policy
+		function(callback) {
+
+			Policy
+			.findOne({
+				_id: policy_id
+			})
+			.populate('coupon')
+			.exec(function(err, doc) {
+				if(!err && doc) {
+					policy = doc;
+					callback();
+				} else {
+					callback('Policy not found');
+				}
+			});
+		},
+
+		// Generate redeems
+		function(callback) {
+			var count = 0;
+			common.async.until(
+				function() {
+					return count >= num_codes;
+				},
+				function(redeem_callback) {
+					var redeem = new Redeem({
+						policy: policy._id,
+						redeemed: false
+					});
+					redeem.save(function(err, saved){
+						if(!err && saved) {
+							count++;
+						}
+						redeem_callback();
+					});
+				},
+				function(err) {
+					callback();
+				}
+			);
+
+		}
+
+	],
+	// Finally
+	function(err) {
+		if(!err) {
+			req.flash('success',common.util.format('%d Redeem codes were generated',num_codes));
+			res.send({success: true});
+		} else {
+			res.send({success:false, error: err});
+		}
+	});
 }
 
 // Support

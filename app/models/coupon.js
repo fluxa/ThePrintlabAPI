@@ -50,9 +50,9 @@ CouponSchema.set( 'toJSON', { virtuals: false, getters: true } );
  */
 CouponSchema.method({
 	// Return coupon in the format of the App
-	pack: function() {
+	pack: function(code) {
 		return {
-			code: this._id,
+			code: code,
 			title: this.title,
 			desc: this.description,
 			rules: this.rules

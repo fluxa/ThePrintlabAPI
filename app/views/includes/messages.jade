@@ -1,29 +1,29 @@
-- if (typeof msg_info != 'undefined' && msg_info.length)
+- if (typeof info != 'undefined' && info.length)
   .alert.alert-dismissable.alert-info
     button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
     ul
-      - each inf in msg_info
+      - each inf in info
         li!= inf
 
-- if (typeof msg_errors != 'undefined' && msg_errors.length)
+- if (typeof errors != 'undefined' && errors.length)
   .alert.alert-dismissable.alert-danger
     button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
     ul
-      - each error in msg_errors
+      - each error in errors
         li
           strong Error:  
           | #{error}
 
-- if (typeof msg_success != 'undefined' && msg_success.length)
+- if (typeof success != 'undefined' && success.length)
   .alert.alert-dismissable.alert-success
     button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
     ul
-      - each succ in msg_success
+      - each succ in success
         li!= succ
 
-- if (typeof msg_warning != 'undefined' && msg_warning.length)
+- if (typeof warning != 'undefined' && warning.length)
   .alert.alert-dismissable.alert-warning
     button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
     ul
-      - each warn in msg_warning
+      - each warn in warning
         li!= warn

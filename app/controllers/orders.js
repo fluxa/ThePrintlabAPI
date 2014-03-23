@@ -186,7 +186,10 @@ exports.create = function (req, res) {
 			// 1. Check if we are submitting an Order with an existing order id
 			function(callback) { 
 				if (req.body.replace_order_id) {
-					Order.findOne({_id: req.body.replace_order_id})
+					Order
+					.findOne({
+						_id: req.body.replace_order_id
+					})
 					.exec(function(err, doc) {
 						if (!err && doc) {
 							
@@ -224,55 +227,40 @@ exports.create = function (req, res) {
 			},
 			// 3. Validate Coupon if exists
 			function(callback) {
-
+				// TODO
+				// REFACTORING
 				if (order.coupon_code) {
 
-					// TODO!!!!!!!!!
-					// Check for valid code
-					var isValid = false;
-					// _.each(Client.Coupons, function(coupon, index, all) {
-					// 	if (order.coupon_code === coupon.code) {
-					// 		isValid = true;
-					// 	};
-					// });
+					// Check if coupon is not consumed
+					var consumed = client.consumed_coupons.indexOf(order.coupon_code);
+					if(consumed === -1) {
+						// Push to consumed
+						client.consumed_coupons.push(order.coupon_code);
+						callback(null, 'coupon is OK');
+					} else {
 
-					if (isValid || true) { // FIXME!!!
+						var consumedError = {
+							code: plerror.c.CouponConsumed, 
+							verbose: 'Coupon is already consumed'
+						}
 
-						// Check if coupon is not consumed
-						var consumed = client.consumed_coupons.indexOf(order.coupon_code);
-						if(consumed === -1) {
-							// Push to consumed
-							client.consumed_coupons.push(order.coupon_code);
-							callback(null, 'coupon is OK');
-						} else {
-
-							var consumedError = {
-								code: plerror.c.CouponConsumed, 
-								verbose: 'Coupon is already consumed'
-							}
-
-							// The Coupon was consumed
-							// But is possible that a previous unfinished Order used it
-							// Let's check
-							if (oldOrder) {
-								if (oldOrder.coupon_code === order.coupon_code) {
-									// Return coupon OK
-									callback(null, 'coupon is OK');	
-								} else {
-									// Return coupon consumed error
-									callback(consumedError, null);
-								}
+						// The Coupon was consumed
+						// But is possible that a previous unfinished Order used it
+						// Let's check
+						if (oldOrder) {
+							if (oldOrder.coupon_code === order.coupon_code) {
+								// Return coupon OK
+								callback(null, 'coupon is OK');	
 							} else {
 								// Return coupon consumed error
 								callback(consumedError, null);
 							}
-						}	
-					} else {
-						callback({
-							code: plerror.c.CouponInvalid, 
-							verbose: 'The coupon code is not valid' 
-						}, null);
+						} else {
+							// Return coupon consumed error
+							callback(consumedError, null);
+						}
 					}
+
 				} else {
 					callback(null, 'no coupon to be checked');
 				}
@@ -281,7 +269,8 @@ exports.create = function (req, res) {
 		// Finally. Create new Order
 		function(err, results) {
 			if (!err) {
-				Order.create(order, function(err, doc) {
+				Order
+				.create(order, function(err, doc) {
 					if (!err && doc) {
 
 						// Remove OldOrder Id if neccesary

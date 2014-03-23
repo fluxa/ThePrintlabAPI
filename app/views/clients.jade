@@ -16,7 +16,7 @@ html
 						th ClientID
 						th Email
 						th Mobile
-						th(data-placeholder='All').filter-select Used Coupons
+						th Consumed Coupons
 						th Addresses
 						th Orders
 				tbody
@@ -29,7 +29,7 @@ html
 							td
 								| #{client.mobile}
 							td
-								| #{client.consumed_coupons}
+								| #{client.consumed_coupons.length}
 							td
 								if client.addresses
 									| #{client.addresses.length}

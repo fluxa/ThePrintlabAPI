@@ -42,10 +42,10 @@
 						.form-group
 							label(for='policy_type') Type
 							select.form-control(name='policy[type]', onchange='policy_type_changed()')#policy_type
-								option(value='GLOBAL') GLOBAL
-								option(value='SPECIFIC') SPECIFIC
-							span.help-block GLOBAL: Applies to ALL clients | SPECIFIC: Applies only to selected clients
-
+								each policy_type in policy_types
+									option(value='#{policy_type.key}') #{policy_type.key} | <small>[#{policy_type.sorting_priority}] #{policy_type.desc}</small>
+							small If more than one policy applies to a client, they will be served by sorting priority number [n]
+						
 						.form-group(style='display:none')#policy_target_clients_group
 							label(for='policy_target_clients') Target Clients
 							select.form-control.chosen-select(name='policy[target_clients]', data-placeholder='Choose Clients', multiple)#policy_target_clients

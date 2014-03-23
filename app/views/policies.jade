@@ -26,6 +26,7 @@ html
 							th Expiry Date
 							th Type
 							th Target Clients
+							th Redeemables
 							th Active
 							th					
 					tbody
@@ -38,7 +39,12 @@ html
 								td #{policy.coupon.title}
 								td #{expiry_string}
 								td #{policy.type}
-								td #{policy.type === 'GLOBAL' ? 'ALL' : policy.target_clients.length}
+								td #{policy.type === 'SPECIFIC' ? policy.target_clients.length : 'ALL'}
+								if policy.type === 'REDEEMABLE'
+									td
+										a(href='/admin/policies/manage_codes/#{policy._id}') MANAGE CODES
+								else 
+									td --
 								td
 									if policy.active
 										input.switch(type='checkbox', data-id='#{policy._id}', data-size='mini', data-on-color='success', data-off-color='danger', checked)

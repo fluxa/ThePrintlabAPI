@@ -1,0 +1,62 @@
+doctype html
+html
+	include includes/head
+	link(href='/css/datepicker3.css', rel='stylesheet', media='screen')
+	link(href='/css/chosen.min.css', rel='stylesheet', media='screen')
+	link(href='/css/bootstrap-switch.min.css', rel='stylesheet', media='screen')
+	link(href='/css/coupons.css', rel='stylesheet', media='screen')
+	body
+		include includes/messages
+		include includes/navigation
+		
+		.container
+			h1
+				| Redeem Codes
+				span.pl-label.label.label-info #{redeems.length}
+			h4
+				| Policy: #{policy.name}
+			h4
+				| Coupon: #{policy.coupon.title}
+			br
+			.panel
+				.input-group
+					span.input-group-addon Number new codes to generate
+					input.form-control(type='number', value=0, style='width:60px; margin-right:4px;')#num_codes
+					button(onclick='generate_codes();').btn.btn-default Generate!
+				input(type='hidden', value='#{policy._id}')#policy_id
+
+			table.table.table-hover
+					thead
+						tr
+							th Code
+							th Redeemed
+							th					
+					tbody
+						each redeem in redeems
+							tr
+								td #{redeem.code}
+								if redeem.redeemed
+									td Date: #{redeem.date} | Client: #{redeem.client._id}
+								else
+									td No
+								td
+
+	include includes/scripts_common
+	script.
+		function generate_codes() {
+			var num_codes = parseInt($('#num_codes')[0].value);
+			var policy_id = $('#policy_id')[0].value;
+			if(num_codes > 0) {
+				$.post('/admin/policies/generate_codes',{
+					num_codes: num_codes,
+					policy_id: policy_id
+				},
+				function(res) {
+					if(res.success) {
+						location.reload();
+					} else {
+						alert(res.error);
+					}
+				});
+			}
+		}
