@@ -415,11 +415,26 @@ exports.remove = function (req, res) {
  exports.cancel = function(req, res) {
  	var _id = req.params['_id'];
  	if (_id) {
- 		Order.findOne({_id: _id})
+ 		Order
+ 		.findOne({
+ 			_id: _id
+ 		})
+ 		.populate('client')
  		.exec(function(err, doc) {
  			if(!err && doc) {
+ 				
  				doc.status = Order.OrderStatus.CanceledByUser;
  				doc.save();
+
+ 				// If order used copuon, remove it from consumned
+ 				if(doc.coupon_code && doc.client) {
+ 					var client = doc.client;
+ 					if(client.consumed_coupons) {
+ 						client.consumed_coupons = common._.without(client.consumed_coupons,doc.coupon_code);
+ 						client.save();
+ 					}
+ 				}
+ 				
  				res.send({order: doc});
  			} else {
  				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order cancel -> not found for _id: %s',_id), res);
