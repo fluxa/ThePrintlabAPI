@@ -128,7 +128,8 @@ exports.payment = function (req, res) {
 				// - check if saved user or token
 				// - create https route (secure.theprintlab.cl)
 				// - subscribe to stripe webhooks
-				
+				// - create action for no need payment (needs iOS update as well)
+				// - double check Webpay still works
 				case Order.Actions.StartStripe:
 				{
 					var stp_token = req.body.stp_token;
