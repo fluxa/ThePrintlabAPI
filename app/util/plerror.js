@@ -16,7 +16,8 @@ exports.c = {
 	CannotVerifyPayment: 'CannotVerifyPayment',
 	MissingParameters : 'MissingParameters',
 	OldAppVersion: 'OldAppVersion',
-	CustomError: 'CustomError'
+	CustomError: 'CustomError',
+	PaymentError: 'PaymentError'
 }
 
 

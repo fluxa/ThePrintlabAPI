@@ -85,7 +85,7 @@ module.exports = function (app, auth) {
 	app.get(v+'/orders/status_list', auth, orders.status_list);
 	app.post(v+'/orders/find', auth, orders.find);
 	app.get(v+'/orders/all', auth, orders.all);
-	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
+	app.post(v+'/orders/:_id/payment/:action', auth, orders.payment);
 	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
 
 	// Support

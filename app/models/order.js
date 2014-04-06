@@ -138,14 +138,17 @@ OrderSchema.static({
 		{id: OrderStatus.Printing, name: 'Printing'},
 		{id: OrderStatus.Shipped, name: 'Shipped'},
 	],
-	OrderActions: {
-		Start: 'start',
+	Actions: {
+		StartWebpay: 'start_webpay',
+		StartStripe: 'start_stripe',
 		Complete: 'complete',
 		Fail: 'failed'		
 	},
-	PaymentProviders: [
-		'webpay'
-	]
+	PaymentProvider: {
+		NoPayment: 'nopayment',
+		Webpay: 'webpay',
+		Stripe: 'stripe'
+	}
 })
 
 /**

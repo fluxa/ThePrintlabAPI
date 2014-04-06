@@ -67,81 +67,174 @@ exports.payment = function (req, res) {
 	var _id = req.params['_id'];
 	var action = req.params['action'];
 
-	if (_id && (_.values(Order.OrderActions).indexOf(action) >= 0)) { // check for query args
+	var order = null;
+	var time_stamp = common.moment().format('YYYY-MM-DD HH:mm:ss');
 
-		Order.findOne({_id: _id}).exec(function(err, doc) {
-			if (!err && doc) {
-				
-				switch(action) {
+	common.async.series([
 
-					case Order.OrderActions.Start:
+		// Checks
+		function(callback) {
 
-						// Check if cost_total == 0
-						if (doc.cost_total == 0) {
-							doc.status = Order.OrderStatus.NoNeedPayment;
-							doc.payment.logs.push(util.format('%s|Payment Started but Order doesn\'t need payment',new Date()));
-						} else {
-							// Continue with normal Order
-							doc.status = Order.OrderStatus.PaymentStarted;
-							doc.payment.logs.push(util.format('%s|Payment Started',new Date()));
-						}
+			// check for query args
+			if (_id && (_.values(Order.Actions).indexOf(action) >= 0)) {
+				callback();
+			} else {
+				callback({code:plerror.c.MissingParameters , error:'Missing parameters _id or wrong action'});
+			}
 
-						break;
+		},
 
-					case Order.OrderActions.Complete:
-						
-						// Check if the Order has already been Verified || Submitted
-						if (_.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], doc.status) === -1) {
+		// Order
+		function(callback) {
+			Order
+			.findOne({
+				_id: _id
+			})
+			.exec(function(err, doc) {
+				if (!err && doc) {
+					order = doc;
+					callback();
+				} else {
+					callback({code:plerror.c.OrderNotFound , error: util.format('Order not found for _id: %s',_id)});
+				}
+			});
+		},
 
-							// Parse payment info
-							var payment_provider = req.body.payment_provider;
-							var payment_data = req.body.payment_data;
-							if (payment_provider && payment_data) {
-								if (Order.PaymentProviders.indexOf(payment_provider) >= 0) {
-									// Order payment has been verified
-									doc.payment.provider = payment_provider;
-									doc.payment.data = payment_data;
-									doc.payment.logs.push(util.format('%s|Payment Verified', new Date()));
-									doc.status = Order.OrderStatus.PaymentVerified;
-								} else {
-									plerror.throw(plerror.c.MissingParameters, util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment), res);
-									return;
-								}
-							} else {
-								plerror.throw(plerror.c.MissingParameters, 'Cannot complete payment, missing payment object', res);
-								return;
-							}
+		// Action
+		function(callback) {
+			
+			var err = null;
 
-						} else {
-							plerror.throw(plerror.c.CannotVerifyPayment, 'Order is already Verified / Submitted, cannot pay twice', res);
-							return;
-						}
-						
-						break;
+			switch(action) {
 
-					case Order.OrderActions.Fail:
-						doc.status = Order.OrderStatus.PaymentError;
-						var payment_log = req.body.payment_log || 'unknown reason';
-						if (payment_log) {
-							doc.payment.logs.push(util.format('%s|Payment failed with reason: %s',new Date(),payment_log));
-						};
-						break;
+				case Order.Actions.StartWebpay:
+				{
+					// Check if cost_total == 0
+					if (order.cost_total == 0) {
+						order.status = Order.OrderStatus.NoNeedPayment;
+						order.payment.provider = Order.PaymentProvider.NoPayment;
+						order.payment.logs.push(util.format('%s|Payment Started => NoPayment', time_stamp));
+					} else {
+						// Continue with Webpay
+						order.status = Order.OrderStatus.PaymentStarted;
+						order.payment.provider = Order.PaymentProvider.Webpay;
+						order.payment.logs.push(util.format('%s|Payment Started => Webpay', time_stamp));
+					}
+					break;
 				}
 
-				doc.save(function(err, saveddoc) {
-					if (!err && saveddoc) {
-						res.send({order: saveddoc});	
+				// TODO
+				// - create payment on stripe
+				// - check if saved user or token
+				// - create https route (secure.theprintlab.cl)
+				// - subscribe to stripe webhooks
+				
+				case Order.Actions.StartStripe:
+				{
+					var stp_token = req.body.stp_token;
+					if(stp_token) {
+						order.status = Order.OrderStatus.PaymentStarted;
+						order.payment.provider = Order.PaymentProvider.Stripe;
+						order.payment.data = stp_token;
+						order.payment.logs.push(util.format('%s|Payment Started => Stripe', time_stamp));
 					} else {
-						plerror.throw(plerror.c.DBError, err || util.format('/order/payment/ -> Cannot save Order _id: %s',_id), res);
+						err = {code: plerror.c.PaymentError, error:'Stripe Payment Needs stp_token'};
+						order.payment.logs.push(util.format('%s|Payment Start Stripe Error => %s', time_stamp, err.error));
 					}
-				});
-			} else {
-				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order not found for _id: %s',_id), res);
+					
+					break;
+				}
+
+				case Order.Actions.Complete:
+				{
+					// Check if the Order has already been Verified || Submitted
+					if (_.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], order.status) === -1) {
+
+						var payment_data = req.body.payment_data;
+						
+						if (payment_data) {
+							
+							if(order.payment.provider === Order.PaymentProvider.Webpay) {
+								
+								order.payment.data = payment_data;
+								order.payment.logs.push(util.format('%s|Payment Complete => Webpay', time_stamp));
+								order.status = Order.OrderStatus.PaymentVerified;
+
+							} else if(order.payment.provider === Order.PaymentProvider.Stripe) {
+
+								// TODO Verification
+								order.status = Order.OrderStatus.PaymentVerified;
+								order.payment.logs.push(util.format('%s|Payment Complete => Stripe', time_stamp));
+
+							} else if(order.payment.provider === Order.PaymentProvider.NoPayment) {
+
+								order.payment.logs.push(util.format('%s|Payment Complete => NoPayment', time_stamp));
+							
+							} else {
+								err = {
+									code: plerror.c.MissingParameters, 
+									error: util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment)
+								}
+							}
+						} else {
+							err = {
+								code: plerror.c.MissingParameters, 
+								error: 'Cannot complete payment, missing payment data'
+							}
+						}
+
+					} else {
+						// TODO
+						// THIS SHOULD NEVER HAPPEN, SOMETHING WENT VERY WRONG
+						err = {
+							code: plerror.c.CannotVerifyPayment, 
+							error: 'Order is already Verified / Submitted, cannot pay twice'
+						}
+					}
+					
+					break;
+				}
+
+				case Order.Actions.Fail:
+				{
+					order.status = Order.OrderStatus.PaymentError;
+					var payment_log = req.body.payment_log || 'unknown reason';
+					if (payment_log) {
+						order.payment.logs.push(util.format('%s|Payment Failed => reason: %s',time_stamp,payment_log));
+					};
+					break;
+				}
 			}
-		});
-	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id or wrong action', res);
-	}
+
+			callback(err);
+
+		},
+
+		// Save
+		function(callback) {
+			order.markModified('payment');
+			order.save(function(err, saved) {
+				if (!err && saved) {
+					order = saved;
+					callback();
+				} else {
+					callback({code:plerror.c.DBError , error: util.format('/order/payment/ -> Cannot save Order _id: %s',_id)});
+				}
+			});
+		}
+
+	],
+	// Finally
+	function(err) {
+		if(!err) { 
+			res.send({
+				order: saved
+			});
+		} else {
+			plerror.throw(err.code, err.error, res);
+		}
+	});
+
 	
 }
 
