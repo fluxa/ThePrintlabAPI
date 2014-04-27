@@ -15,6 +15,7 @@ var OrderStatus = {
 	PaymentPending: 'PAYMENT_PENDING', // default state, set when order create
 	PaymentStarted: 'PAYMENT_STARTED', // set when the payment process starts but has not completed
 	PaymentVerified: 'PAYMENT_VERIFIED', // set internally after payment has been verified by the provider
+	PaymentOffline: 'PAYMENT_OFFLINE', // set for non online payments
 	NoNeedPayment: 'NO_NEED_PAYMENT', // when Order total == $0, due to coupon use
 	PaymentError: 'PAYMENT_ERROR', // payment was rejected for some reason
 	CanceledByUser: 'CANCELED_BY_USER', // the order was canceled by the user
@@ -132,7 +133,9 @@ OrderSchema.static({
 	OrderStatusList : [
 		{id: OrderStatus.PaymentPending, name: 'PaymentPending'},
 		{id: OrderStatus.PaymentStarted, name: 'PaymentStarted'},
+		{id: OrderStatus.NoNeedPayment, name: 'NoNeedPayment'},
 		{id: OrderStatus.PaymentVerified, name: 'PaymentVerified'},
+		{id: OrderStatus.PaymentOffline, name: 'PaymentOffline'},
 		{id: OrderStatus.PaymentError, name: 'PaymentError'},
 		{id: OrderStatus.Submitted, name: 'Submitted'},
 		{id: OrderStatus.Printing, name: 'Printing'},
@@ -147,7 +150,8 @@ OrderSchema.static({
 	PaymentProvider: {
 		NoPayment: 'nopayment',
 		Webpay: 'webpay',
-		Stripe: 'stripe'
+		Stripe: 'stripe',
+		BankTransfer: 'bank_transfer'
 	}
 })
 

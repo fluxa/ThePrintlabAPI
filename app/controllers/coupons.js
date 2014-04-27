@@ -89,7 +89,8 @@ exports.get = function (req, res) {
 				
 				var now = moment().format('YYYY-MM-DD');
 				
-				Policy.find({
+				Policy
+				.find({
 					type: {
 						$ne: Policy.Types.REDEEMABLE.key,
 					},

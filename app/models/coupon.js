@@ -57,6 +57,21 @@ CouponSchema.method({
 			desc: this.description,
 			rules: this.rules
 		}
+	},
+
+	// Validate rule
+	validate: function(qty, cost_total) {
+
+		var _additional = Math.max(0, qty - this.rules.qty_base);
+		var _cost_printing = this.rules.cost_base + this.rules.cost_add * Math.ceil(_additional/this.rules.qty_add);
+		var _cost_shipping = this.rules.cost_shipping_flat;
+		var _cost_total = _cost_printing + _cost_shipping;
+
+		if(_cost_total === cost_total) {
+			return true;
+		}
+		
+		return false;
 	}
 });
 

@@ -5,6 +5,9 @@
 var mongoose = require('mongoose')
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
+var Policy = mongoose.model('Policy');
+var Redeem = mongoose.model('Redeem');
+var Coupon = mongoose.model('Coupon');
 var plerror = require('../util/plerror');
 var _ = require('underscore');
 var util = require('util');
@@ -46,7 +49,11 @@ exports.find = function (req, res) {
 // - @api `private`
 exports.all = function (req, res) {
 
-	Order.find({}).populate('address').populate('client').exec(function(err, docs) {
+	Order
+	.find()
+	.populate('address')
+	.populate('client')
+	.exec(function(err, docs) {
 		if (!err) {
 			res.send({orders: docs});
 		} else {
@@ -268,140 +275,220 @@ exports.get = function (req, res) {
  * @api public
  */
 exports.create = function (req, res) {
-
-	var order = req.body.order;
 	
-	if (order && order.client) {
-		
-		var client = null;
-		var oldOrder = null;
+	var order;
+	var client;
+	var old_order;
+	var policy;
+	var new_order;
 
-		async.series([ 
-			// 1. Check if we are submitting an Order with an existing order id
-			function(callback) { 
-				if (req.body.replace_order_id) {
-					Order
-					.findOne({
-						_id: req.body.replace_order_id
-					})
-					.exec(function(err, doc) {
-						if (!err && doc) {
-							
-							oldOrder = doc;
+	common.async.series([
 
-							// Move payment.logs to the new Order
-							if (oldOrder.payment && oldOrder.payment.logs) {
-								order['payment'] = oldOrder.payment;
-							};
-							
-							callback(null, 'found old order');
-
-						} else {
-							callback(null, 'could not remove old order');
-						}
-					});
-				} else {
-					callback(null, 'no order to replace');
-				}
-			},
-			// 2. Get Client
-			function(callback) {
-				Client.findOne({_id: order.client})
-				.exec(function(err, doc) {
-					if (!err) {
-						client = doc;
-						callback(null, 'got client');
-					} else {
-						callback({
-							code: plerror.c.ClientNotFound, 
-							verbose: err || 'Client not found'
-						}, null);
-					}
+		// Validations
+		function(callback) {
+			order = req.body.order;
+			if (order && order.client) {
+				callback()
+			} else {
+				callback({
+					code: plerror.c.MissingParameters,
+					verbose: 'Missing parameters order'
 				});
-			},
-			// 3. Validate Coupon if exists
-			function(callback) {
-				// TODO
-				// REFACTORING
-				if (order.coupon_code) {
-
-					// Check if coupon is not consumed
-					var consumed = client.consumed_coupons.indexOf(order.coupon_code);
-					if(consumed === -1) {
-						// Push to consumed
-						client.consumed_coupons.push(order.coupon_code);
-						callback(null, 'coupon is OK');
-					} else {
-
-						var consumedError = {
-							code: plerror.c.CouponConsumed, 
-							verbose: 'Coupon is already consumed'
-						}
-
-						// The Coupon was consumed
-						// But is possible that a previous unfinished Order used it
-						// Let's check
-						if (oldOrder) {
-							if (oldOrder.coupon_code === order.coupon_code) {
-								// Return coupon OK
-								callback(null, 'coupon is OK');	
-							} else {
-								// Return coupon consumed error
-								callback(consumedError, null);
-							}
-						} else {
-							// Return coupon consumed error
-							callback(consumedError, null);
-						}
-					}
-
-				} else {
-					callback(null, 'no coupon to be checked');
-				}
 			}
-		],
-		// Finally. Create new Order
-		function(err, results) {
-			if (!err) {
+		},
+
+		// Check if we are submitting an Order with an existing order id
+		function(callback) { 
+			if (req.body.replace_order_id) {
 				Order
-				.create(order, function(err, doc) {
+				.findOne({
+					_id: req.body.replace_order_id
+				})
+				.exec(function(err, doc) {
 					if (!err && doc) {
-
-						// Remove OldOrder Id if neccesary
-						// We are also doing this on pre Order remove hook
-						// But we need to return to the Client the right model
-						if(oldOrder) {
-							client.orders.splice(client.orders.indexOf(oldOrder._id),1);
-						}
-
-						// Save Client
-						client.save(function(err, saved) {
-							if (!err) {
-								
-								res.send({order: doc, client: saved});
-
-								// Remove oldOrder if necessary
-								if (oldOrder) {
-									oldOrder.remove();
-								};
-
-							} else {
-								plerror.throw(plerror.c.DBError, err || 'Cannot Save Client and Cannot create Order', res);
-							}
-						});
-
-					} else {
-						plerror.throw(plerror.c.DBError, err || 'Cannot create Order', res);
+						old_order = doc;
+						// Move payment.logs to the new Order
+						if (old_order.payment && old_order.payment.logs) {
+							order['payment'] = old_order.payment;
+						};
 					}
+					callback();
 				});
 			} else {
-				// throw series err
-				plerror.throw(err.code, err.verbose, res);
+				callback();
 			}
-		});
-	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters order', res);
-	}
+		},
+
+		// Get Client
+		function(callback) {
+			Client
+			.findOne({
+				_id: order.client
+			})
+			.exec(function(err, doc) {
+				if (!err && doc) {
+					client = doc;
+					callback();
+				} else {
+					callback({
+						code: plerror.c.ClientNotFound, 
+						verbose: err || 'Client not found'
+					}, null);
+				}
+			});
+		},
+		
+		// Get policy if coupon
+		function(callback) {
+			if(order.coupon_code) {
+				if(order.coupon_code.length === 24){ // ObjectId
+					Policy
+					.findOne({
+						_id: order.coupon_code
+					})
+					.populate('coupon')
+					.exec(function(err, doc) {
+						if(!err && doc) {
+							policy = doc;
+							callback();
+						} else {
+							console.log('Couldn\'t find Policy with id %s',order.coupon_code);
+							callback({
+								code: plerror.c.CouponInvalid,
+								verbose: 'Coupon is not valid'
+							});
+						}
+					})
+				} else {
+					Redeem
+					.findOne({
+						code: order.coupon_code
+					})
+					.populate('policy')
+					.exec(function(err, doc) {
+						if(!err && doc) {
+							Policy
+							.populate(doc, {
+								path: 'policy.coupon',
+								model: Coupon
+							},
+							function(err, redeem) {
+								if(!err && redeem) {
+									policy = redeem.policy;
+									callback();
+								} else {
+									console.log('Couldn\'t find Redeem with id %s',order.coupon_code);
+									callback({
+										code: plerror.c.CouponInvalid,
+										verbose: 'Coupon is not valid'
+									});
+								}
+							});
+						}
+					});
+				}
+				
+			} else {
+				calback();
+			}
+		},
+
+		// Validate Coupon if exists
+		function(callback) {
+			
+			if (policy) {
+
+				// Check if coupon is not consumed
+				// or reuse coupon from old_order
+				var ccode = policy._id.toString();
+				if(client.consumed_coupons.indexOf(ccode) === -1 || (old_order && old_order.coupon_code === ccode)) {
+					// Validate!
+					if(policy.coupon.validate(order.photo_count, order.cost_total)) {
+						console.log('coupon is valid!');
+						client.consumed_coupons.push(order.coupon_code);
+						
+						// Set NoNeedPayment status if needed
+						if(order.cost_total === 0) {
+							order.status = Order.OrderStatus.NoNeedPayment;
+						}
+
+						callback();	
+					} else {
+						callback({
+							code:  plerror.c.CouponInvalid,
+							verbose: 'Coupon is not valid'
+						});
+					}
+				} else {
+					callback({
+						code: plerror.c.CouponConsumed, 
+						verbose: 'Coupon is already consumed'
+					});
+				}
+			} else {
+				callback();
+			}
+		},
+
+		// Create Order
+		function(callback) {
+			Order
+			.create(order, function(err, doc) {
+				if (!err && doc) {
+					new_order = doc;
+					callback();
+				} else {
+					callback({
+						code: plerror.c.DBError,
+						verbose: err || 'Cannot create Order'
+					});
+				}
+			});
+		},
+
+		// Update Client
+		function(callback) {
+			// Remove OldOrder Id if neccesary
+			// We are also doing this on pre Order remove hook
+			// But we need to return to the Client the right model
+			if(old_order) {
+				client.orders.splice(client.orders.indexOf(old_order._id),1);
+			}
+
+			// Save Client
+			client.save(function(err, saved) {
+				if (!err && saved) {
+					client = saved;
+					callback();
+				} else {
+					callback({
+						code: plerror.c.DBError,
+						verbose: err || 'Cannot saved client'
+					});
+				}
+			});
+		}
+	],
+	// Finally. Create new Order
+	function(err) {
+		if (!err) {
+
+			res.send({
+				order: new_order, 
+				client: client
+			});
+
+			// Remove old_order if necessary
+			if (old_order) {
+				old_order.remove();
+			}
+
+		} else {
+			// throw series err
+			plerror.throw(err.code, err.verbose, res);
+		}
+	});
+	
 }
 
 
@@ -411,68 +498,80 @@ exports.create = function (req, res) {
 // - @method `PUT`
  
 exports.submit = function (req, res) {
+	var o = req.body.order;
+	common.async.series({
+		order: function(callback) {
+			if (o && o._id && o.photos && o.client) {
+				Order
+				.findOne({
+					_id: o._id
+				})
+				.exec(callback)
+			} else {
+				callback({
+					code: plerror.c.MissingParameters, 
+					verbose: 'Missing parameters order'
+				});
+			}
+		},
+		client: function(callback) {
+			Client
+			.findOne({
+				_id: o.client
+			})
+			.exec(callback)
+		}
+	},
+	// Finally
+	function(err, results) {
+		if(err) {
+			plerror.throw(err.code, err.verbose, res);
+		} else {
+			// Verifying payment
+			// Status should be PaymentVerified || NoNeedPayment || PaymentOffline
+			// This is status is set internally when the payment 
+			// has been successfully completed
+			// and any other status should reject the order
+			var order = results.order;
+			var client = results.client;
+			if( order.status === Order.OrderStatus.PaymentVerified || 
+				order.status === Order.OrderStatus.NoNeedPayment   ||
+				order.status === Order.OrderStatus.PaymentOffline ) {
 
-	var order = req.body.order;
-	if (order && order._id && order.photos) {
+				// We dont set status submitted for PaymentOffline yet
+				if(order.status != Order.OrderStatus.PaymentOffline) {
+					// Order is ready !!!
+					order.status = Order.OrderStatus.Submitted;
+				}
+				
+				// Update Order
+				order.photos = order.photos;
 
-		//{ find Order
-		Order.findOne({_id: order._id}, function(err, doc) {
-			if(!err && doc) {
-				var neworder = doc;
-
-				//{ find Client
-				Client.findOne({_id: neworder.client}, function(err, doc) {
-					if(!err && doc) {
-						var client = doc;
-
-						//{ Verifying payment
-						//{ Status should be PaymentVerified || NoNeedPayment
-						//{ This is status is set internally when the payment 
-						//{ has been successfully completed
-						//{ and any other status should reject the order
-
-						if(neworder.status === Order.OrderStatus.PaymentVerified || 
-							neworder.status === Order.OrderStatus.NoNeedPayment) {
-
-							//} Order is ready !!!
-							neworder.status = Order.OrderStatus.Submitted;
-							
-							//{ update Order
-							neworder.photos = order.photos;
-
-							//{ saving
-							neworder.save(function(err) {
-								if(!err) {
-									if (client.orders.indexOf(neworder._id) === -1) {
-										client.orders.push(neworder._id);	
-									};
-									client.save(function(err) {
-										if(!err) {
-											res.send({order: neworder});
-										} else {
-											plerror.throw(plerror.c.DBError, err, res);
-										}
-									})
-								} else {
-									plerror.throw(plerror.c.DBError, err, res);
-								}
-							});
-						} else {
-							plerror.throw(plerror.c.CannotVerifyPayment, util.format('The Order _id %s has status %s and the payment cannot be verified.',neworder._id, neworder.status), res);
-							return;
-						}
-						
+				// saving
+				order.save(function(err, saved) {
+					if(!err) {
+						if (client.orders.indexOf(saved._id) === -1) {
+							client.orders.push(saved._id);	
+						};
+						client.save(function(err) {
+							if(!err) {
+								res.send({
+									order: saved
+								});
+							} else {
+								plerror.throw(plerror.c.DBError, err, res);
+							}
+						})
 					} else {
-						plerror.throw(plerror.c.ClientNotFound, err || util.format('Order submit -> Client not found for _id: %s',neworder.client), res);
+						plerror.throw(plerror.c.DBError, err, res);
 					}
 				});
 			} else {
-				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order submit -> Order not found for _id: %s',order._id), res);
+				plerror.throw(plerror.c.CannotVerifyPayment, util.format('The Order _id %s has status %s and the payment cannot be verified.',order._id, order.status), res);
 			}
-		});
-	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters order', res);
-	}
+		}
+	})
+
 }
 
 /**
@@ -520,7 +619,7 @@ exports.remove = function (req, res) {
  				doc.status = Order.OrderStatus.CanceledByUser;
  				doc.save();
 
- 				// If order used copuon, remove it from consumned
+ 				// If order used coupon, remove it from consumed
  				if(doc.coupon_code && doc.client) {
  					var client = doc.client;
  					if(client.consumed_coupons) {
@@ -537,4 +636,74 @@ exports.remove = function (req, res) {
  	} else {
 		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
+ }
+
+/**
+ * Sets Order.status PaymentOffline
+ *
+ * @param {String} _id of the Order
+ * @return {String} 200 OK | 400 Error
+ * @api public
+ */
+ exports.payment_offline = function(req, res) {
+ 	var _id;
+ 	var order;
+ 	common.async.series([
+
+ 		function(callback) {
+ 			_id = req.params._id;
+ 			if(_id) {
+ 				callback();
+ 			} else {
+ 				callback({
+ 					code: plerror.c.MissingParameters, 
+ 					verbose: 'Missing parameters _id'
+ 				})
+ 			}
+ 		},
+
+ 		function(callback) {
+			Order
+			.findOne({
+				_id: _id
+			})
+			.exec(function(err, doc) {
+				if(!err && doc) {
+					order = doc;
+					callback();
+				} else {
+					callback({
+						code: plerror.c.OrderNotFound,
+						verbose: 'Order not found'
+					});
+				}
+			});
+ 		},
+
+ 		function(callback) {
+ 			order.status = Order.OrderStatus.PaymentOffline;
+ 			order.save(function(err, saved){
+ 				if(!err && saved) {
+ 					order = saved;
+ 					callback();
+ 				} else {
+ 					callback({
+ 						code: plerror.c.DBError,
+ 						verbose: JSON.stringify(err) || 'Unkwown mongodb error'
+ 					});
+ 				}
+ 			})
+ 		}
+ 	],
+ 	// Finally
+ 	function(err, results) {
+ 		if(err) {
+ 			plerror.throw(err.code, err.verbose, res);
+ 		} else {
+ 			res.send({
+ 				order: order
+ 			});
+ 		}
+ 	}
+ 	)
  }
