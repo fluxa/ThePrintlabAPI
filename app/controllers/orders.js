@@ -389,7 +389,7 @@ exports.create = function (req, res) {
 				}
 				
 			} else {
-				calback();
+				callback();
 			}
 		},
 
@@ -498,15 +498,31 @@ exports.create = function (req, res) {
 // - @method `PUT`
  
 exports.submit = function (req, res) {
-	var o = req.body.order;
-	common.async.series({
-		order: function(callback) {
-			if (o && o._id && o.photos && o.client) {
+	
+	var order;
+	var client;
+	var offline_payment = (req.body.offline_payment === true);
+
+	common.async.series([
+		function(callback) {
+			var o = req.body.order;
+			if (o && o._id && o.photos) {
 				Order
 				.findOne({
 					_id: o._id
 				})
-				.exec(callback)
+				.exec(function(err, doc) {
+					if(!err && doc) {
+						order = doc;
+						order.photos = o.photos;
+						callback();
+					} else {
+						callback({
+							code: plerror.c.OrderNotFound,
+							verbose: 'Order not found'
+						});
+					}
+				})
 			} else {
 				callback({
 					code: plerror.c.MissingParameters, 
@@ -514,14 +530,24 @@ exports.submit = function (req, res) {
 				});
 			}
 		},
-		client: function(callback) {
+		function(callback) {
 			Client
 			.findOne({
-				_id: o.client
+				_id: order.client
 			})
-			.exec(callback)
+			.exec(function(err, doc) {
+				if(!err && doc) {
+					client = doc;
+					callback();
+				} else {
+					callback({
+						code: plerror.c.ClientNotFound,
+						verbose: 'Client not found'
+					});
+				}
+			})
 		}
-	},
+	],
 	// Finally
 	function(err, results) {
 		if(err) {
@@ -532,21 +558,17 @@ exports.submit = function (req, res) {
 			// This is status is set internally when the payment 
 			// has been successfully completed
 			// and any other status should reject the order
-			var order = results.order;
-			var client = results.client;
 			if( order.status === Order.OrderStatus.PaymentVerified || 
 				order.status === Order.OrderStatus.NoNeedPayment   ||
-				order.status === Order.OrderStatus.PaymentOffline ) {
+				offline_payment ) {
 
 				// We dont set status submitted for PaymentOffline yet
-				if(order.status != Order.OrderStatus.PaymentOffline) {
-					// Order is ready !!!
+				if(offline_payment) {
+					order.status = Order.OrderStatus.PaymentOffline;
+				} else  {
 					order.status = Order.OrderStatus.Submitted;
 				}
 				
-				// Update Order
-				order.photos = order.photos;
-
 				// saving
 				order.save(function(err, saved) {
 					if(!err) {
@@ -636,74 +658,4 @@ exports.remove = function (req, res) {
  	} else {
 		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
- }
-
-/**
- * Sets Order.status PaymentOffline
- *
- * @param {String} _id of the Order
- * @return {String} 200 OK | 400 Error
- * @api public
- */
- exports.payment_offline = function(req, res) {
- 	var _id;
- 	var order;
- 	common.async.series([
-
- 		function(callback) {
- 			_id = req.params._id;
- 			if(_id) {
- 				callback();
- 			} else {
- 				callback({
- 					code: plerror.c.MissingParameters, 
- 					verbose: 'Missing parameters _id'
- 				})
- 			}
- 		},
-
- 		function(callback) {
-			Order
-			.findOne({
-				_id: _id
-			})
-			.exec(function(err, doc) {
-				if(!err && doc) {
-					order = doc;
-					callback();
-				} else {
-					callback({
-						code: plerror.c.OrderNotFound,
-						verbose: 'Order not found'
-					});
-				}
-			});
- 		},
-
- 		function(callback) {
- 			order.status = Order.OrderStatus.PaymentOffline;
- 			order.save(function(err, saved){
- 				if(!err && saved) {
- 					order = saved;
- 					callback();
- 				} else {
- 					callback({
- 						code: plerror.c.DBError,
- 						verbose: JSON.stringify(err) || 'Unkwown mongodb error'
- 					});
- 				}
- 			})
- 		}
- 	],
- 	// Finally
- 	function(err, results) {
- 		if(err) {
- 			plerror.throw(err.code, err.verbose, res);
- 		} else {
- 			res.send({
- 				order: order
- 			});
- 		}
- 	}
- 	)
  }

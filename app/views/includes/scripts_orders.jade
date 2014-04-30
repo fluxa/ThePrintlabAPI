@@ -68,7 +68,7 @@ script.
 			
 			// check status
 			var order = ordersDict[id];
-			if(order.status === 'SUBMITTED') {
+			if(order.status === 'SUBMITTED' || order.status === 'PAYMENT_OFFLINE') {
 				result.push({order_id: order._id, photos: order.photos, gift: order.gift})
 			} else {
 				success = false;

@@ -17,9 +17,30 @@ var robot = require('./app/util/robot');
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
 
-require('express-namespace')
+require('express-namespace');
 
-mongoose.connect(common.config.db)
+mongoose.connect(common.config.db);
+
+mongoose.connection.on('connected', function () {
+	console.log('Mongoose default connection open to ' + common.config.db);
+});
+
+mongoose.connection.on('error',function (err) {
+	console.log('Mongoose default connection error: ' + err);
+});
+
+mongoose.connection.on('disconnected', function () {
+	console.log('Mongoose default connection disconnected');
+});
+
+// If the Node process ends, close the Mongoose connection
+process.on('SIGINT', function() {
+	mongoose.connection.close(function () {
+		console.log('Mongoose default connection disconnected through app termination');
+		process.exit(0);
+	});
+});
+
 
 // Bootstrap models
 fs.readdirSync(__dirname + '/app/models').forEach(function (file) {
