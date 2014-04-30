@@ -223,6 +223,7 @@ exports.payment = function (req, res) {
 						code: plerror.c.MissingParameters, 
 						error: 'Wrong action'
 					}
+					break;
 				}
 			}
 
