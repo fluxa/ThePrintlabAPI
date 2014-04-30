@@ -83,10 +83,10 @@ exports.payment = function (req, res) {
 		function(callback) {
 
 			// check for query args
-			if (_id && (_.values(Order.Actions).indexOf(action) >= 0)) {
+			if (_id && action) {
 				callback();
 			} else {
-				callback({code:plerror.c.MissingParameters , error:'Missing parameters _id or wrong action'});
+				callback({code:plerror.c.MissingParameters , error:'Missing parameters _id, action'});
 			}
 
 		},
@@ -115,6 +115,7 @@ exports.payment = function (req, res) {
 			switch(action) {
 
 				case Order.Actions.StartWebpay:
+				case 'start':
 				{
 					// Check if cost_total == 0
 					// TODO
@@ -214,6 +215,14 @@ exports.payment = function (req, res) {
 						order.payment.logs.push(util.format('%s|Payment Failed => reason: %s',time_stamp,payment_log));
 					};
 					break;
+				}
+
+				default:
+				{
+					err = {
+						code: plerror.c.MissingParameters, 
+						error: 'Wrong action'
+					}
 				}
 			}
 
