@@ -249,7 +249,7 @@ exports.payment = function (req, res) {
 	function(err) {
 		if(!err) { 
 			res.send({
-				order: saved
+				order: order
 			});
 		} else {
 			plerror.throw(err.code, err.error, res);
