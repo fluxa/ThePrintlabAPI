@@ -117,6 +117,9 @@ exports.payment = function (req, res) {
 				case Order.Actions.StartWebpay:
 				{
 					// Check if cost_total == 0
+					// TODO
+					// CHECK IF THIS IS STILL NEEDED SINCE WE ARE CHECKING THIS ON orders/create
+					// BUT DEFINITELLY NEEDED FOR BACKWARD COMPATIBILITY
 					if (order.cost_total == 0) {
 						order.status = Order.OrderStatus.NoNeedPayment;
 						order.payment.provider = Order.PaymentProvider.NoPayment;
@@ -410,6 +413,11 @@ exports.create = function (req, res) {
 						// Set NoNeedPayment status if needed
 						if(order.cost_total === 0) {
 							order.status = Order.OrderStatus.NoNeedPayment;
+							order.payment = {
+								provider: Order.PaymentProvider.NoPayment,
+								data: '',
+								logs: []
+							}
 						}
 
 						callback();	
@@ -565,6 +573,7 @@ exports.submit = function (req, res) {
 				// We dont set status submitted for PaymentOffline yet
 				if(offline_payment) {
 					order.status = Order.OrderStatus.PaymentOffline;
+					order.payment.provider = Order.PaymentProvider.BankTransfer;
 				} else  {
 					order.status = Order.OrderStatus.Submitted;
 				}
