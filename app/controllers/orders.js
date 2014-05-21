@@ -12,7 +12,7 @@ var plerror = require('../util/plerror');
 var _ = require('underscore');
 var util = require('util');
 var async = require('async');
- 
+
 // ### Return all posible status codes nicely formatted for using on the web-admin
 // - @preturn {Array} list of all posible OrderStatus
 // - @method `GET`
@@ -70,7 +70,7 @@ exports.all = function (req, res) {
 // - @method `POST`
 // - @api `private`
 exports.payment = function (req, res) {
-	
+
 	var _id = req.params['_id'];
 	var action = req.params['action'];
 
@@ -109,7 +109,7 @@ exports.payment = function (req, res) {
 
 		// Action
 		function(callback) {
-			
+
 			var err = null;
 
 			switch(action) {
@@ -153,7 +153,7 @@ exports.payment = function (req, res) {
 						err = {code: plerror.c.PaymentError, error:'Stripe Payment Needs stp_token'};
 						order.payment.logs.push(util.format('%s|Payment Start Stripe Error => %s', time_stamp, err.error));
 					}
-					
+
 					break;
 				}
 
@@ -163,11 +163,11 @@ exports.payment = function (req, res) {
 					if (_.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], order.status) === -1) {
 
 						var payment_data = req.body.payment_data;
-						
+
 						if (payment_data) {
-							
+
 							if(order.payment.provider === Order.PaymentProvider.Webpay) {
-								
+
 								order.payment.data = payment_data;
 								order.payment.logs.push(util.format('%s|Payment Complete => Webpay', time_stamp));
 								order.status = Order.OrderStatus.PaymentVerified;
@@ -181,16 +181,16 @@ exports.payment = function (req, res) {
 							} else if(order.payment.provider === Order.PaymentProvider.NoPayment) {
 
 								order.payment.logs.push(util.format('%s|Payment Complete => NoPayment', time_stamp));
-							
+
 							} else {
 								err = {
-									code: plerror.c.MissingParameters, 
+									code: plerror.c.MissingParameters,
 									error: util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment)
 								}
 							}
 						} else {
 							err = {
-								code: plerror.c.MissingParameters, 
+								code: plerror.c.MissingParameters,
 								error: 'Cannot complete payment, missing payment data'
 							}
 						}
@@ -199,11 +199,11 @@ exports.payment = function (req, res) {
 						// TODO
 						// THIS SHOULD NEVER HAPPEN, SOMETHING WENT VERY WRONG
 						err = {
-							code: plerror.c.CannotVerifyPayment, 
+							code: plerror.c.CannotVerifyPayment,
 							error: 'Order is already Verified / Submitted, cannot pay twice'
 						}
 					}
-					
+
 					break;
 				}
 
@@ -220,7 +220,7 @@ exports.payment = function (req, res) {
 				default:
 				{
 					err = {
-						code: plerror.c.MissingParameters, 
+						code: plerror.c.MissingParameters,
 						error: 'Wrong action'
 					}
 					break;
@@ -247,7 +247,7 @@ exports.payment = function (req, res) {
 	],
 	// Finally
 	function(err) {
-		if(!err) { 
+		if(!err) {
 			res.send({
 				order: order
 			});
@@ -256,7 +256,7 @@ exports.payment = function (req, res) {
 		}
 	});
 
-	
+
 }
 
 // ### Get one Order by _id
@@ -277,7 +277,7 @@ exports.get = function (req, res) {
 	} else {
 		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
-	
+
 }
 
 /**
@@ -288,7 +288,7 @@ exports.get = function (req, res) {
  * @api public
  */
 exports.create = function (req, res) {
-	
+
 	var order;
 	var client;
 	var old_order;
@@ -311,7 +311,7 @@ exports.create = function (req, res) {
 		},
 
 		// Check if we are submitting an Order with an existing order id
-		function(callback) { 
+		function(callback) {
 			if (req.body.replace_order_id) {
 				Order
 				.findOne({
@@ -344,13 +344,13 @@ exports.create = function (req, res) {
 					callback();
 				} else {
 					callback({
-						code: plerror.c.ClientNotFound, 
+						code: plerror.c.ClientNotFound,
 						verbose: err || 'Client not found'
 					}, null);
 				}
 			});
 		},
-		
+
 		// Get policy if coupon
 		function(callback) {
 			if(order.coupon_code) {
@@ -400,7 +400,7 @@ exports.create = function (req, res) {
 						}
 					});
 				}
-				
+
 			} else {
 				callback();
 			}
@@ -408,7 +408,7 @@ exports.create = function (req, res) {
 
 		// Validate Coupon if exists
 		function(callback) {
-			
+
 			if (policy) {
 
 				// Check if coupon is not consumed
@@ -419,7 +419,7 @@ exports.create = function (req, res) {
 					if(policy.coupon.validate(order.photo_count, order.cost_total)) {
 						console.log('coupon is valid!');
 						client.consumed_coupons.push(order.coupon_code);
-						
+
 						// Set NoNeedPayment status if needed
 						if(order.cost_total === 0) {
 							order.status = Order.OrderStatus.NoNeedPayment;
@@ -430,7 +430,7 @@ exports.create = function (req, res) {
 							}
 						}
 
-						callback();	
+						callback();
 					} else {
 						callback({
 							code:  plerror.c.CouponInvalid,
@@ -439,7 +439,7 @@ exports.create = function (req, res) {
 					}
 				} else {
 					callback({
-						code: plerror.c.CouponConsumed, 
+						code: plerror.c.CouponConsumed,
 						verbose: 'Coupon is already consumed'
 					});
 				}
@@ -492,7 +492,7 @@ exports.create = function (req, res) {
 		if (!err) {
 
 			res.send({
-				order: new_order, 
+				order: new_order,
 				client: client
 			});
 
@@ -506,7 +506,7 @@ exports.create = function (req, res) {
 			plerror.throw(err.code, err.verbose, res);
 		}
 	});
-	
+
 }
 
 
@@ -514,9 +514,9 @@ exports.create = function (req, res) {
 // - @param {Object} `{ order: {_id:'xx', photos:[]} }`
 // - @return {Object} `order` full Order object
 // - @method `PUT`
- 
+
 exports.submit = function (req, res) {
-	
+
 	var order;
 	var client;
 	var offline_payment = (req.body.offline_payment === true);
@@ -543,7 +543,7 @@ exports.submit = function (req, res) {
 				})
 			} else {
 				callback({
-					code: plerror.c.MissingParameters, 
+					code: plerror.c.MissingParameters,
 					verbose: 'Missing parameters order'
 				});
 			}
@@ -573,10 +573,10 @@ exports.submit = function (req, res) {
 		} else {
 			// Verifying payment
 			// Status should be PaymentVerified || NoNeedPayment || PaymentOffline
-			// This is status is set internally when the payment 
+			// This is status is set internally when the payment
 			// has been successfully completed
 			// and any other status should reject the order
-			if( order.status === Order.OrderStatus.PaymentVerified || 
+			if( order.status === Order.OrderStatus.PaymentVerified ||
 				order.status === Order.OrderStatus.NoNeedPayment   ||
 				offline_payment ) {
 
@@ -587,12 +587,12 @@ exports.submit = function (req, res) {
 				} else  {
 					order.status = Order.OrderStatus.Submitted;
 				}
-				
+
 				// saving
 				order.save(function(err, saved) {
 					if(!err) {
 						if (client.orders.indexOf(saved._id) === -1) {
-							client.orders.push(saved._id);	
+							client.orders.push(saved._id);
 						};
 						client.save(function(err) {
 							if(!err) {
@@ -656,7 +656,7 @@ exports.remove = function (req, res) {
  		.populate('client')
  		.exec(function(err, doc) {
  			if(!err && doc) {
- 				
+
  				doc.status = Order.OrderStatus.CanceledByUser;
  				doc.save();
 
@@ -668,7 +668,7 @@ exports.remove = function (req, res) {
  						client.save();
  					}
  				}
- 				
+
  				res.send({order: doc});
  			} else {
  				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order cancel -> not found for _id: %s',_id), res);
@@ -678,3 +678,77 @@ exports.remove = function (req, res) {
 		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
 	}
  }
+
+ /**
+  * Order Offline Payment Confirmation
+  *
+  * @param {String} _id of the Order
+  * @return {String} 200 OK | 400 Error
+  * @api public
+  */
+  exports.payment_offline_confirmation = function(req, res) {
+
+    var data;
+    var order;
+    var order_id;
+
+    common.async.series([
+      // Parsing Bank Transfer Data
+      function(callback) {
+        var bank = req.body.bank;
+        var name = req.body.name;
+        var date = common.moment(req.body.date);
+        order_id = req.body.order_id;
+
+        if(bank && name && date.isValid() && order_id) {
+          data = {
+            bank: bank,
+            name: name,
+            date: date.format('YYYY-MM-DD')
+          }
+          callback();
+        } else {
+          callback('Missing parameters');
+        }
+      },
+      // Get Order
+      function(callback) {
+        Order
+        .findOne({
+          _id: order_id
+        })
+        .exec(function(err, doc) {
+          if(!err && doc) {
+            order = doc;
+            callback();
+          } else {
+            callback(err || 'Order not found');
+          }
+        });
+      },
+      // Saved data
+      function(callback) {
+        order.payment.data = common.util.format('Bank:%s;Name:%s;Date:%s',data.bank,data.name,data.date);
+        order.save(callback);
+      },
+      // Notify TPL
+      function(callback) {
+        // TODO
+        // make email template
+        // migrate emails to email queue
+        // link theprintlab.cl/bktrans to this
+        // create thank you + info page (La comprobación de la transferencia puede tardar algunos días)
+      }
+    ],
+    // Finally
+    function(err, results) {
+      if(!err) {
+
+      } else {
+        req.flash('error', err);
+        res.redirect(req.url);
+      }
+    });
+
+
+  }

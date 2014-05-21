@@ -6,6 +6,7 @@ var cronjob = require('cron').CronJob;
 
 var util = require('util');
 var jobs = require('./jobs');
+var mailer = require('./mailer');
 
 var _cronjobs = {};
 
@@ -26,6 +27,21 @@ var _jobs = [
 		start: true,
 		id: 'suportnotificationemail'
 	},
+  {
+    name: 'Order Bank Transfer Email',
+    cronTime: '30 */1 * * * *', // every 5 minutes
+    onTick: jobs.OrderBankTransferEmail,
+    onComplete:function(){_cronjobs['orderbanktransferemail'].start();},
+    start: true,
+    id: 'orderbanktransferemail'
+  },
+  {
+    name: 'Email Queue',
+    cronTime: '50 */1 * * * *', // every 1 minute
+    onTick: mailer.process_queue,
+    start: true,
+    id: 'emailqueue'
+  }
 ];
 
 exports.schedule = function() {

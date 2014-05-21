@@ -52,7 +52,8 @@ var OrderSchema = new Schema({
 	},
 	verbose: { type: String }, //A verbal version of the Order
 	updated_at: { type: Date },
-	sent_email: { type: Boolean, default: false }, // Wether the notification email was sent to the Client
+  sent_email: { type: Boolean, default: false }, // Wether the notification email was sent to the Client
+  sent_bank_transfer_email: { type: Boolean, default: false }, 
 	sent_printing_notification: { type: Boolean, default: false },
 	sent_shipped_notification: { type: Boolean, default: false }
 })
@@ -67,7 +68,7 @@ OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );
  */
  // ### Order pre remove hook
 OrderSchema.pre('remove', function(next) {
-	
+
 	load_models();
 
 	//} Remove Orders from Client
@@ -76,7 +77,7 @@ OrderSchema.pre('remove', function(next) {
 			doc.orders.splice(doc.orders.indexOf(this._id),1);
 			doc.save(function(err) {
 				if (err) {
-					console.log(util.format('Order => post remove error => %s',err));	
+					console.log(util.format('Order => post remove error => %s',err));
 				};
 				next();
 			});
@@ -88,7 +89,7 @@ OrderSchema.pre('remove', function(next) {
 
 // ### Order post save hook
 OrderSchema.post('save', function(saved) {
-	
+
 	load_models();
 
 	//} Add saved Order to Client's orders
@@ -99,13 +100,13 @@ OrderSchema.post('save', function(saved) {
 				doc.orders.push(saved._id);
 				doc.save(function(err) {
 					if (err) {
-						console.log(util.format('Order => post save error => %s',err));	
+						console.log(util.format('Order => post save error => %s',err));
 					};
 				});
 			}
 		}
 	});
-	
+
 });
 
 // ### Order pre save hooks
@@ -128,7 +129,7 @@ OrderSchema.method({
 
 
 OrderSchema.static({
-	
+
 	OrderStatus : OrderStatus,
 	OrderStatusList : [
 		{id: OrderStatus.PaymentPending, name: 'PaymentPending'},
@@ -145,7 +146,7 @@ OrderSchema.static({
 		StartWebpay: 'start_webpay',
 		StartStripe: 'start_stripe',
 		Complete: 'complete',
-		Fail: 'failed'		
+		Fail: 'failed'
 	},
 	PaymentProvider: {
 		NoPayment: 'nopayment',
@@ -169,4 +170,3 @@ function load_models(){
 		Client = mongoose.model('Client');
 	};
 }
-

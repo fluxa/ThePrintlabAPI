@@ -29,7 +29,7 @@ module.exports = function (app, auth) {
 	app.get('/mu-c480b215-1f18b692-ac11b7c3-2db78a1a', index.blitz);
 	app.get(v+'/ping', index.ping);
 	app.get(v+'/ping/server', index.ping_server);
-	
+
 	// Admin
 	app.get('/admin/dashboard', auth, admin.dashboard);
 	app.get('/admin/orders', auth, admin.orders);
@@ -51,14 +51,14 @@ module.exports = function (app, auth) {
 
 	// -> auth
 	app.get(v+'/logs', auth, index.logs);
-	
+
 	// Client
 	app.post(v+'/clients/register', clients.register);
 	app.get(v+'/clients/get/:_id', clients.get);
 	app.post(v+'/clients/update', clients.update);
 	app.delete(v+'/clients/remove/:_id', clients.remove);
 	app.post(v+'/clients/pushtoken', clients.pushtoken);
-	
+
 	// -> auth
 	app.post(v+'/clients/find/', auth, clients.find);
 
@@ -81,7 +81,8 @@ module.exports = function (app, auth) {
 	app.post(v+'/orders/create', orders.create);
 	app.post(v+'/orders/submit', orders.submit);
 	app.post(v+'/orders/cancel/:_id', orders.cancel);
-	
+  app.post(v+'/order/:_id/payment/offline/confirmation', orders.payment_offline_confirmation);
+
 	// -> auth
 	app.get(v+'/orders/status_list', auth, orders.status_list);
 	app.post(v+'/orders/find', auth, orders.find);
