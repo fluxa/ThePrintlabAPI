@@ -8,7 +8,6 @@ var Schema = mongoose.Schema
 var Address = null
 var Order = null
 var _ = require('underscore');
-var time = require('time');
 
 
 // ## Client schema
@@ -25,7 +24,7 @@ var ClientSchema = new Schema({
 	addresses: [ { type: String , ref: 'Address'} ] , //Address _id
 	orders: [ { type: String , ref: 'Order'} ], //Order _id
 	social_accounts: [{ type: String }], //social _id
-	updated_at: {type: Date}
+  updated_utc: { type: String }
 })
 
 ClientSchema.set( 'toJSON', { virtuals: false, getters: true } );
@@ -39,21 +38,21 @@ ClientSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
  // ### Client post remove hooks
 ClientSchema.post('remove', function(removed) {
-	
+
 	load_models();
 
 	//} Remove all Address
 	Address.remove({client: removed._id}).exec();
-	
+
 	//} Remove all Order
 	Order.remove({client: removed._id}).exec();
-	
+
 });
 
 // ### Client pre save hooks
 ClientSchema.pre('save', function(next) {
-	
-	this.updated_at = new time.Date().setTimezone('UTC');
+
+	this.updated_utc = common.moment().utc().format('YYYY-MM-DD HH:mm:ss');
 
 	// lowercase emails
 	if(this.email) {
@@ -81,8 +80,8 @@ ClientSchema.static({
 	// 1: Only in Special (special_coupons)
 	Coupons : [
 		// {
-		// 	code: 'FIRST_TIME_5FREE', 
-		// 	title: 'Te regalamos 5 fotos gratis, incluyendo costos de envío', 
+		// 	code: 'FIRST_TIME_5FREE',
+		// 	title: 'Te regalamos 5 fotos gratis, incluyendo costos de envío',
 		// 	desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
 		// 	reminder_all_selected: 'RECUERDA QUE SIEMPRE PUEDES SELECCIONAR MÁS FOTOS POR UN VALOR MÍNIMO Y APROVECHAR EL COSTO DE ENVÍO GRATIS!!',
 		// 	rules: {
@@ -95,8 +94,8 @@ ClientSchema.static({
 		// 	policy: 0
 		// },
 		{
-			code: 'FIRST_TIME_5FREE', 
-			title: 'En tu primera compra, te regalamos el envío!', 
+			code: 'FIRST_TIME_5FREE',
+			title: 'En tu primera compra, te regalamos el envío!',
 			desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
 			rules: {
 				cost_base: 5000,
@@ -109,7 +108,7 @@ ClientSchema.static({
 		},
 		{
 			code: '20131223_200_1',
-			title: 'Cupón de Pedido', 
+			title: 'Cupón de Pedido',
 			desc:'Puedes elegir hasta un máximo de 200 impresiones. Las primeras 5 impresiones y costos de envío son gratis. Luego se te cobrará $1.000 por cada 5 impresiones adicionales.',
 			rules: {
 				cost_base: 0,

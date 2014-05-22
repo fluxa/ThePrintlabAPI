@@ -15,6 +15,7 @@ var coupons = require('coupons');
 var debug = require('debug');
 var admin = require('admin');
 var maintenance = require('maintenance');
+var passport = require('passport');
 
 /**
  * Expose
@@ -22,7 +23,9 @@ var maintenance = require('maintenance');
 
 var v = '/v1';
 
-module.exports = function (app, auth) {
+module.exports = function (app) {
+
+  var auth = passport.authenticate('basic', { session: false });
 
 	// Routes
 	app.get('/', auth, index.admin);

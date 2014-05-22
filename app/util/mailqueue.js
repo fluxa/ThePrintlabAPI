@@ -7,7 +7,7 @@ var path = require('path');
 var templates_dir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
 
-exports.add = function(template_name, template_locals, to_emails, subject, type, callback) {
+exports.add = function(template_name, template_locals, to_emails, subject, type, master_callback) {
 
   common.async.waterfall([
     function(callback) {
@@ -66,7 +66,7 @@ exports.add = function(template_name, template_locals, to_emails, subject, type,
   ],
   // Finally
   function(err, result) {
-      callback(err, result);
+      master_callback(err, result);
   });
 
 }

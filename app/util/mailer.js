@@ -2,14 +2,16 @@
 //  * Module dependencies.
 //  */
 
+var mongoose = require('mongoose');
 var nodemailer = require('nodemailer');
 var path = require('path');
 var templatesDir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
-var config = require('../../config/config')[process.env.NODE_ENV];
+var Email = mongoose.model('Email');
+
 
 // create reusable transport method (opens pool of SMTP connections)
-var smtpTransport = nodemailer.createTransport("SMTP", config.smtp_options);
+var smtpTransport = nodemailer.createTransport('SMTP', common.config.smtp_options);
 
 exports.send = function(template_name, template_locals, from_email, to_email, bcc, subject, callback) {
 

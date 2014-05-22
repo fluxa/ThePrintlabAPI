@@ -13,7 +13,8 @@ common = {
 	async: require('async'),
 	_:require('underscore'),
 	moment: require('moment'),
-	plerr: require('./plerror')
+	plerr: require('./plerror'),
+  mailqueue: require('./mailqueue')
 }
 
 module.exports = common;

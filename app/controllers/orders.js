@@ -2,16 +2,13 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var Policy = mongoose.model('Policy');
 var Redeem = mongoose.model('Redeem');
 var Coupon = mongoose.model('Coupon');
-var plerror = require('../util/plerror');
-var _ = require('underscore');
-var util = require('util');
-var async = require('async');
+var Email = mongoose.model('Email');
 
 // ### Return all posible status codes nicely formatted for using on the web-admin
 // - @preturn {Array} list of all posible OrderStatus
@@ -34,11 +31,11 @@ exports.find = function (req, res) {
 			if(!err) {
 				res.send({orders:docs});
 			} else {
-				plerror.throw(plerror.c.DBError, err, res);
+				common.plerr.throw(common.plerr.c.DBError, err, res);
 			}
 		});
 	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters query', res);
+		common.plerr.throw(common.plerr.c.MissingParameters, 'Missing parameters query', res);
 	}
 }
 
@@ -57,7 +54,7 @@ exports.all = function (req, res) {
 		if (!err) {
 			res.send({orders: docs});
 		} else {
-			plerror.throw(plerror.c.DBError, err, res);
+			common.plerr.throw(common.plerr.c.DBError, err, res);
 		}
 	});
 }
@@ -86,7 +83,7 @@ exports.payment = function (req, res) {
 			if (_id && action) {
 				callback();
 			} else {
-				callback({code:plerror.c.MissingParameters , error:'Missing parameters _id, action'});
+				callback({code:common.plerr.c.MissingParameters , error:'Missing parameters _id, action'});
 			}
 
 		},
@@ -102,7 +99,7 @@ exports.payment = function (req, res) {
 					order = doc;
 					callback();
 				} else {
-					callback({code:plerror.c.OrderNotFound , error: util.format('Order not found for _id: %s',_id)});
+					callback({code:common.plerr.c.OrderNotFound , error: common.util.format('Order not found for _id: %s',_id)});
 				}
 			});
 		},
@@ -124,12 +121,12 @@ exports.payment = function (req, res) {
 					if (order.cost_total == 0) {
 						order.status = Order.OrderStatus.NoNeedPayment;
 						order.payment.provider = Order.PaymentProvider.NoPayment;
-						order.payment.logs.push(util.format('%s|Payment Started => NoPayment', time_stamp));
+						order.payment.logs.push(common.util.format('%s|Payment Started => NoPayment', time_stamp));
 					} else {
 						// Continue with Webpay
 						order.status = Order.OrderStatus.PaymentStarted;
 						order.payment.provider = Order.PaymentProvider.Webpay;
-						order.payment.logs.push(util.format('%s|Payment Started => Webpay', time_stamp));
+						order.payment.logs.push(common.util.format('%s|Payment Started => Webpay', time_stamp));
 					}
 					break;
 				}
@@ -148,10 +145,10 @@ exports.payment = function (req, res) {
 						order.status = Order.OrderStatus.PaymentStarted;
 						order.payment.provider = Order.PaymentProvider.Stripe;
 						order.payment.data = stp_token;
-						order.payment.logs.push(util.format('%s|Payment Started => Stripe', time_stamp));
+						order.payment.logs.push(common.util.format('%s|Payment Started => Stripe', time_stamp));
 					} else {
-						err = {code: plerror.c.PaymentError, error:'Stripe Payment Needs stp_token'};
-						order.payment.logs.push(util.format('%s|Payment Start Stripe Error => %s', time_stamp, err.error));
+						err = {code: common.plerr.c.PaymentError, error:'Stripe Payment Needs stp_token'};
+						order.payment.logs.push(common.util.format('%s|Payment Start Stripe Error => %s', time_stamp, err.error));
 					}
 
 					break;
@@ -160,7 +157,7 @@ exports.payment = function (req, res) {
 				case Order.Actions.Complete:
 				{
 					// Check if the Order has already been Verified || Submitted
-					if (_.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], order.status) === -1) {
+					if (common._.indexOf([Order.OrderStatus.PaymentVerified, Order.OrderStatus.Submitted], order.status) === -1) {
 
 						var payment_data = req.body.payment_data;
 
@@ -169,28 +166,28 @@ exports.payment = function (req, res) {
 							if(order.payment.provider === Order.PaymentProvider.Webpay) {
 
 								order.payment.data = payment_data;
-								order.payment.logs.push(util.format('%s|Payment Complete => Webpay', time_stamp));
+								order.payment.logs.push(common.util.format('%s|Payment Complete => Webpay', time_stamp));
 								order.status = Order.OrderStatus.PaymentVerified;
 
 							} else if(order.payment.provider === Order.PaymentProvider.Stripe) {
 
 								// TODO Verification
 								order.status = Order.OrderStatus.PaymentVerified;
-								order.payment.logs.push(util.format('%s|Payment Complete => Stripe', time_stamp));
+								order.payment.logs.push(common.util.format('%s|Payment Complete => Stripe', time_stamp));
 
 							} else if(order.payment.provider === Order.PaymentProvider.NoPayment) {
 
-								order.payment.logs.push(util.format('%s|Payment Complete => NoPayment', time_stamp));
+								order.payment.logs.push(common.util.format('%s|Payment Complete => NoPayment', time_stamp));
 
 							} else {
 								err = {
-									code: plerror.c.MissingParameters,
-									error: util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment)
+									code: common.plerr.c.MissingParameters,
+									error: common.util.format('Cannot complete payment, unknown payment provider or data is empty => %s',payment)
 								}
 							}
 						} else {
 							err = {
-								code: plerror.c.MissingParameters,
+								code: common.plerr.c.MissingParameters,
 								error: 'Cannot complete payment, missing payment data'
 							}
 						}
@@ -199,7 +196,7 @@ exports.payment = function (req, res) {
 						// TODO
 						// THIS SHOULD NEVER HAPPEN, SOMETHING WENT VERY WRONG
 						err = {
-							code: plerror.c.CannotVerifyPayment,
+							code: common.plerr.c.CannotVerifyPayment,
 							error: 'Order is already Verified / Submitted, cannot pay twice'
 						}
 					}
@@ -212,7 +209,7 @@ exports.payment = function (req, res) {
 					order.status = Order.OrderStatus.PaymentError;
 					var payment_log = req.body.payment_log || 'unknown reason';
 					if (payment_log) {
-						order.payment.logs.push(util.format('%s|Payment Failed => reason: %s',time_stamp,payment_log));
+						order.payment.logs.push(common.util.format('%s|Payment Failed => reason: %s',time_stamp,payment_log));
 					};
 					break;
 				}
@@ -220,7 +217,7 @@ exports.payment = function (req, res) {
 				default:
 				{
 					err = {
-						code: plerror.c.MissingParameters,
+						code: common.plerr.c.MissingParameters,
 						error: 'Wrong action'
 					}
 					break;
@@ -239,7 +236,7 @@ exports.payment = function (req, res) {
 					order = saved;
 					callback();
 				} else {
-					callback({code:plerror.c.DBError , error: util.format('/order/payment/ -> Cannot save Order _id: %s',_id)});
+					callback({code:common.plerr.c.DBError , error: common.util.format('/order/payment/ -> Cannot save Order _id: %s',_id)});
 				}
 			});
 		}
@@ -252,7 +249,7 @@ exports.payment = function (req, res) {
 				order: order
 			});
 		} else {
-			plerror.throw(err.code, err.error, res);
+			common.plerr.throw(err.code, err.error, res);
 		}
 	});
 
@@ -271,11 +268,11 @@ exports.get = function (req, res) {
 			if (!err && doc) {
 				res.send({order: doc});
 			} else {
-				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order not found for _id: %s',_id), res);
+				common.plerr.throw(common.plerr.c.OrderNotFound, err || common.util.format('Order not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
+		common.plerr.throw(common.plerr.c.MissingParameters, 'Missing parameters _id', res);
 	}
 
 }
@@ -304,7 +301,7 @@ exports.create = function (req, res) {
 				callback()
 			} else {
 				callback({
-					code: plerror.c.MissingParameters,
+					code: common.plerr.c.MissingParameters,
 					verbose: 'Missing parameters order'
 				});
 			}
@@ -344,7 +341,7 @@ exports.create = function (req, res) {
 					callback();
 				} else {
 					callback({
-						code: plerror.c.ClientNotFound,
+						code: common.plerr.c.ClientNotFound,
 						verbose: err || 'Client not found'
 					}, null);
 				}
@@ -367,7 +364,7 @@ exports.create = function (req, res) {
 						} else {
 							console.log('Couldn\'t find Policy with id %s',order.coupon_code);
 							callback({
-								code: plerror.c.CouponInvalid,
+								code: common.plerr.c.CouponInvalid,
 								verbose: 'Coupon is not valid'
 							});
 						}
@@ -392,7 +389,7 @@ exports.create = function (req, res) {
 								} else {
 									console.log('Couldn\'t find Redeem with id %s',order.coupon_code);
 									callback({
-										code: plerror.c.CouponInvalid,
+										code: common.plerr.c.CouponInvalid,
 										verbose: 'Coupon is not valid'
 									});
 								}
@@ -433,13 +430,13 @@ exports.create = function (req, res) {
 						callback();
 					} else {
 						callback({
-							code:  plerror.c.CouponInvalid,
+							code:  common.plerr.c.CouponInvalid,
 							verbose: 'Coupon is not valid'
 						});
 					}
 				} else {
 					callback({
-						code: plerror.c.CouponConsumed,
+						code: common.plerr.c.CouponConsumed,
 						verbose: 'Coupon is already consumed'
 					});
 				}
@@ -457,7 +454,7 @@ exports.create = function (req, res) {
 					callback();
 				} else {
 					callback({
-						code: plerror.c.DBError,
+						code: common.plerr.c.DBError,
 						verbose: err || 'Cannot create Order'
 					});
 				}
@@ -480,7 +477,7 @@ exports.create = function (req, res) {
 					callback();
 				} else {
 					callback({
-						code: plerror.c.DBError,
+						code: common.plerr.c.DBError,
 						verbose: err || 'Cannot saved client'
 					});
 				}
@@ -503,7 +500,7 @@ exports.create = function (req, res) {
 
 		} else {
 			// throw series err
-			plerror.throw(err.code, err.verbose, res);
+			common.plerr.throw(err.code, err.verbose, res);
 		}
 	});
 
@@ -536,14 +533,14 @@ exports.submit = function (req, res) {
 						callback();
 					} else {
 						callback({
-							code: plerror.c.OrderNotFound,
+							code: common.plerr.c.OrderNotFound,
 							verbose: 'Order not found'
 						});
 					}
 				})
 			} else {
 				callback({
-					code: plerror.c.MissingParameters,
+					code: common.plerr.c.MissingParameters,
 					verbose: 'Missing parameters order'
 				});
 			}
@@ -559,7 +556,7 @@ exports.submit = function (req, res) {
 					callback();
 				} else {
 					callback({
-						code: plerror.c.ClientNotFound,
+						code: common.plerr.c.ClientNotFound,
 						verbose: 'Client not found'
 					});
 				}
@@ -569,7 +566,7 @@ exports.submit = function (req, res) {
 	// Finally
 	function(err, results) {
 		if(err) {
-			plerror.throw(err.code, err.verbose, res);
+			common.plerr.throw(err.code, err.verbose, res);
 		} else {
 			// Verifying payment
 			// Status should be PaymentVerified || NoNeedPayment || PaymentOffline
@@ -600,15 +597,15 @@ exports.submit = function (req, res) {
 									order: saved
 								});
 							} else {
-								plerror.throw(plerror.c.DBError, err, res);
+								common.plerr.throw(common.plerr.c.DBError, err, res);
 							}
 						})
 					} else {
-						plerror.throw(plerror.c.DBError, err, res);
+						common.plerr.throw(common.plerr.c.DBError, err, res);
 					}
 				});
 			} else {
-				plerror.throw(plerror.c.CannotVerifyPayment, util.format('The Order _id %s has status %s and the payment cannot be verified.',order._id, order.status), res);
+				common.plerr.throw(common.plerr.c.CannotVerifyPayment, common.util.format('The Order _id %s has status %s and the payment cannot be verified.',order._id, order.status), res);
 			}
 		}
 	})
@@ -631,11 +628,11 @@ exports.remove = function (req, res) {
 				doc.remove();
 				res.send({order: doc});
 			} else {
-				plerror.throw(plerror.c.ClientNotFound, err || util.format('Order remove -> not found for _id: %s',_id), res);
+				common.plerr.throw(common.plerr.c.ClientNotFound, err || common.util.format('Order remove -> not found for _id: %s',_id), res);
 			}
 		});
 	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
+		common.plerr.throw(common.plerr.c.MissingParameters, 'Missing parameters _id', res);
 	}
 }
 
@@ -671,11 +668,11 @@ exports.remove = function (req, res) {
 
  				res.send({order: doc});
  			} else {
- 				plerror.throw(plerror.c.OrderNotFound, err || util.format('Order cancel -> not found for _id: %s',_id), res);
+ 				common.plerr.throw(common.plerr.c.OrderNotFound, err || common.util.format('Order cancel -> not found for _id: %s',_id), res);
  			}
  		});
  	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters _id', res);
+		common.plerr.throw(common.plerr.c.MissingParameters, 'Missing parameters _id', res);
 	}
  }
 
@@ -733,20 +730,37 @@ exports.remove = function (req, res) {
       },
       // Notify TPL
       function(callback) {
+
+        var template_locals = {
+          order_id: order._id,
+          cost_total: order.cost_total,
+          photos_qty: order.photo_count,
+          bank: data.bank,
+          name: data.name,
+          date: data.date
+        }
+        var subject = common.util.format('ThePrintlab: Bank Transfer Confirmation (%s)',order._id);
+        common.mailqueue.add(
+          'payment_offline_confirm',
+          template_locals,
+          common.config.admin_emails,
+          subject,
+          Email.Types.PaymentOfflineNotify,
+          callback
+        );
+
         // TODO
-        // make email template
-        // migrate emails to email queue
         // link theprintlab.cl/bktrans to this
         // create thank you + info page (La comprobación de la transferencia puede tardar algunos días)
+        // migrate emails to email queue
       }
     ],
     // Finally
     function(err, results) {
       if(!err) {
-
+        res.send({success:true});
       } else {
-        req.flash('error', err);
-        res.redirect(req.url);
+        res.send({success:false, err:err});
       }
     });
 

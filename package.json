@@ -14,15 +14,11 @@
     "express": "latest",
     "express-namespace": "latest",
     "mongoose": "latest",
-    "mongoose-user": "latest",
     "connect-mongo": "latest",
     "view-helpers": "latest",
     "jade": "latest",
     "config-leaf": "latest",
     "underscore": "latest",
-    "time": "latest",
-    "api-easy": "latest",
-    "assert": "latest",
     "less-middleware": "latest",
     "nodemailer": "latest",
     "email-templates": "latest",
@@ -33,8 +29,18 @@
     "moment": "latest",
     "connect-flash": "latest",
     "csv": "latest",
-    "mail-listener2": "latest",
-    "log4js": "latest"
+    "log4js": "latest",
+    "cors":"latest",
+    "body-parser":"latest",
+    "serve-favicon":"latest",
+    "express-session":"latest",
+    "passport":"latest",
+    "cookie-parser":"latest",
+    "passport-http":"latest"
+  },
+  "devDependencies": {
+    "api-easy": "latest",
+    "assert": "latest"
   },
   "scripts": {
     "start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",

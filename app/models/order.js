@@ -3,12 +3,9 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var Client = null
-var _ = require('underscore');
-var time = require('time')
-var util = require('util')
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var Client;
 
 // IF VALUES CHANGE, ALSO SYNC IN FRONT_END
 var OrderStatus = {
@@ -51,9 +48,9 @@ var OrderSchema = new Schema({
 		logs: [{ type: String }]
 	},
 	verbose: { type: String }, //A verbal version of the Order
-	updated_at: { type: Date },
+	updated_utc: { type: String },
   sent_email: { type: Boolean, default: false }, // Wether the notification email was sent to the Client
-  sent_bank_transfer_email: { type: Boolean, default: false }, 
+  sent_bank_transfer_email: { type: Boolean, default: false },
 	sent_printing_notification: { type: Boolean, default: false },
 	sent_shipped_notification: { type: Boolean, default: false }
 })
@@ -77,7 +74,7 @@ OrderSchema.pre('remove', function(next) {
 			doc.orders.splice(doc.orders.indexOf(this._id),1);
 			doc.save(function(err) {
 				if (err) {
-					console.log(util.format('Order => post remove error => %s',err));
+					console.log('Order => post remove error => %s',err);
 				};
 				next();
 			});
@@ -100,7 +97,7 @@ OrderSchema.post('save', function(saved) {
 				doc.orders.push(saved._id);
 				doc.save(function(err) {
 					if (err) {
-						console.log(util.format('Order => post save error => %s',err));
+						console.log('Order => post save error => %s',err);
 					};
 				});
 			}
@@ -111,7 +108,7 @@ OrderSchema.post('save', function(saved) {
 
 // ### Order pre save hooks
 OrderSchema.pre('save', function(next) {
-	this.updated_at = new time.Date().setTimezone('UTC');
+	this.updated_utc = common.moment().utc().format('YYYY-MM-DD HH:mm:ss');
 	next();
 });
 

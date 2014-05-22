@@ -4,17 +4,21 @@
  */
 
 var express = require('express');
-var mongoStore = require('connect-mongo')(express);
+var bodyParser = require('body-parser');
+var favicon = require('serve-favicon');
+var session = require('express-session');
+var mongoStore = require('connect-mongo')(session);
+var passport = require('passport');
+var cookieParser = require('cookie-parser');
+var BasicStrategy = require('passport-http').BasicStrategy;
 var helpers = require('view-helpers');
 var pkg = require('../package');
 var env = process.env.NODE_ENV || 'development';
 var lessMiddleware = require('less-middleware');
 var flash = require('connect-flash');
 var log4js = require('log4js');
-
-var auth = express.basicAuth(function(user, pass) {
-	return user === 'theprintlab' && pass === 'theprintlabCL2013';
-});
+var cors = require('cors');
+var path = require('path');
 
 // Logging setup
 log4js.configure({
@@ -29,85 +33,94 @@ var logger = log4js.getLogger();
  * Expose
  */
 
-exports.auth = auth;
 
-exports.setup = function (app, config) {
-	
-	app.set('showStackError', true)
+module.exports = function (app) {
+
+	app.set('showStackError', true);
 
 	//  logger
 	app.use(log4js.connectLogger(logger, { level: 'auto' }));
 
-
 	// use express favicon
-	app.use(express.favicon(__dirname + '/../public/img/favicon.ico'));
+  app.use(favicon(common.config.root + '/public/img/favicon.ico'));
 
 	// views config
-	app.set('views', config.root + '/app/views');
+	app.set('views', common.config.root + '/app/views');
 	app.set('view engine', 'jade');
+	app.use(bodyParser());
+	app.locals.pretty = true;
 
+  // admin auth
+	passport.use(new BasicStrategy(function(user, pass, done) {
+		if(user === common.config.auth.user && pass === common.config.auth.pass) {
+			done(null, {user: user});
+		} else {
+			done(null, false);
+		}
+	}));
 
-	app.configure(function () {
+  // cookieParser should be above session
+	app.use(cookieParser());
 
-		// bodyParser should be above methodOverride
-		app.use(express.bodyParser())
-		app.use(express.methodOverride())
+	// express/mongo session storage
+	app.use(session({
+		secret: common.config.master,
+		store: new mongoStore({
+			url: common.config.db,
+			collection : 'sessions',
+			auto_reconnect: true
+		})
+	}));
 
-		app.use(lessMiddleware({
-			dest: __dirname + '/../public',
-			src: __dirname + '/../src/less',
+  app.use(passport.initialize());
+
+  // less
+	app.use(lessMiddleware(
+		path.join(common.config.root,'/app/src/less'),
+		{
+			dest: path.join(common.config.root,'/public'),
 			prefix: '/stylesheets',
 			compress : true,
-			debug: false
-		}));
+			debug: false,
+			force: true
+		}
+	));
 
-		app.use(express.static(config.root + '/public'));
+	//static should be after less-middleware
+	app.use(express.static(common.config.root + '/public'))
 
-		// cookieParser should be above session
-		app.use(express.cookieParser());
 
-		// express/mongo session storage
-		app.use(express.session({
-			secret: config.master,
-			store: new mongoStore({
-				url: config.db,
-				collection : 'sessions'
-			})
-		}));
+	// CORS cross-domain
+  var whitelist = ['https://secure.theprintlab.cl', 'http://api.theprintlab.cl', 'http://api-dev.theprintlab.cl', 'http://localhost:5009'];
+  var cors_options = {
+    origin: function(origin, callback){
+      var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+      callback(null, originIsWhitelisted);
+    }
+  };
 
-	
-		// CORS cross-domain
-		app.use(function(req, res, next) {
-			res.header('Access-Control-Allow-Origin', 'https://secure.theprintlab.cl');
-    		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    		res.header('Access-Control-Allow-Headers', 'Content-Type');
-    		next();
-		});
+	app.use(function(req, res, next) {
+  	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  	res.header('Access-Control-Allow-Headers', 'Content-Type');
+  	next();
+	});
 
-		// flash
-		app.use(flash());
-		
-		// expose pkg and node env to views
-		// expose pkg and node env to views
-		app.use(function (req, res, next) {
-			res.locals.pkg = pkg;
-			res.locals.env = env;
-			res.locals.session = req.session;
-			res.locals.moment = require('moment');
-			next();
-		});
-		
-		// View helpers
-		app.use(helpers(pkg.name));
+  app.use(cors(cors_options));
 
-		// routes should be at the last
-		app.use(app.router);
+	// flash
+	app.use(flash());
 
-	})
+	// expose pkg and node env to views
+	// expose pkg and node env to views
+	app.use(function (req, res, next) {
+		res.locals.pkg = pkg;
+		res.locals.env = env;
+		res.locals.session = req.session;
+		res.locals.moment = require('moment');
+		next();
+	});
 
-	// development specific stuff
-	app.configure('development', function () {
-		app.locals.pretty = true;
-	})
+	// View helpers
+	app.use(helpers(pkg.name));
 
 }
