@@ -446,7 +446,7 @@
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templatePreheader">
                                         <tr>
                                             <td valign="top" class="preheaderContent" style="padding-top:10px; padding-right:20px; padding-bottom:10px; padding-left:20px;" mc:edit="preheader_content00">
-                                                ThePrintlab: Bank Transfer Confirmation (<%= order_id %>)
+                                                ThePrintlab: Detalles de Transferencia (<%= order_id %>)
                                             </td>
                                             <!-- *|IFNOT:ARCHIVE_PAGE|* -->
                       <!--
@@ -479,18 +479,23 @@
                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateBody">
                                         <tr>
                                             <td valign="top" class="bodyContent" mc:edit="body_content">
-                                                <h1>Bank Transfer Confirmation</h1>
-                                                <br /><b>Order Number:</b> <%= order_id %>
+                                                <h1>Gracias por usar ThePrintlab!</h1>
+                                                Recibimos los siguientes datos de la transferencia bancaria:
+                                                <br />
+                                                <h2>Detalles de la transferencia </h2>
+                                                <br /><b>Banco:</b> <%= bank %>
+                                                <br /><b>Nombre:</b> <%= name %>
+                                                <br /><b>Fecha:</b> <%= date %>
+                                                <br />
+                                                <h2>Detalles del Pedido </h2>
+                                                <br /><b>Pedido Número:</b> <%= order_id %>
                                                 <br /><b>Total:</b> $<%= cost_total %>
-                                                <br /><b>Details:</b> <%= order_verbose %>
+                                                <br /><b>Descripción:</b> <%= order_verbose %>
                                                 <br />
+                                                <br />Una vez que hayamos hecho la comprobación con nuestro banco, te enviaremos otro email de confirmación y continuaremos procesando tu pedido.
+                                                <br />La comprobación de la transferencia puede tardar entre 2 a 3 días hábiles.
                                                 <br />
-                                                <b>Bank-Transfer:</b> <%= bank %>
-                                                <br /><b>Name:</b> <%= name %>
-                                                <br /><b>Date:</b> <%= date %>
-                                                <br />
-                                                <br />
-                                                <h3>Gracias por usar The Printlab!</h3>
+                                                <h3>Que tengas un buen día!</h3>
                                                 &nbsp;&nbsp;Afectuosamente,
                                                 <br />&nbsp;&nbsp; <b>The Printlab Team</b>
 
