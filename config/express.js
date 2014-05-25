@@ -91,7 +91,7 @@ module.exports = function (app) {
 
 
 	// CORS cross-domain
-  var whitelist = ['https://secure.theprintlab.cl', 'http://api.theprintlab.cl', 'http://api-dev.theprintlab.cl', 'http://192.168.1.7:5009'];
+  var whitelist = ['http://www.theprintlab.cl', 'http://theprintlab.cl', 'https://secure.theprintlab.cl', 'http://api.theprintlab.cl', 'http://api-dev.theprintlab.cl', 'http://192.168.1.7:5009'];
   var cors_options = {
     origin: function(origin, callback){
       var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
