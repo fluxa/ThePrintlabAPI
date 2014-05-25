@@ -714,6 +714,7 @@ exports.remove = function (req, res) {
         .findOne({
           _id: order_id
         })
+        .populate('client')
         .exec(function(err, doc) {
           if(!err && doc) {
             order = doc;
@@ -734,24 +735,29 @@ exports.remove = function (req, res) {
         var template_locals = {
           order_id: order._id,
           cost_total: order.cost_total,
-          photos_qty: order.photo_count,
+          order_verbose: order.verbose,
           bank: data.bank,
           name: data.name,
-          date: data.date
+          date: data.date,
+          current_year: common.moment().format('YYYY')
         }
         var subject = common.util.format('ThePrintlab: Bank Transfer Confirmation (%s)',order._id);
+        var to_emails;
+        if(order.client.email) {
+          to_emails = [order.client.email].concat(common.config.admin_emails);
+        } else {
+          to_emails = common.config.admin_emails;
+        }
         common.mailqueue.add(
           'payment_offline_confirm',
           template_locals,
-          common.config.admin_emails,
+          to_emails,
           subject,
           Email.Types.PaymentOfflineNotify,
           callback
         );
-
+        
         // TODO
-        // link theprintlab.cl/bktrans to this
-        // create thank you + info page (La comprobación de la transferencia puede tardar algunos días)
         // migrate emails to email queue
       }
     ],

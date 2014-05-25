@@ -204,7 +204,7 @@ exports.OrderBankTransferEmail = function() {
         address_to_name: util.format('%s %s', order.address.name, order.address.last_name),
         address: util.format('%s %s %s %s %s', order.address.address_line1, order.address.address_line2, order.address.comuna, order.address.provincia, order.address.region),
         current_year: today.getFullYear(),
-        confirm_payment_url: util.format('http://api.theprintlab.cl/order/%s/payment/offline/confirmation',order._id)
+        confirm_payment_url: util.format('http://www.theprintlab.cl/bktrans?order_id=%s&env=%s',order._id,common.env)
       }
 
       var subject = util.format('ThePrintlab: Pedido Recibido (%s)', order._id);

@@ -30,3 +30,20 @@ Server side APIs for ThePrintlab App
 * [Orders](orders.html)
 
 # db.clients.update({'consumed_coupons.0':{$exists:true}},{$set:{consumed_coupons:['53096be67de0a1ce45d90f01']}},false,true)
+
+### Logrotation
+`nano /etc/logrotate.d/api.theprintlab.prod`
+
+[COPY/PASTE]
+# api.theprintlab-production
+```
+/home/git/apps/api.theprintlab-production/shared/log/*.log {
+    su git git
+    size 1M
+    create 700 git git
+    copytruncate
+    dateext
+    rotate 10
+    compress
+}
+```

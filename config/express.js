@@ -91,20 +91,16 @@ module.exports = function (app) {
 
 
 	// CORS cross-domain
-  var whitelist = ['https://secure.theprintlab.cl', 'http://api.theprintlab.cl', 'http://api-dev.theprintlab.cl', 'http://localhost:5009'];
+  var whitelist = ['https://secure.theprintlab.cl', 'http://api.theprintlab.cl', 'http://api-dev.theprintlab.cl', 'http://192.168.1.7:5009'];
   var cors_options = {
     origin: function(origin, callback){
       var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
       callback(null, originIsWhitelisted);
-    }
+    },
+    methods:['GET', 'PUT', 'POST', 'DELETE'],
+    allowedHeaders: 'Content-Type'
+
   };
-
-	app.use(function(req, res, next) {
-  	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  	res.header('Access-Control-Allow-Headers', 'Content-Type');
-  	next();
-	});
-
   app.use(cors(cors_options));
 
 	// flash

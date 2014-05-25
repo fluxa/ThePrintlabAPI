@@ -85,13 +85,13 @@ exports.process_queue = function(master_callback) {
       function(emails, callback) {
         common.async.eachLimit(emails, 1, function(email, each_callback) {
 
-          var message = new sendgrid.Email({
+          var message = {
             from: email.from,
             to: email.to,
 						bcc: email.bcc,
             subject: email.subject,
             html: email.body
-          });
+          };
 
           console.log('mailer.process_queue sending => Email to %s with subject: %s',message.to,message.subject);
 
