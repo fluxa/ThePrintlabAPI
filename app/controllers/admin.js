@@ -15,7 +15,7 @@ var moment = require('moment');
 var util = require('util');
 var csv = require('csv');
 
-/* 
+/*
 * Routes
 */
 
@@ -112,7 +112,7 @@ exports.orders_manage = function (req, res) {
 	var order_ids = req.body.order_ids;
 	var action = req.body.action;
 	var count_orders_modified = 0;
-	
+
 	if (order_ids && action) {
 
 		Order.find({
@@ -123,26 +123,26 @@ exports.orders_manage = function (req, res) {
 		.exec(function(err, docs) {
 
 			if (!err && docs) {
-				
+
 				async.eachSeries(docs, function(order, callback) {
-					
+
 					var modified = false;
 					var finish = function() {
 						callback(null);
 					}
-					
+
 					switch(action) {
 
 						case 'printing':
 							order.status = Order.OrderStatus.Printing;
 							modified = true;
 							break;
-						
+
 						case 'shipped':
 							order.status = Order.OrderStatus.Shipped;
 							modified = true;
 							break;
-						
+
 						case 'delete':
 							finish = function(){};
 							order.remove(function(err, removed) {
@@ -157,7 +157,7 @@ exports.orders_manage = function (req, res) {
 							count_orders_modified++;
 							finish();
 							if(err) {
-								console.log('Error saving Order in change_status => ' + err);	
+								console.log('Error saving Order in change_status => ' + err);
 							}
 						});
 					} else {
@@ -206,7 +206,7 @@ exports.orders_export = function(req, res) {
 	rows.push(header);
 
 	var order_ids = req.body.order_ids;
-	
+
 	if (order_ids) {
 
 		Order.find({
@@ -218,7 +218,7 @@ exports.orders_export = function(req, res) {
 		.populate('address')
 		.populate('client')
 		.exec(function(err, docs) {
-			
+
 			if(!err && docs) {
 				_.each(docs, function(order, index, all) {
 					var row = [];
@@ -244,27 +244,15 @@ exports.orders_export = function(req, res) {
 				});
 			}
 			// Create CSV
-			csv()
-			.from.array(rows)
-			.to(function(data) {
-				//console.log(data);
-				var m = new moment();
-				var filename = util.format('%s-ThePrintlabOrders.csv',m.format('YYYY-MM-DD'));
-				res.setHeader('Content-disposition', 'attachment; filename='+filename);
-				res.setHeader('Content-type', 'text/plain');
-				res.charset = 'UTF-8';
-				res.write(data);
-				res.end();
-			})
-			// .on('record', function(row,index){
-			// 	console.log('#'+index+' '+JSON.stringify(row));
-			// })
-			// .on('end', function(count){
-			// 	console.log('Number of lines: '+count);
-			// })
-			// .on('error', function(error){
-			// 	console.log(error.message);
-			// });
+			csv.stringify(rows, function(err, data) {
+        var m = new moment();
+        var filename = util.format('%s-ThePrintlabOrders.csv',m.format('YYYY-MM-DD'));
+        res.setHeader('Content-disposition', 'attachment; filename='+filename);
+        res.setHeader('Content-type', 'text/plain');
+        res.charset = 'UTF-8';
+        res.write(data);
+        res.end();
+      });
 
 		});
 
@@ -272,7 +260,7 @@ exports.orders_export = function(req, res) {
 		req.flash('error', 'Missing parameters order_ids');
 		res.redirect('/admin/orders');
 	}
-	
+
 }
 
 // Coupons
@@ -394,7 +382,7 @@ exports.policies_add = function(req, res) {
 		// Validations
 		var valid = true;
 		var errors = [];
-		
+
 		if(policy.type === Policy.Types.SPECIFIC.key && !policy.target_clients) {
 			valid = false;
 			errors.push('Must select at least 1 Client for SPECIFIC policy type');
@@ -437,7 +425,7 @@ exports.policies_add = function(req, res) {
 }
 
 exports.policies_active = function(req, res) {
-	
+
 	var policy = req.body.policy;
 	if(policy._id && policy.active != null) {
 		Policy.findOne({_id: policy._id})
@@ -454,7 +442,7 @@ exports.policies_active = function(req, res) {
 	} else {
 		res.send({success:false, policy: policy});
 	}
-	
+
 }
 
 exports.policies_manage_codes = function(req, res) {
@@ -634,7 +622,7 @@ exports.support_close = function(req, res) {
 			} else {
 				res.send({success: true});
 			}
-			
+
 		});
 	} else {
 		res.send({succcess: false, error: 'Missing parameters'});
