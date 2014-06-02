@@ -11,6 +11,7 @@ var mongoose = require('mongoose');
 var fs = require('fs');
 var http = require('http');
 var cron = require('./app/util/cron');
+var pusher = require('./app/util/pusher');
 
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
@@ -52,6 +53,9 @@ require('./config/express')(app);
 
 // Bootstrap routes
 require('./config/routes')(app);
+
+// Init Push Notification
+pusher.init();
 
 // Start the app by listening on <port>
 var port = process.env.PORT || 5006

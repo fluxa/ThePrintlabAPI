@@ -1,13 +1,13 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/datepicker3.css', rel='stylesheet', media='screen')
 	link(href='/css/chosen.min.css', rel='stylesheet', media='screen')
 	link(href='/css/bootstrap-switch.min.css', rel='stylesheet', media='screen')
 	link(href='/css/coupons.css', rel='stylesheet', media='screen')
 	body
-		include includes/messages
-		include includes/navigation
+		include ../includes/messages
+		include ../includes/navigation
 		
 		.container
 			h1
@@ -16,7 +16,7 @@ html
 			.panel
 				.btn-group.btn-group
 					button.btn.btn-default(data-toggle='modal', data-target='#modal_new_policy') New Policy
-			include includes/modal_new_policy
+			include ../includes/modal_new_policy
 
 			table.table.table-hover
 					thead
@@ -52,7 +52,7 @@ html
 										input.switch(type='checkbox', data-id='#{policy._id}', data-on-color='success', data-off-color='danger', data-size='mini')
 								td
 
-	include includes/scripts_common
+	include ../includes/scripts_common
 	script(src='/js/bootstrap-datepicker.js')
 	script(src='/js/bootstrap-switch.min.js')
 	script(src='/js/chosen.jquery.min.js')

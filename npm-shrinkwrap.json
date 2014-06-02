@@ -2006,6 +2006,10 @@
           }
         }
       }
+    },
+    "urban-airship": {
+      "version": "0.4.0",
+      "from": "urban-airship@latest"
     }
   }
 }

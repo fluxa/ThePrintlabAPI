@@ -1,10 +1,10 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/coupons.css', rel='stylesheet', media='screen')
 	body
-		include includes/messages
-		include includes/navigation
+		include ../includes/messages
+		include ../includes/navigation
 		
 		.container
 			h1
@@ -13,7 +13,7 @@ html
 			.panel
 				.btn-group.btn-group
 					button.btn.btn-default(data-toggle='modal', data-target='#modal_new_coupon') New Coupon
-			include includes/modal_new_coupon
+			include ../includes/modal_new_coupon
 
 			table.table.table-hover
 					thead
@@ -40,5 +40,5 @@ html
 								
 								td [TODO]
 
-	include includes/scripts_common
-	include includes/scripts_tablesorter
+	include ../includes/scripts_common
+	include ../includes/scripts_tablesorter

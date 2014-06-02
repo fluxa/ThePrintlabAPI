@@ -1,9 +1,9 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
 	body
-		include includes/navigation
+		include ../includes/navigation
 		
 		.container
 			h1
@@ -42,8 +42,8 @@ html
 									a(onclick='close_support("#{support._id}");').btn.btn-sm.btn-primary Close
 							
 
-	include includes/scripts_common
-	include includes/scripts_tablesorter
+	include ../includes/scripts_common
+	include ../includes/scripts_tablesorter
 	script.
 		function close_support(support_id) {
 			$.post('/admin/support/close', {support_id: support_id}, function(data) {

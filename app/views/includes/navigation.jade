@@ -1,23 +1,29 @@
-.navbar.navbar-default.navbar-static-top(role='navigation')
-	.container
-		.navbar-header
-			.pl-logo
-			a.navbar-brand(href='#') The Printlab | #{env}
-		.navbar-collapse.collapse
-			.nav.navbar-nav
-				li
-					a(href='/admin/dashboard') Dashboard
-				li
-					a(href='/admin/orders') Orders
-				li
-					a(href='/admin/clients') Clients
-				li
-					a(href='/admin/coupons') Coupons
-				li
-					a(href='/admin/policies') Policies
-				li
-					a(href='/admin/support') Support
-				li
-					a(href='/admin/logs') Logs
+nav.navbar.navbar-default(role='navigation')
+	.container-fluid
+			.navbar-header
+				a.navbar-brand(href='/admin')
+					.tpl-logo
+				button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+					span.sr-only Toggle navigation
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
 
-
+			.collapse.navbar-collapse#navbar-collapse
+				ul.nav.navbar-nav
+					li
+						a(href='/admin/dashboard') Dashboard
+					li
+						a(href='/admin/orders') Orders
+					li
+						a(href='/admin/clients') Clients
+					li
+						a(href='/admin/coupons') Coupons
+					li
+						a(href='/admin/policies') Policies
+					li
+						a(href='/admin/mktguerrilla') Mkt.Guerrilla
+					li
+						a(href='/admin/support') Support
+					li
+						a(href='/admin/logs') Logs

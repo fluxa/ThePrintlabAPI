@@ -1,0 +1,15 @@
+doctype html
+html
+  include ../includes/head
+  //- link(href='/css/coupons.css', rel='stylesheet', media='screen')
+  body
+    include ../includes/messages
+    include ../includes/navigation
+
+    .container-fluid
+      h1
+        | Marketing Guerrilla
+        span.pl-label.label.label-info
+      .panel
+        .btn-group.btn-group
+          button.btn.btn-default(data-toggle='modal', data-target='#modal_new_coupon') New Coupon

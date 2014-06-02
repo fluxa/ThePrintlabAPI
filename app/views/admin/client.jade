@@ -1,10 +1,10 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
 	body
-		include includes/navigation
-		
+		include ../includes/navigation
+
 		.container
 			h1
 				| Client
@@ -36,7 +36,7 @@ html
 									| 0
 							td
 								| #{client.orders.length}
-							
 
-	include includes/scripts_common
-	include includes/scripts_tablesorter
+
+	include ../includes/scripts_common
+	include ../includes/scripts_tablesorter

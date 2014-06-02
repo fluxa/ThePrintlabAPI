@@ -81,8 +81,8 @@ module.exports = function (app) {
 			dest: path.join(common.config.root,'/public'),
 			prefix: '/stylesheets',
 			compress : true,
-			debug: false,
-			force: true
+			debug: true,
+			force: common.config.less_force_compile
 		}
 	));
 

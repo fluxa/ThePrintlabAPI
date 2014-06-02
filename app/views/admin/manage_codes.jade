@@ -1,13 +1,13 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/datepicker3.css', rel='stylesheet', media='screen')
 	link(href='/css/chosen.min.css', rel='stylesheet', media='screen')
 	link(href='/css/bootstrap-switch.min.css', rel='stylesheet', media='screen')
 	link(href='/css/coupons.css', rel='stylesheet', media='screen')
 	body
-		include includes/messages
-		include includes/navigation
+		include ../includes/messages
+		include ../includes/navigation
 		
 		.container
 			h1
@@ -41,7 +41,7 @@ html
 									td No
 								td
 
-	include includes/scripts_common
+	include ../includes/scripts_common
 	script.
 		function generate_codes() {
 			var num_codes = parseInt($('#num_codes')[0].value);

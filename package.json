@@ -36,7 +36,8 @@
     "express-session":"latest",
     "passport":"latest",
     "cookie-parser":"latest",
-    "passport-http":"latest"
+    "passport-http":"latest",
+    "urban-airship": "latest"
   },
   "devDependencies": {
     "api-easy": "latest",

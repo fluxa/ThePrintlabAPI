@@ -14,6 +14,7 @@ var support = require('support');
 var coupons = require('coupons');
 var debug = require('debug');
 var admin = require('admin');
+var mktg = require('mktguerrilla');
 var maintenance = require('maintenance');
 var passport = require('passport');
 
@@ -39,6 +40,7 @@ module.exports = function (app) {
 	app.get('/admin/clients', auth, admin.clients);
 	app.get('/admin/coupons', auth, admin.coupons);
 	app.get('/admin/policies', auth, admin.policies);
+  app.get('/admin/mktguerrilla', auth, mktg.index);
 	app.get('/admin/support', auth, admin.support);
 	app.post('/admin/orders/manage', auth, admin.orders_manage);
 	app.post('/admin/orders/export', auth, admin.orders_export);

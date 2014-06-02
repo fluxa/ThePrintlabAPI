@@ -2,17 +2,13 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 var Order = mongoose.model('Order');
 var Client = mongoose.model('Client');
 var Support = mongoose.model('Support');
 var Coupon = mongoose.model('Coupon');
 var Policy = mongoose.model('Policy');
 var Redeem = mongoose.model('Redeem');
-var async = require('async');
-var _ = require('underscore');
-var moment = require('moment');
-var util = require('util');
 var csv = require('csv');
 
 /*
@@ -24,7 +20,7 @@ exports.dashboard = function(req, res) {
 	var orders = [];
 	var clients = [];
 
-	async.series([
+	common.async.series([
 		// Get all Orders
 		function(callback) {
 			Order.find({})
@@ -46,7 +42,7 @@ exports.dashboard = function(req, res) {
 			})
 		}
 	], function(err, results) {
-		res.render('dashboard', {orders: orders, clients: clients, ostatus: Order.OrderStatus});
+		res.render('admin/dashboard', {orders: orders, clients: clients, ostatus: Order.OrderStatus});
 	});
 }
 
@@ -54,7 +50,7 @@ exports.orders = function(req, res) {
 
 	var orders = [];
 
-	async.series([
+	common.async.series([
 
 		// Get All Orders
 		function(callback) {
@@ -73,14 +69,14 @@ exports.orders = function(req, res) {
 
 	// Finish
 	], function(err, results) {
-		res.render('orders', {orders: orders, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
+		res.render('admin/orders', {orders: orders, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
 	});
 }
 
 exports.clients = function(req, res) {
 	var clients = [];
 
-	async.series([
+	common.async.series([
 		//Get all
 		function(callback) {
 			Client.find({})
@@ -95,7 +91,7 @@ exports.clients = function(req, res) {
 		}
 	// Finish
 	], function(err, results) {
-		res.render('clients', {clients: clients});
+		res.render('admin/clients', {clients: clients});
 	});
 }
 
@@ -124,7 +120,7 @@ exports.orders_manage = function (req, res) {
 
 			if (!err && docs) {
 
-				async.eachSeries(docs, function(order, callback) {
+				common.async.eachSeries(docs, function(order, callback) {
 
 					var modified = false;
 					var finish = function() {
@@ -166,12 +162,12 @@ exports.orders_manage = function (req, res) {
 				},
 				// Finish
 				function(err) {
-					req.flash('success', util.format('%d Orders has been modified',count_orders_modified));
+					req.flash('success', common.util.format('%d Orders has been modified',count_orders_modified));
 					res.redirect('/admin/orders');
 				});
 
 			} else {
-				req.flash('error', err || util.format('Order change_status -> not found for ids: %s',order_ids));
+				req.flash('error', err || common.util.format('Order change_status -> not found for ids: %s',order_ids));
 				res.redirect('/admin/orders');
 			}
 		});
@@ -220,9 +216,9 @@ exports.orders_export = function(req, res) {
 		.exec(function(err, docs) {
 
 			if(!err && docs) {
-				_.each(docs, function(order, index, all) {
+				common._.each(docs, function(order, index, all) {
 					var row = [];
-					var m = new moment(getTimestamp(order._id));
+					var m = common.moment(getTimestamp(order._id));
 					row.push(m.format('YYYY-MM-DD HH:mm'));
 					row.push(order._id.toString());
 					row.push(order.status);
@@ -234,8 +230,8 @@ exports.orders_export = function(req, res) {
 					row.push(order.client._id.toString());
 					row.push(order.client.email);
 					row.push(order.client.mobile);
-					row.push(util.format('%s %s',order.address.name,order.address.last_name));
-					row.push(util.format('%s %s',order.address.address_line1,order.address.address_line2));
+					row.push(common.util.format('%s %s',order.address.name,order.address.last_name));
+					row.push(common.util.format('%s %s',order.address.address_line1,order.address.address_line2));
 					row.push(order.address.region);
 					row.push(order.address.provincia);
 					row.push(order.address.comuna);
@@ -245,8 +241,8 @@ exports.orders_export = function(req, res) {
 			}
 			// Create CSV
 			csv.stringify(rows, function(err, data) {
-        var m = new moment();
-        var filename = util.format('%s-ThePrintlabOrders.csv',m.format('YYYY-MM-DD'));
+        var m = common.moment();
+        var filename = common.util.format('%s-ThePrintlabOrders.csv',m.format('YYYY-MM-DD'));
         res.setHeader('Content-disposition', 'attachment; filename='+filename);
         res.setHeader('Content-type', 'text/plain');
         res.charset = 'UTF-8';
@@ -268,7 +264,7 @@ exports.coupons = function(req, res) {
 
 	var coupons = [];
 
-	async.series([
+	common.async.series([
 		// Get All
 		function(callback) {
 			Coupon.find({})
@@ -282,7 +278,7 @@ exports.coupons = function(req, res) {
 	],
 	// Finally
 	function(err, results) {
-		res.render('coupons', {
+		res.render('admin/coupons', {
 			coupons: coupons
 		});
 	});
@@ -318,7 +314,7 @@ exports.policies = function(req, res) {
 	var clients = [];
 	var policy_types = [];
 
-	async.series([
+	common.async.series([
 
 		// Get All Policies
 		function(callback) {
@@ -364,7 +360,7 @@ exports.policies = function(req, res) {
 	],
 	// Finally
 	function(err, results) {
-		res.render('policies', {
+		res.render('admin/policies', {
 			policies: policies,
 			coupons: coupons,
 			clients: clients,
@@ -398,7 +394,7 @@ exports.policies_add = function(req, res) {
 			policy.expiry_date = '2999-01-01';
 		}
 
-		var now = moment().utc().format('YYYY-MM-DD');
+		var now = common.moment().utc().format('YYYY-MM-DD');
 		if(policy.expiry_date < now) {
 			valid = false;
 			errors.push('Expiry Date should be in the future');
@@ -499,7 +495,7 @@ exports.policies_manage_codes = function(req, res) {
 	// Finally
 	function(err) {
 		if(!err) {
-			res.render('manage_codes',{
+			res.render('admin/manage_codes',{
 				policy: policy,
 				redeems: redeems
 			});
@@ -583,6 +579,7 @@ exports.policies_generate_codes = function(req, res) {
 	});
 }
 
+
 // Support
 exports.support = function(req, res) {
 
@@ -595,7 +592,7 @@ exports.support = function(req, res) {
 		if(!err && docs){
 			supports = docs;
 		}
-		res.render('support', {supports: supports, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
+		res.render('admin/support', {supports: supports, getTimestamp: getTimestamp, toPrettyDate: toPrettyDate});
 	});
 }
 
@@ -640,5 +637,5 @@ function getTimestamp(_id) {
 
 function toPrettyDate(_id) {
 	var timestamp = getTimestamp(_id);
-	return new moment(timestamp).format('YYYY-MM-DD HH:mm');
+	return common.moment(timestamp).format('YYYY-MM-DD HH:mm');
 }

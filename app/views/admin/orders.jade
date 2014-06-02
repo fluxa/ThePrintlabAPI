@@ -1,15 +1,15 @@
 doctype html
 html
-	include includes/head
+	include ../includes/head
 	link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+	link(href='/css/orders.css', rel='stylesheet', media='screen')
 	body
-		include includes/navigation
-		.container
-			include includes/messages
-		.container
-			h1
-				| Orders
-				span.pl-label.label.label-info #{orders.length}
+		include ../includes/navigation
+		.container-fluid
+			include ../includes/messages
+		.container-fluid
+			h1 Orders
+				span.pl-label.label.label-info ##{orders.length}
 
 			.panel
 				.btn-group.btn-group
@@ -54,7 +54,6 @@ html
 						tr
 							th.sorter-false.filter-false
 							th Date
-							th Hours Ago
 							th OrderID
 							th(data-placeholder='All').filter-select Status
 							th Client
@@ -64,24 +63,23 @@ html
 							th
 								span.fa.fa-usd
 								|  Total
-								
+
 					tbody
 						each order in orders
 							- var timestamp = getTimestamp(order._id)
 							- var m = new moment(timestamp)
 							- var now = new moment()
 							- var date = m.format('YYYY-MM-DD HH:mm')
-							- var diff = now.diff(m, 'hours')
+							- var diff_days = now.diff(m, 'days')
+							- var status_class = (order.status == 'PAYMENT_OFFLINE' && diff_days > 3) ? 'row_red' : ''
 							tr.pl-row
 								td
 									input(type='checkbox', name='order_ids[]', value='#{order._id}', id='#{order._id}')
 								td
 									| #{date}
 								td
-									| #{diff}
-								td
 									| #{order._id}
-								td
+								td(class='#{status_class}')
 									| #{order.status}
 								td
 									| #{order.client.email}
@@ -96,6 +94,6 @@ html
 
 
 
-	include includes/scripts_common
-	include includes/scripts_tablesorter
-	include includes/scripts_orders
+	include ../includes/scripts_common
+	include ../includes/scripts_tablesorter
+	include ../includes/scripts_orders
