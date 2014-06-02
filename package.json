@@ -47,6 +47,7 @@
     "start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",
     "debug": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon --debug app.js",
     "encrypt": "encrypt ./config/config.js ./config/config.js.cast5",
-    "decrypt": "decrypt ./config/config.js.cast5 ./config/config.js"
+    "decrypt": "decrypt ./config/config.js.cast5 ./config/config.js",
+    "encryptcap": "encrypt ./Capfile ./Capfile.cast5"
   }
 }
