@@ -3,12 +3,11 @@ html
 	include ../includes/head
 	link(href='/css/datepicker3.css', rel='stylesheet', media='screen')
 	link(href='/css/chosen.min.css', rel='stylesheet', media='screen')
-	link(href='/css/bootstrap-switch.min.css', rel='stylesheet', media='screen')
 	link(href='/css/coupons.css', rel='stylesheet', media='screen')
 	body
 		include ../includes/messages
 		include ../includes/navigation
-		
+
 		.container
 			h1
 				| Policies
@@ -28,13 +27,13 @@ html
 							th Target Clients
 							th Redeemables
 							th Active
-							th					
+							th
 					tbody
 						each policy in policies
 							tr
 								- var years = moment(policy.expiry_date).diff(moment(), 'years');
 								- var expiry_string = years > 50 ? 'NEVER' : policy.expiry_date;
-					
+
 								td #{policy.name}
 								td #{policy.coupon.title}
 								td #{expiry_string}
@@ -43,7 +42,7 @@ html
 								if policy.type === 'REDEEMABLE'
 									td
 										a(href='/admin/policies/manage_codes/#{policy._id}') MANAGE CODES
-								else 
+								else
 									td --
 								td
 									if policy.active
@@ -54,10 +53,9 @@ html
 
 	include ../includes/scripts_common
 	script(src='/js/bootstrap-datepicker.js')
-	script(src='/js/bootstrap-switch.min.js')
 	script(src='/js/chosen.jquery.min.js')
 	script.
-		
+
 		$('#policy_expiry_date').datepicker({
 			format: 'yyyy-mm-dd',
 			startDate: 'today',
@@ -68,13 +66,11 @@ html
 			width: '100%'
 		});
 
-		$('.switch').bootstrapSwitch();
-
 		$('.switch').on('switchChange', function (e, data) {
 			var $element = $(data.el),
 			value = data.value;
 			var _id = $element.attr('data-id');
-			
+
 			$.post('policies/active', {
 				policy: {
 					_id: _id,

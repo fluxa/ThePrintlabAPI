@@ -7,9 +7,86 @@ html
     include ../includes/navigation
 
     .container-fluid
-      h1
-        | Marketing Guerrilla
-        span.pl-label.label.label-info
-      .panel
-        .btn-group.btn-group
-          button.btn.btn-default(data-toggle='modal', data-target='#modal_new_coupon') New Coupon
+      .panel-group#accordion
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title
+              a(data-toggle='collapse', data-parent='#accordion', href='#canned') Canned Messages
+          .panel-body
+            .panel.panel-collapse.in#canned
+              table.table.table-hover
+                thead
+                  tr
+                    th Subject
+                    th Body
+                    th Short
+                    th
+                tbody
+                  each canned in cans
+                    tr(style='cursor: pointer')
+                      td #{canned.subject}
+                      td #{canned.body}
+                      td #{canned.short}
+                      td
+                        a.btn.btn-danger(href='/admin/mktguerrilla/canned/#{canned._id}/remove')
+                          span.fa.fa-trash-o
+          .panel-footer
+            button.btn.btn-primary(data-toggle='modal', data-target='#modal_new_canned') Add New
+
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title
+              a(data-toggle='collapse', data-parent='#accordion', href='#compose') Compose
+          .panel-body
+            .panel.panel-collapse.in#compose
+              form.form#form_compose
+                .row
+                  .col-md-1
+                    input.switch(type='checkbox', data-id='has_push', data-size='small', data-on-color='success', data-off-color='danger', checked)
+                  .col-md-2
+                    span Push Notification
+                  .col-md-1
+                    input.switch(type='checkbox', data-id='has_email', data-size='small', data-on-color='success', data-off-color='danger', checked)
+                  .col-md-2
+                    span Email
+                br
+                .form-group
+                  label Subject
+                  input.form-control(type='text', name='subject', placeholder='Type Subject or Select Canned Message')
+                .form-group
+                  label Body
+                  textarea.form-control(rows='4', name='body', placeholder='Type Body or Select Canned Message')
+                .form-group
+                  label Short
+                  small#short_count
+                  textarea.form-control(rows='3', name='short', maxlength='120', placeholder='Type Push Message or Select Canned Message')#canned_short
+
+
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title
+              a(data-toggle='collapse', data-parent='#accordion', href='#target') Target Clients
+          .panel-body
+            .panel.panel-collapse.in#target
+              form.form#form_target
+                .row
+                  .col-md-12
+                    h4
+                      span.label.label-lg.label-success 200
+                      |  For Email
+                .row
+                  .col-md-12
+                    h4
+                      span.label.label-lg.label-success 140
+                      |  For Push Notification
+          .panel-footer
+            button.btn.btn-primary SEND
+
+
+
+    include ../includes/scripts_common
+    include modal_canned
+    script.
+      $(function(){
+        //$('#accordion').collapse();
+      });

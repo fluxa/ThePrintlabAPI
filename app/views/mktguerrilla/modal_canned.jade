@@ -1,0 +1,45 @@
+.modal.fade(role='dialog', aria-labelledby='new_canned_label', aria-hidden='true')#modal_new_canned
+  .modal-dialog
+    form.form(role='form', method='POST', action='/admin/mktguerrilla/cans/add')
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true')&times;
+          h4.modal-title New Canned Message
+        .modal-body
+          .form-group
+            label Subject
+            input.form-control(type='text', name='subject', placeholder='The Printlab te regala...')
+          .form-group
+            label Body
+            textarea.form-control(rows='4', name='body', placeholder='5 fotos gratis usando este cupon: XXXX')
+          .form-group
+            label Short
+            small#short_count
+            textarea.form-control(rows='3', name='short', maxlength='120', placeholder='5 fotos gratis usando este cupon: XXXX')#canned_short
+
+
+        .modal-footer
+          button.btn.btn-default(data-dismiss='modal') Close
+          button.btn.btn-primary(type='submit') Save
+script.
+  $(function(){
+    $('#canned_short').keyup(function() {
+      update_short_count();
+    });
+    update_short_count();
+  });
+
+  function update_short_count() {
+    var short = $('#canned_short').val();
+    var left = (120 - short.length);
+    var shortc = $('#short_count');
+    shortc[0].innerHTML = '  (max: ' + left + ' characters)';
+    if(left <= 0) {
+      shortc.removeClass('pl-green');
+      shortc.addClass('pl-red');
+    } else {
+      shortc.addClass('pl-green');
+      shortc.removeClass('pl-red');
+    }
+
+  }

@@ -2,10 +2,23 @@ script(src='/js/jquery-1.10.2.min.js')
 script(src='/bootstrap/js/bootstrap.min.js')
 script(src='/js/underscore.min.js')
 script(src='/js/moment.min.js')
+script(src='/js/async.js')
+script(src='/js/bootstrap-switch.min.js')
 script.
 	$(function() {
-		
-		// Delete confirmation	
+
+		// Auto Dismiss alerts
+		var alerts = $('.alert');
+		async.each(alerts, function(alert, callback) {
+			window.setTimeout(function() {
+				$(alert).fadeTo(500, 0).slideUp(500, function(){
+					$(this).remove();
+					callback();
+				});
+			}, 3000);
+		});
+
+		// Delete confirmation
 		$('#delete-btn').click(function(){
 			var btn = $(this);
 			if (btn.data('confirm')){
@@ -21,4 +34,6 @@ script.
 		});
 
 		$('#delete-confirm').hide();
+
+		$('.switch').bootstrapSwitch();
 	});

@@ -50,6 +50,8 @@ module.exports = function (app) {
 	app.post('/admin/policies/active', auth, admin.policies_active);
 	app.get('/admin/policies/manage_codes/:_id', auth, admin.policies_manage_codes);
 	app.post('/admin/policies/generate_codes', auth, admin.policies_generate_codes);
+  app.post('/admin/mktguerrilla/cans/add', auth, mktg.cans_add);
+  app.get('/admin/mktguerrilla/canned/:_id/remove', auth, mktg.canned_remove);
 
 	// Maintenance
 	app.get('/maintenance/fix_consumed',auth,maintenance.fix_consumed);
