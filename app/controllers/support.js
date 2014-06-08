@@ -70,10 +70,20 @@ exports.send_message = function(req, res) {
 						}
 
 						var subject = common.util.format('[ThePrintlab Support] (%s)', support._id);
-						var bcc = config.admin_emails.join(', ');
-						common.mailqueue.add(template_name, locals, ['fluxa@theprintlab.cl'], bcc, subject, Email.Types.Support, function(err, result) {
-							console.log('Support mailqueue.add => %s',err || result);
-						});
+						var bcc = '';
+
+						common.mailqueue.add(
+							template_name,
+							locals,
+							client.email,
+							['hola@theprintlab.cl'], 
+							bcc,
+							subject,
+							Email.Types.Support,
+							function(err, result) {
+								console.log('Support mailqueue.add => %s',err || 'SENT');
+							}
+						);
 
 					} else {
 						plerror.throw(plerror.c.DBError, err, res);

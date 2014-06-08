@@ -631,9 +631,18 @@ exports.submit = function (req, res) {
 									break;
 								}
 
-								common.mailqueue.add(template_name, template_locals, to_emails, bcc, subject, type, function(err, result) {
-									console.log('Order Submit emailqueue.add => %s',err || 'SENT');
-								});
+								common.mailqueue.add(
+									template_name,
+									template_locals,
+									null,
+									to_emails,
+									bcc,
+									subject,
+									type,
+									function(err, result) {
+										console.log('Order Submit emailqueue.add => %s',err || 'SENT');
+									}
+								);
 
 							} else {
 								common.plerr.throw(common.plerr.c.DBError, err, res);
@@ -793,6 +802,7 @@ exports.remove = function (req, res) {
         common.mailqueue.add(
           'payment_offline_confirm',
           template_locals,
+					null,
           to_emails,
 					bcc,
           subject,
