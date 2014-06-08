@@ -596,6 +596,45 @@ exports.submit = function (req, res) {
 								res.send({
 									order: saved
 								});
+
+								// Queue confirmation email
+								var today = common.moment();
+								var template_locals = {
+									order_id: order._id,
+									photos_qty: order.photo_count,
+									cost_printing: order.cost_printing,
+									cost_shipping: order.cost_shipping,
+									cost_total: order.cost_total,
+									address_to_name: common.util.format('%s %s', order.address.name, order.address.last_name),
+									address: common.util.format('%s %s %s %s %s', order.address.address_line1, order.address.address_line2, order.address.comuna, order.address.provincia, order.address.region),
+									current_year: today.format('YYYY')
+								}
+								var template_name;
+								var to_emails = [client.email];
+								var bcc = common.config.admin_emails.join(', ');
+								var subject = '';
+								var type;
+
+
+								// Status specific config
+								switch(order.status) {
+								case Order.OrderStatus.Submitted:
+									template_name = 'order_confirm';
+									subject = common.util.format('ThePrintlab: Confirmación de Pedido (%s)', order._id);
+									type = Email.Types.OrderConfirmation;
+									break;
+								case Order.OrderStatus.PaymentOffline:
+									template_locals.confirm_payment_url = common.util.format('http://www.theprintlab.cl/bktrans?order_id=%s&env=%s',order._id,common.env)
+									template_name = 'order_bank_transfer';
+									subject = common.util.format('ThePrintlab: Pedido Recibido (%s)', order._id);
+									type = Email.Types.OrderConfirmationOffline;
+									break;
+								}
+
+								common.mailqueue.add(template_name, template_locals, to_emails, bcc, subject, type, function(err, result) {
+									console.log('Order Submit emailqueue.add => %s',err || 'SENT');
+								});
+
 							} else {
 								common.plerr.throw(common.plerr.c.DBError, err, res);
 							}
@@ -743,22 +782,23 @@ exports.remove = function (req, res) {
         }
         var subject = common.util.format('ThePrintlab: Bank Transfer Confirmation (%s)',order._id);
         var to_emails;
+				var bcc;
         if(order.client.email) {
-          to_emails = [order.client.email].concat(common.config.admin_emails);
+          to_emails = [order.client.email];
+					bcc = common.config.admin_emails.join(', ');
         } else {
           to_emails = common.config.admin_emails;
+					bcc = '';
         }
         common.mailqueue.add(
           'payment_offline_confirm',
           template_locals,
           to_emails,
+					bcc,
           subject,
           Email.Types.PaymentOfflineNotify,
           callback
         );
-        
-        // TODO
-        // migrate emails to email queue
       }
     ],
     // Finally

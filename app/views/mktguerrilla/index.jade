@@ -1,6 +1,7 @@
 doctype html
 html
   include ../includes/head
+  link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
   //- link(href='/css/coupons.css', rel='stylesheet', media='screen')
   body
     include ../includes/messages
@@ -23,7 +24,7 @@ html
                     th
                 tbody
                   each canned in cans
-                    tr(style='cursor: pointer')
+                    tr(style='cursor: pointer', onclick='canned_select("#{canned._id}")')
                       td #{canned.subject}
                       td #{canned.body}
                       td #{canned.short}
@@ -39,28 +40,28 @@ html
               a(data-toggle='collapse', data-parent='#accordion', href='#compose') Compose
           .panel-body
             .panel.panel-collapse.in#compose
-              form.form#form_compose
-                .row
-                  .col-md-1
-                    input.switch(type='checkbox', data-id='has_push', data-size='small', data-on-color='success', data-off-color='danger', checked)
-                  .col-md-2
-                    span Push Notification
-                  .col-md-1
-                    input.switch(type='checkbox', data-id='has_email', data-size='small', data-on-color='success', data-off-color='danger', checked)
-                  .col-md-2
-                    span Email
-                br
-                .form-group
-                  label Subject
-                  input.form-control(type='text', name='subject', placeholder='Type Subject or Select Canned Message')
-                .form-group
-                  label Body
-                  textarea.form-control(rows='4', name='body', placeholder='Type Body or Select Canned Message')
-                .form-group
-                  label Short
-                  small#short_count
-                  textarea.form-control(rows='3', name='short', maxlength='120', placeholder='Type Push Message or Select Canned Message')#canned_short
-
+              .row
+                .col-md-1
+                  input.switch(type='checkbox', data-id='has_push', data-size='small', data-on-color='success', data-off-color='danger', checked)
+                .col-md-2
+                  span Push Notification
+                .col-md-1
+                  input.switch(type='checkbox', data-id='has_email', data-size='small', data-on-color='success', data-off-color='danger', checked)
+                .col-md-2
+                  span Email
+              br
+              .form-group
+                label Subject
+                input.form-control(type='text', name='subject', placeholder='Type Subject or Select Canned Message')#compose_subject
+              .form-group
+                label Body
+                textarea.form-control(rows='4', name='body', placeholder='Type Body or Select Canned Message')#compose_body
+              .form-group
+                label Short
+                small#compose_short_count
+                textarea.form-control(rows='3', name='short', maxlength='120', placeholder='Type Push Message or Select Canned Message')#compose_short
+          .panel-footer
+            button.btn.btn-danger(onclick='compose_reset()') Reset
 
         .panel.panel-default
           .panel-heading
@@ -68,25 +69,129 @@ html
               a(data-toggle='collapse', data-parent='#accordion', href='#target') Target Clients
           .panel-body
             .panel.panel-collapse.in#target
-              form.form#form_target
-                .row
-                  .col-md-12
-                    h4
-                      span.label.label-lg.label-success 200
-                      |  For Email
-                .row
-                  .col-md-12
-                    h4
-                      span.label.label-lg.label-success 140
-                      |  For Push Notification
-          .panel-footer
-            button.btn.btn-primary SEND
+              .row
+                .col-md-12
+                  h4
+                    span.label.label-lg.label-success#target_push_count 0
+                    |  Push Notifications
+              .row
+                .col-md-12
+                  h4
+                    span.label.label-lg.label-success#target_email_count 0
+                    |  Emails
 
+          .panel-footer
+            button.btn.btn-primary(data-toggle='modal', data-target='#modal_target_clients') Select Target Clients
+
+      .row
+        .col-md-3.col-md-offset-4
+          a.btn.btn-success.btn-lg(style='display: block; height: 75px; font-size: 3em;', onclick='send_message()') ATTACK
+          br
 
 
     include ../includes/scripts_common
     include modal_canned
+    include modal_target_clients
     script.
+
+      var cans = !{JSON.stringify(cans)};
+      var cans_dict = _.indexBy(cans, '_id');
+      var has_push = false;
+      var has_email = false;
+      var targeted_clients = {
+        pushes: [],
+        emails: []
+      };
+
       $(function(){
-        //$('#accordion').collapse();
+
+        // Listen to compose_short to update count
+        $('#compose_short').keyup(function() {
+          update_compose_short_count();
+        });
+        update_compose_short_count();
+
+        // Listen to switches (index.jade)
+        $('.switch').on('switchChange.bootstrapSwitch', function(event, state) {
+          updateSwitches();
+        });
+
+        updateSwitches();
       });
+
+      function update_compose_short_count() {
+        var short = $('#compose_short').val();
+        var left = (120 - short.length);
+        var shortc = $('#compose_short_count');
+        shortc[0].innerHTML = '  (max: ' + left + ' characters)';
+        if(left <= 0) {
+          shortc.removeClass('pl-green');
+          shortc.addClass('pl-red');
+        } else {
+          shortc.addClass('pl-green');
+          shortc.removeClass('pl-red');
+        }
+
+      }
+
+
+      function updateSwitches() {
+        has_push = $('input[data-id="has_push"]').bootstrapSwitch('state');
+        has_email = $('input[data-id="has_email"]').bootstrapSwitch('state');
+
+        $('#compose_short').attr('disabled', !has_push);
+        $('#compose_subject').attr('disabled', !has_email);
+        $('#compose_body').attr('disabled', !has_email);
+
+        // From modal_target_clients.jade
+        selectChecked();
+      }
+
+      function canned_select(_id) {
+        var canned = cans_dict[_id];
+        $('#compose_short').val(canned.short);
+        $('#compose_subject').val(canned.subject);
+        $('#compose_body').val(canned.body);
+      }
+
+      function compose_reset() {
+        $('#compose_short').val('');
+        $('#compose_subject').val('');
+        $('#compose_body').val('');
+      }
+
+      function send_message() {
+
+        var subject = $('#compose_subject').val();
+        var body = $('#compose_body').val();
+        var short = $('#compose_short').val();
+
+        // Validations
+        if(!has_push && !has_email) {
+            alert('Either Push or Email switches needs to be turned ON');
+            return;
+        }
+
+        if(has_email && (subject.length <= 0 || body.length <= 0))  {
+          alert('Subject or Body cannot be empty if Email switch turned ON');
+          return;
+        }
+
+        if(has_push && short.length <= 0) {
+          alert('Short message cannot be empty if Push switch is turned ON');
+          return;
+        }
+
+        if(has_push && targeted_clients.pushes.length === 0) {
+          alert('Push switch is ON but no Target Clients are selected for Push Notifications');
+          return;
+        }
+
+        if(has_email && targeted_clients.emails.length === 0) {
+          alert('Email switch is ON but no Target Clients are selected for Emails');
+          return;
+        }
+
+        // Send message
+
+      }

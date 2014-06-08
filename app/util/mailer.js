@@ -3,54 +3,12 @@
 //  */
 
 var mongoose = require('mongoose');
-var nodemailer = require('nodemailer');
+var sendgrid = require('sendgrid')(common.config.smtp_options.auth.user,common.config.smtp_options.auth.pass);
 var path = require('path');
 var templatesDir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
 var Email = mongoose.model('Email');
 
-
-// create reusable transport method (opens pool of SMTP connections)
-var smtpTransport = nodemailer.createTransport('SMTP', common.config.smtp_options);
-
-exports.send = function(template_name, template_locals, from_email, to_email, bcc, subject, callback) {
-
-	//get templates
-	emailTemplates(templatesDir, function(err, template) {
-
-		if (!err) {
-
-			//get specific template
-			template(template_name, template_locals, function(err, html, text) {
-
-				if (!err) {
-					//composing email
-					var mailOptions = {
-						from: from_email,
-						to: to_email,
-						bcc: bcc,
-						subject: subject,
-						html: html,
-						//generateTextFromHTML: false
-					}
-
-					//send email
-					smtpTransport.sendMail(mailOptions, function(err, response){
-						if(!err){
-							callback(null, response.message);
-						}else{
-							callback(err, null);
-						}
-					});
-				} else {
-					callback(err, null);
-				}
-			});
-		} else {
-			callback(err, null);
-		}
-	});
-}
 
 var _is_proccesing_queue = false;
 var QUEUE_BUSY_ERROR = 'mailer.process_queue => is busy';
@@ -98,11 +56,12 @@ exports.process_queue = function(master_callback) {
           email.retries++;
           email.save();
 
-          smtpTransport.sendMail(message, function(err, response){
+
+					sendgrid.send(message, function(err, json){
             var log;
 
             if(!err){
-              log = common.util.format('Sent with response => %s', response.message);
+              log = common.util.format('Sent with response => %s', json.message);
               email.sent = true;
               email.sent_utc = common.moment().utc().format('YYYY-MM-DD HH:mm:ss');
               console.log('mailer.process_queue success => Email to %s %s marked as sent', message.to, log);
@@ -117,6 +76,7 @@ exports.process_queue = function(master_callback) {
             });
 
           });
+
         },
         // Finally
         function() {

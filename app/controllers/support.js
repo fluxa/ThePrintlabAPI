@@ -3,11 +3,12 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose')
-var Support = mongoose.model('Support')
-var Client = mongoose.model('Client')
+var mongoose = require('mongoose');
+var Support = mongoose.model('Support');
+var Client = mongoose.model('Client');
+var Email = mongoose.model('Email');
 var plerror = require('../util/plerror');
-var util = require('util')
+var util = require('util');
 
 
 /**
@@ -20,25 +21,60 @@ var util = require('util')
  * @api public
  */
 exports.send_message = function(req, res) {
-	
+
 	var client_id = req.body.client_id;
 	var email = req.body.email;
 	var message = req.body.message;
 
 	if (client_id && message) {
 
-		Client.findOne({_id: client_id}).exec(function(err, doc) {
+		Client
+		.findOne({
+			_id: client_id
+		})
+		.exec(function(err, doc) {
 			if (!err && doc) {
+
+				var client = doc;
+
 				// Update email if necessary
-				if (!doc.email && email) {
-					doc.email = email;
-					doc.save();
-				};
-				var support = new Support({client: doc._id, message: message});
-				support.status = Support.Status.New;
+				if (!client.email && email) {
+					client.email = email;
+					client.save();
+				}
+
+				var support = new Support({
+					client: doc._id,
+					message: message
+				});
+
+				support.status = Support.Status.Open;
+
 				support.save(function(err, saved) {
 					if (!err) {
-						res.send({success: true});
+						res.send({
+							success: true
+						});
+
+						// Queue email
+						var today = common.moment();
+						var template_name = 'support';
+						var locals = {
+							client_id: client._id,
+							support_id: support._id,
+							message: support.message,
+							email: client.email,
+							mobile: client.mobile,
+							date: today.format('YYYY-MM-DD HH:mm'),
+							current_year: today.format('YYYY')
+						}
+
+						var subject = common.util.format('[ThePrintlab Support] (%s)', support._id);
+						var bcc = config.admin_emails.join(', ');
+						common.mailqueue.add(template_name, locals, ['fluxa@theprintlab.cl'], bcc, subject, Email.Types.Support, function(err, result) {
+							console.log('Support mailqueue.add => %s',err || result);
+						});
+
 					} else {
 						plerror.throw(plerror.c.DBError, err, res);
 					}

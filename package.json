@@ -20,7 +20,7 @@
     "config-leaf": "latest",
     "underscore": "latest",
     "less-middleware": "latest",
-    "nodemailer": "latest",
+    "sendgrid": "latest",
     "email-templates": "latest",
     "async": "latest",
     "newrelic": "latest",

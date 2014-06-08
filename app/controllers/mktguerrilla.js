@@ -16,13 +16,31 @@ exports.index = function(req, res) {
         _id: -1
       })
       .exec(callback)
+    },
+    clients: function(callback) {
+      Client
+      .find()
+      .or([
+        {
+          email: {
+            $exists: true
+          }
+        },
+        {
+          pushtoken: {
+            $exists: true
+          }
+        }
+      ])
+      .exec(callback)
     }
   },
   // Finally
   function(err, results) {
       res.render('mktguerrilla/index',{
         title: 'Marketing Guerrilla',
-        cans: results.cans
+        cans: results.cans,
+        clients: results.clients
       });
 
   });
@@ -93,4 +111,102 @@ exports.canned_remove = function(req, res) {
     res.redirect('/admin/mktguerrilla');
   })
 
+}
+
+exports.attack = function(req, res) {
+
+  var targeted_clients;
+  var clients_dict = {};
+  var subject = req.body.subject || '';
+  var body = req.body.body || '';
+  var short = req.body.short || '';
+  var push;
+  var logs = [];
+
+
+  common.async.series([
+    function(callback) {
+      targeted_clients = req.body.targeted_clients;
+      if(targeted_clients) {
+        callback();
+      } else {
+        callback('Missing parameters');
+      }
+    },
+
+    // Get Clients
+    function(callback) {
+      var all = common._.union(targeted_clients.pushes, targeted_clients.emails);
+      Client
+      .find({
+        _id:{
+          $in: all
+        }
+      })
+      .exec(function(err, docs) {
+        if(!err && docs) {
+          clients_dict = common._.indexBy(clients, '_id');
+          callback();
+        } else {
+          callback(err || 'Unknown error');
+        }
+      })
+    },
+
+    // Deal with Pushes
+    function(callback) {
+
+      var ios_tokens = [];
+      common._.each(targeted_clients.pushes, function(_id) {
+        var client = clients_dict[_id];
+        var pushtoken = client.pushtoken;
+        if(pushtoken) {
+          if(pushtoken.token && pushtoken.platform === 'ios') {
+            ios_tokens.push(pushtoken.token);
+          }
+        }
+      });
+      if(ios_tokens.length > 0 && short) {
+          var p = new Push({
+            ios_tokens: ios_tokens,
+            message: short,
+            sent: false
+          });
+          p.save(function(err, saved){
+            if(!err) {
+              push = saved;
+              logs.push(common.util.format('Push notification to %d devices will be delivered shortly.',push.ios_tokens.length));
+            } else {
+              logs.push('Something went wrong with the pushes => ' + JSON.stringify(err));
+            }
+            callback();
+          });
+      } else {
+        logs.push(common.util.format('Got %d ios_tokens for push notification but short message is empty: %s',ios_tokens.length,short));
+        callback();
+      }
+
+    },
+
+    // Deal with Emails
+    function(callback) {
+      var emails = [];
+      common._.each(targeted_clients.emails, function(_id) {
+        var client = clients_dict[_id];
+        if(client.email) {
+          emails.push(client.email);
+        }
+      });
+      if(emails.length > 0 && subject && body) {
+        // TODO: common.emailqueue.add()
+      } else {
+        logs.push(common.util.format('Got %d emails addresses but subject or body are empty: %s | %s',emails.length,subject,body));
+        callback();
+      }
+    }
+  ],
+  // Finally
+  function(err) {
+
+  });
 }

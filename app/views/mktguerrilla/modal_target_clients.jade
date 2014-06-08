@@ -1,0 +1,125 @@
+.modal.fade(role='dialog', aria-labelledby='new_canned_label', aria-hidden='true')#modal_target_clients
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true')&times;
+        h4.modal-title Select Target Clients
+          small  Total:
+          span.label.label-info #{clients.length}
+      .modal-body
+        .scroll-container
+          table.table.table-hover#table-sort
+            thead
+              tr
+                th.sorter-false.filter-false
+                th
+                  small ClientID
+                th
+                  small Email
+                th(data-placeholder='All').filter-select
+                  small Push?
+                th
+                  small Completed
+                th
+                  small Not Completed
+
+            tbody
+              each client in clients
+                tr.pl-row
+                  td
+                    input(type='checkbox', value='#{client._id}')
+                  td
+                    small #{client._id}
+                  td #{client.email}
+                  td
+                    if client.pushtoken.token
+                      small YES
+                    else
+                      small NO
+                  td #{client.orders.length}
+                  td #{client.orders.length}
+
+      .modal-footer
+        a.btn.btn-warning.pull-left.reset(onclick='resetAll();') Reset
+        a.btn.btn-primary.pull-left(onclick='markAllFilteredCheckboxes(true);') Check Filtered:
+          span.badge#filter-count #{clients.length}
+        button.btn.btn-danger(data-dismiss='modal') Close
+        button.btn.btn-success(data-dismiss='modal', onclick='selectChecked();') Select Checked:
+          span.badge#checked-count 0
+
+include ../includes/scripts_tablesorter
+script.
+
+  var clients = !{JSON.stringify(clients)};
+  var clients_dict = _.indexBy(clients, '_id');
+
+  $(function() {
+
+    // Listen to filterEnd
+    $('#table-sort').bind('filterEnd', function(e){
+      if (e.type === 'filterEnd') {
+        updateFilterCount();
+      }
+    });
+
+    // Listen to checkbox
+    $('input[type=checkbox').on('change', function(e) {
+      updateCheckedCount();
+    });
+
+    updateFilterCount();
+    updateCheckedCount();
+
+  });
+
+
+  function updateFilterCount() {
+    var count = $('#table-sort > tbody > tr:not(.filtered)').length;
+    $('#filter-count').text(count);
+  }
+
+  function updateCheckedCount() {
+    $('#checked-count').text(allChecked().length);
+  }
+
+  function allChecked() {
+    return $('#table-sort > tbody > tr > td > input[type=checkbox]:checked');
+  }
+
+  function markAllFilteredCheckboxes(value) {
+    $('#table-sort > tbody > tr:not(.filtered) > td > input[type=checkbox]').each(function(i, e) {
+      this.checked = value;
+    });
+    updateCheckedCount();
+  }
+
+  function resetAll() {
+    setTimeout(function(){
+      markAllFilteredCheckboxes(false);
+    }, 500);
+  }
+
+  function selectChecked() {
+
+    var pushes = [];
+    var emails = [];
+    var checked = allChecked();
+
+    checked.each(function(index, elem) {
+      var _id = $(elem).val();
+      var client = clients_dict[_id];
+      if(has_push && client.pushtoken && client.pushtoken.token) {
+        pushes.push(_id);
+      } else if(has_email) {
+        emails.push(_id);
+      }
+
+    });
+
+    targeted_clients.pushes = pushes;
+    targeted_clients.emails = emails;
+
+    // Update UI (index.jade)
+    $('#target_push_count').text(targeted_clients.pushes.length);
+    $('#target_email_count').text(targeted_clients.emails.length);
+  }

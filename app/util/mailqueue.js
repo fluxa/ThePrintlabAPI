@@ -8,7 +8,7 @@ var templates_dir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
 
 
-exports.add = function(template_name, template_locals, to_emails, subject, type, master_callback) {
+exports.add = function(template_name, template_locals, to_emails, bcc, subject, type, master_callback) {
 
   common.async.waterfall([
     function(callback) {
@@ -41,6 +41,7 @@ exports.add = function(template_name, template_locals, to_emails, subject, type,
       common.async.eachLimit(to_emails, 1, function(to_email, each_callback) {
         var email = new Email({
           to: to_email,
+          bcc: bcc,
           subject: subject,
           body: html,
           created_utc: common.moment().utc().format('YYYY-MM-DD HH:mm:ss'),

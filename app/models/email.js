@@ -10,7 +10,7 @@ var Schema = mongoose.Schema;
 // ### Model Schema
 
 var EmailSchema = new Schema({
-  from: { type:String, default: 'fluxa@theprintlab.cl' },
+  from: { type:String, default: 'hola@theprintlab.cl' },
   to: { type: String },
   bcc: {type: String, default: '' },
   subject: { type: String },
@@ -45,7 +45,10 @@ EmailSchema.method({
 
 EmailSchema.static({
   Types: {
+    OrderConfirmation: 'OrderConfirmation',
+    OrderConfirmationOffline: 'OrderConfirmationOffline',
     PaymentOfflineNotify: 'PaymentOfflineNotify',
+    Support: 'Support'
   },
   RetriesMax: 10
 })
