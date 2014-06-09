@@ -526,6 +526,7 @@ exports.submit = function (req, res) {
 				.findOne({
 					_id: o._id
 				})
+				.populate('address')
 				.exec(function(err, doc) {
 					if(!err && doc) {
 						order = doc;
