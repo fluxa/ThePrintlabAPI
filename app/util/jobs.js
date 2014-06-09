@@ -3,230 +3,113 @@
  * Module dependencies
  */
 
-
 var Order = require('../models/order');
 var Support = require('../models/support');
-var mailer = require('./mailer')
+var Push = require('../models/push');
+var pusher = require('./pusher');
 
-// Sends order confirmation emails
-// exports.OrderConfirmationEmail = function() {
-//
-// 	//console.log('_jobOrderConfirmationEmail started');
-//
-// 	// Stop calling this job until we finish
-// 	this.stop();
-//
-// 	// Results
-// 	var orders = [];
-//
-// 	common.async.series([
-//
-// 		// 1. Get Orders where Client hasn't been notified
-// 		function(callback) {
-//
-// 			Order
-//       .find({
-// 				status: Order.OrderStatus.Submitted,
-// 				sent_email: false
-// 			})
-// 			.limit(10)
-// 			.sort({_id:1})
-// 			.populate('client')
-// 			.populate('address')
-// 			.exec(function(err, docs) {
-// 				if (!err && docs) {
-// 					orders = docs;
-// 				};
-// 				console.log(util.format('OrderConfirmationEmail => got %d order for confirmation email', orders.length));
-// 				callback(null, 'got orders');
-// 			});
-// 		}
-// 	],
-// 	// Finally.
-// 	function(err, results) {
-// 		// Send notifications
-// 		common.async.eachLimit(orders, 5, function(order, callback) {
-//
-// 			// template locals
-// 			var today = new Date();
-// 			var locals = {
-// 				order_id: order._id,
-// 				photos_qty: order.photo_count,
-// 				cost_printing: order.cost_printing,
-// 				cost_shipping: order.cost_shipping,
-// 				cost_total: order.cost_total,
-// 				address_to_name: util.format('%s %s', order.address.name, order.address.last_name),
-// 				address: util.format('%s %s %s %s %s', order.address.address_line1, order.address.address_line2, order.address.comuna, order.address.provincia, order.address.region),
-// 				current_year: today.getFullYear()
-// 			}
-//
-//
-//
-// 			var subject = util.format('ThePrintlab: Confirmación de Pedido (%s)', order._id);
-// 			var bcc = config.admin_emails.join(', ');
-//
-//
-// 			mailer.send('order_confirm', locals, 'ThePrintlab <orders@theprintlab.cl>', order.client.email, bcc, subject, function(err, response) {
-// 				if(err) {
-// 					console.log(util.format('Error sending order_confirm for order %s => %s', order._id, err));
-// 				}
-//
-// 				// mark as sent
-// 				order.sent_email = true;
-// 				order.save(function(err, saved) {
-// 					callback(null);
-// 				});
-//
-// 			});
-// 		}, function(err) {
-// 			// Done!
-// 			//console.log('_jobOrderEmalNotification finished');
-// 		});
-//
-// 	});
-// }
+// Send Push notifications
+var _send_pushes_is_sending = false;
+exports.SendPushes = function() {
 
-// Sends support emails
-// exports.SupportNotificationEmail = function() {
-//
-//
-// 	// Stop calling this job until we finish
-// 	this.stop();
-//
-// 	// Results
-// 	var supports = [];
-//
-// 	common.async.series([
-//
-// 		// Get Supports
-// 		function(callback) {
-//
-// 			Support
-//       .find({
-// 				status: Support.Status.New
-// 			})
-// 			.limit(10)
-// 			.sort({_id:1})
-// 			.populate('client')
-// 			.exec(function(err, docs) {
-// 				if (!err && docs) {
-// 					supports = docs;
-// 				};
-// 				console.log(util.format('SupportNotificationEmail => got %d supports for notification email', supports.length));
-// 				callback(null, 'got orders');
-// 			});
-// 		}
-// 	],
-// 	// Finally.
-// 	function(err, results) {
-// 		// Send notifications
-// 		async.eachLimit(supports, 5, function(support, callback) {
-//
-// 			//template locals
-// 			var today = new Date();
-// 			var locals = {
-// 				client_id: support.client._id,
-// 				support_id: support._id,
-// 				message: support.message,
-// 				email: support.client.email,
-// 				mobile: support.client.mobile,
-// 				date: plutil.mongoIdToPrettyDate(support._id),
-// 				current_year: today.getFullYear()
-// 			}
-//
-// 			var subject = util.format('[ThePrintlab Support] (%s)', support._id);
-// 			var bcc = config.admin_emails.join(', ');
-// 			mailer.send('support', locals, 'fluxa@theprintlab.cl', 'hola@theprintlab.cl', bcc, subject, function(err, response) {
-// 				if(err) {
-// 					console.log(util.format('Error sending support => %s', support._id, err));
-// 				}
-//
-// 				// mark as Open
-// 				support.status = Support.Status.Open;
-// 				support.save(function(err, saved) {
-// 					callback(null);
-// 				});
-// 			});
-// 		}, function(err) {
-// 			// Done!
-// 			//console.log('SupportNotificationEmail finished');
-// 		});
-//
-// 	});
-// }
+	if(_send_pushes_is_sending) {
+		console.log('SendPushes busy...');
+		return;
+	}
+	_send_pushes_is_sending = true;
 
-// Sends bank transfer order emails
-// exports.OrderBankTransferEmail = function() {
-//
-//
-//   // Stop calling this job until we finish
-//   this.stop();
-//
-//   // Results
-//   var orders = [];
-//
-//   common.async.series([
-//
-//     // Get Orders where Client hasn't been notified
-//     function(callback) {
-//
-//       Order
-//       .find({
-//         status: Order.OrderStatus.PaymentOffline,
-//         sent_bank_transfer_email: false
-//       })
-//       .limit(10)
-//       .sort({_id:1})
-//       .populate('client')
-//       .populate('address')
-//       .exec(function(err, docs) {
-//         if (!err && docs) {
-//           orders = docs;
-//         };
-//         console.log(util.format('OrderBankTransferEmail => got %d orders for bank transfer email', orders.length));
-//         callback(null, 'got orders');
-//       });
-//     }
-//   ],
-//   // Finally.
-//   function(err, results) {
-//     // Send notifications
-//     common.async.eachLimit(orders, 3, function(order, callback) {
-//
-//       // template locals
-//       var today = new Date();
-//       var locals = {
-//         order_id: order._id,
-//         photos_qty: order.photo_count,
-//         cost_printing: order.cost_printing,
-//         cost_shipping: order.cost_shipping,
-//         cost_total: order.cost_total,
-//         address_to_name: util.format('%s %s', order.address.name, order.address.last_name),
-//         address: util.format('%s %s %s %s %s', order.address.address_line1, order.address.address_line2, order.address.comuna, order.address.provincia, order.address.region),
-//         current_year: today.getFullYear(),
-//         confirm_payment_url: util.format('http://www.theprintlab.cl/bktrans?order_id=%s&env=%s',order._id,common.env)
-//       }
-//
-//       var subject = util.format('ThePrintlab: Pedido Recibido (%s)', order._id);
-//       var bcc = config.admin_emails.join(', ');
-//       mailer.send('order_bank_transfer', locals, 'ThePrintlab <orders@theprintlab.cl>', order.client.email, bcc, subject, function(err, response) {
-//         if(err) {
-//           console.log('Error sending order received bank transfer for order %s => %s', order._id, err);
-//         } else {
-//           console.log('OrderBankTransferEmail response => %s',response);
-//         }
-//
-//         // mark as sent
-//         order.sent_bank_transfer_email = true;
-//         order.save(function(err, saved) {
-//           callback(null);
-//         });
-//
-//       });
-//     }, function(err) {
-//       // Done!
-//       //console.log('_jobOrderEmalNotification finished');
-//     });
-//
-//   });
-// }
+	var pushes = [];
+
+	common.async.series([
+
+		// Pushes
+		function(callback) {
+			Push
+			.find({
+				sent: false
+			})
+			.limit(10)
+			.sort({'_id':1})
+			.exec(function(err, docs) {
+				if (!err && docs) {
+					pushes = docs;
+					if(pushes.length > 0) {
+						console.log('Found %d pushes',pushes.length);
+					}
+				}
+				callback();
+			})
+		},
+
+		//Send
+		function(callback) {
+			common.async.eachSeries(pushes, function(push, each_callback) {
+				var tokens_i = push.ios_tokens.filter(function(elt) {return elt!=''});
+				// var tokens_a = push.droid_tokens.filter(function(elt) {return elt!=''});
+
+        if (tokens_i.length==0 /* && tokens_a.length==0 */) {
+  				console.log("No valid device_tokens for this push");
+  				push.remove();
+  				each_callback();
+  				return;
+  			}
+
+				// Payload
+				var payload = {};
+        var audience_arr = [];
+        var extra_ios = {};
+        // var extra_android = {};
+
+				if (tokens_i.length>0) {
+					common._.each(tokens_i, function(token) {
+            audience_arr.push({device_token:token});
+          });
+				}
+
+				// if (tokens_a.length>0) {
+				// 	common._.each(tokens_a, function(apid) {
+        //    audience_arr.push({apid:apid});
+        //  });
+				// }
+
+        payload.audience = {"OR":audience_arr};
+        payload.notification = {
+          alert: push.message,
+          ios: {
+            badge: push.badge,
+            extra: extra_ios
+          },
+          // android: {
+          //   extra: extra_android
+          // }
+        }
+        payload.device_types = 'all';
+
+				console.log('Push Payload: => ' + JSON.stringify(payload));
+
+				pusher.send(payload, function(err){
+					if (err) {
+						console.log('Push send error => ' + err);
+					};
+					push.sent = true;
+					push.save(function(err, saved) {
+						if (err) {
+							console.log('Cannot save push');
+						};
+						each_callback();
+					});
+				});
+
+			}, function() {
+				callback();
+			});
+		}
+
+	],
+	// Finally
+	function() {
+		//console.log('Push job finished');
+		_send_pushes_is_sending = false;
+	});
+
+}

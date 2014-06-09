@@ -2,6 +2,7 @@ doctype html
 html
   include ../includes/head
   link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+  link(href='/css/spinner.css', rel='stylesheet', media='screen')
   //- link(href='/css/coupons.css', rel='stylesheet', media='screen')
   body
     include ../includes/messages
@@ -88,12 +89,12 @@ html
           a.btn.btn-success.btn-lg(style='display: block; height: 75px; font-size: 3em;', onclick='send_message()') ATTACK
           br
 
+    div#spinner-container
 
     include ../includes/scripts_common
     include modal_canned
     include modal_target_clients
     script.
-
       var cans = !{JSON.stringify(cans)};
       var cans_dict = _.indexBy(cans, '_id');
       var has_push = false;
@@ -193,5 +194,16 @@ html
         }
 
         // Send message
-
+        spinner(true);
+        $.post('/admin/mktguerrilla/attack', {
+            targeted_clients: targeted_clients,
+            subject: subject,
+            body: body,
+            short: short
+          },
+          function(response) {
+            window.scrollTo(0,0);
+            location.reload();
+          }
+        )
       }

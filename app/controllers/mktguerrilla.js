@@ -5,6 +5,8 @@
 var mongoose = require('mongoose');
 var Client = mongoose.model('Client');
 var Canned = mongoose.model('Canned');
+var Email = mongoose.model('Email');
+var Push = mongoose.model('Push');
 
 exports.index = function(req, res) {
 
@@ -136,7 +138,8 @@ exports.attack = function(req, res) {
 
     // Get Clients
     function(callback) {
-      var all = common._.union(targeted_clients.pushes, targeted_clients.emails);
+      var all = common._.union(targeted_clients.pushes || [], targeted_clients.emails || []);
+      console.log(all)
       Client
       .find({
         _id:{
@@ -145,7 +148,7 @@ exports.attack = function(req, res) {
       })
       .exec(function(err, docs) {
         if(!err && docs) {
-          clients_dict = common._.indexBy(clients, '_id');
+          clients_dict = common._.indexBy(docs, '_id');
           callback();
         } else {
           callback(err || 'Unknown error');
@@ -182,7 +185,6 @@ exports.attack = function(req, res) {
             callback();
           });
       } else {
-        logs.push(common.util.format('Got %d ios_tokens for push notification but short message is empty: %s',ios_tokens.length,short));
         callback();
       }
 
@@ -198,15 +200,43 @@ exports.attack = function(req, res) {
         }
       });
       if(emails.length > 0 && subject && body) {
-        // TODO: common.emailqueue.add()
+        var locals = {
+          subject: subject,
+          body: body,
+          current_year: common.moment().format('YYYY'),
+          header_n: (Math.floor(Math.random() * 2) + 3).toString()
+        }
+        common.mailqueue.add(
+          'mkt_guerrilla',
+          locals,
+          'hola@theprintlab.cl',
+          emails,
+          null,
+          subject,
+          Email.Types.MktGuerrilla,
+          function(err, response) {
+            if(!err) {
+              logs.push(common.util.format('%d Emails were queued successfully!!',emails.length));
+            }
+            callback(err);
+          }
+        );
       } else {
-        logs.push(common.util.format('Got %d emails addresses but subject or body are empty: %s | %s',emails.length,subject,body));
         callback();
       }
     }
   ],
   // Finally
   function(err) {
-
+    var log = logs.join(' | ');
+    console.log(log);
+    var success = false;
+    if(err) {
+      req.flash('error', err || log);
+    } else {
+      success = true;
+      req.flash('success', log);
+    }
+    res.send({success: success, log: log, err: err});
   });
 }

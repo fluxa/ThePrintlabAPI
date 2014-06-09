@@ -5,6 +5,9 @@ script(src='/js/moment.min.js')
 script(src='/js/async.js')
 script(src='/js/bootstrap-switch.min.js')
 script.
+
+	var spinner_is_animating = false;
+
 	$(function() {
 
 		// Auto Dismiss alerts
@@ -37,3 +40,22 @@ script.
 
 		$('.switch').bootstrapSwitch();
 	});
+
+	function spinner(on) {
+		var lc = $('#spinner-container')[0];
+		if(on) {
+			if(spinner_is_animating) {
+				return;
+			}
+			spinner_is_animating = true;
+			var prev = document.createElement('div');
+			$(prev).addClass('spinner-previewer');
+			var lo = document.createElement('div');
+			$(lo).addClass('spinner-loading');
+			prev.appendChild(lo);
+			lc.appendChild(prev);
+		} else {
+			lc.innerHTML = '';
+			spinner_is_animating = false;
+		}
+	}

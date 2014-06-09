@@ -48,7 +48,8 @@ EmailSchema.static({
     OrderConfirmation: 'OrderConfirmation',
     OrderConfirmationOffline: 'OrderConfirmationOffline',
     PaymentOfflineNotify: 'PaymentOfflineNotify',
-    Support: 'Support'
+    Support: 'Support',
+    MktGuerrilla: 'MarketingGuerrilla'
   },
   RetriesMax: 10
 })
