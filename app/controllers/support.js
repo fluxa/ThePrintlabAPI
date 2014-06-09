@@ -76,7 +76,7 @@ exports.send_message = function(req, res) {
 							template_name,
 							locals,
 							client.email,
-							['hola@theprintlab.cl'], 
+							common.config.admin_emails,
 							bcc,
 							subject,
 							Email.Types.Support,
