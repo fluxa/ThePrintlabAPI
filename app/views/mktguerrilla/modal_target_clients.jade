@@ -19,9 +19,9 @@
                 th(data-placeholder='All').filter-select
                   small Push?
                 th
-                  small Completed
-                th
-                  small Not Completed
+                  small Orders
+                //- th
+                //-   small Not Completed
 
             tbody
               each client in clients
@@ -37,7 +37,7 @@
                     else
                       small NO
                   td #{client.orders.length}
-                  td #{client.orders.length}
+                  //- td #{client.orders.length}
 
       .modal-footer
         a.btn.btn-warning.pull-left.reset(onclick='resetAll();') Reset
