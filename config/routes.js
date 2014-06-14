@@ -53,6 +53,7 @@ module.exports = function (app) {
   app.post('/admin/mktguerrilla/cans/add', auth, mktg.cans_add);
   app.get('/admin/mktguerrilla/canned/:_id/remove', auth, mktg.canned_remove);
   app.post('/admin/mktguerrilla/attack', auth, mktg.attack);
+  app.get('/admin/mktguerrilla/emails/:limit', auth, mktg.emails);
 
 	// Maintenance
 	app.get('/maintenance/fix_consumed',auth,maintenance.fix_consumed);

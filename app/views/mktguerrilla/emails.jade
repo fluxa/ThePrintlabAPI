@@ -1,0 +1,54 @@
+doctype html
+html
+  include ../includes/head
+  link(href='/css/theme.bootstrap.css', rel='stylesheet', media='screen')
+  body
+    include ../includes/messages
+    include ../includes/navigation
+
+    .container-fluid
+      .panel-group#accordion
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title
+              a(data-toggle='collapse', data-parent='#accordion', href='#emails') Emails
+          .panel-body
+            .panel.panel-collapse.in#emails
+              table.table.table-hover
+                thead
+                  tr
+                    th Sent
+                    th Created
+                    th Type
+                    th To
+                    th Subject
+                    th Retries
+                    th Log
+                tbody
+                  each email in emails
+                    - var logs_str = ''
+                    each log in email.logs
+                      - logs_str += log + '\n'
+                    tr
+                      if email.sent
+                        td
+                          |YES
+                          small  at #{email.sent_utc} UTC
+                      else
+                        td NO
+                      td
+                       small #{email.created_utc} UTC
+                      td #{email.type}
+                      td #{email.to}
+                      td
+                        small #{email.subject}
+                      td #{email.retries}
+                      td
+                        abbr.tooltip-demo(data-toggle='tooltip', data-placement='left', title='#{logs_str}') #{email.logs.length} entries
+
+          .panel-footer
+            button.btn.btn-primary(data-toggle='modal', data-target='#modal_new_canned') Add New
+
+
+
+    include ../includes/scripts_common

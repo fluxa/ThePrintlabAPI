@@ -240,3 +240,27 @@ exports.attack = function(req, res) {
     res.send({success: success, log: log, err: err});
   });
 }
+
+exports.emails = function(req, res) {
+  var limit = req.params.limit || 50;
+  common.async.series({
+    emails: function(callback) {
+      Email
+      .find()
+      .select('sent sent_utc subject to created_utc type retries logs')
+      .sort({
+        _id: -1
+      })
+      .limit(limit)
+      .exec(callback);
+    }
+  },
+  // Finally
+  function(err, results) {
+    res.render('mktguerrilla/emails', {
+      title: 'Emails',
+      limit: limit,
+      emails: results.emails
+    });
+  });
+}
