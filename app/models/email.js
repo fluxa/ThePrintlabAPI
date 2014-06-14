@@ -12,7 +12,7 @@ var Schema = mongoose.Schema;
 var EmailSchema = new Schema({
   from: { type:String, default: 'hola@theprintlab.cl' },
   to: { type: String },
-  bcc: {type: String, default: '' },
+  bcc: [ { type: String } ],
   subject: { type: String },
   body: { type: String },
   created_utc: { type: String }, // YYYY-MM-DD HH:mm:ss

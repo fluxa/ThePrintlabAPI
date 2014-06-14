@@ -70,7 +70,7 @@ exports.send_message = function(req, res) {
 						}
 
 						var subject = common.util.format('[ThePrintlab Support] (%s)', support._id);
-						var bcc = '';
+						var bcc = [];
 
 						common.mailqueue.add(
 							template_name,

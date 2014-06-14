@@ -612,7 +612,7 @@ exports.submit = function (req, res) {
 								}
 								var template_name;
 								var to_emails = [client.email];
-								var bcc = common.config.admin_emails.join(', ');
+								var bcc = common.config.admin_emails;
 								var subject = '';
 								var type;
 
@@ -795,10 +795,10 @@ exports.remove = function (req, res) {
 				var bcc;
         if(order.client.email) {
           to_emails = [order.client.email];
-					bcc = common.config.admin_emails.join(', ');
+					bcc = common.config.admin_emails;
         } else {
           to_emails = common.config.admin_emails;
-					bcc = '';
+					bcc = [];
         }
         common.mailqueue.add(
           'payment_offline_confirm',
