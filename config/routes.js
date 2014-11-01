@@ -106,7 +106,9 @@ module.exports = function (app) {
 	if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
 		console.log('DEBUG ROUTES ON');
 		app.post(v+'/debug/coupons/reset/:client_id', debug.coupons_reset);
+    app.get('/debug/coupon/test_save', debug.coupon_test_save);
 	};
+
 
 
 }

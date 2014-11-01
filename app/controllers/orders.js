@@ -3,12 +3,12 @@
  */
 
 var mongoose = require('mongoose');
-var Order = mongoose.model('Order');
-var Client = mongoose.model('Client');
-var Policy = mongoose.model('Policy');
-var Redeem = mongoose.model('Redeem');
-var Coupon = mongoose.model('Coupon');
-var Email = mongoose.model('Email');
+var Order = require('../models/order');
+var Client = require('../models/client');
+var Policy = require('../models/policy');
+var Redeem = require('../models/redeem');
+var Coupon = require('../models/coupon');
+var Email = require('../models/email');
 
 // ### Return all posible status codes nicely formatted for using on the web-admin
 // - @preturn {Array} list of all posible OrderStatus
@@ -413,7 +413,7 @@ exports.create = function (req, res) {
 				var ccode = policy._id.toString();
 				if(client.consumed_coupons.indexOf(ccode) === -1 || (old_order && old_order.coupon_code === ccode)) {
 					// Validate!
-					if(policy.coupon.validate(order.photo_count, order.cost_total)) {
+					if(policy.coupon.isValid(order.photo_count, order.cost_total)) {
 						console.log('coupon is valid!');
 						client.consumed_coupons.push(order.coupon_code);
 

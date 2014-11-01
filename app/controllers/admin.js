@@ -3,12 +3,12 @@
  */
 
 var mongoose = require('mongoose');
-var Order = mongoose.model('Order');
-var Client = mongoose.model('Client');
-var Support = mongoose.model('Support');
-var Coupon = mongoose.model('Coupon');
-var Policy = mongoose.model('Policy');
-var Redeem = mongoose.model('Redeem');
+var Order = require('../models/order');
+var Client = require('../models/client');
+var Support =require('../models/support');
+var Coupon = require('../models/coupon');
+var Policy = require('../models/policy');
+var Redeem = require('../models/redeem');
 var csv = require('csv');
 
 /*
@@ -286,22 +286,31 @@ exports.coupons = function(req, res) {
 
 exports.coupons_add = function(req, res) {
 
-	var coupon = req.body.coupon || {};
+	var cpn = req.body.coupon || {};
 
-	if(coupon.title && coupon.description && coupon.rules) {
-
-		var c = new Coupon(coupon);
-		c.save(function(err, saved) {
-			if(!err) {
-				req.flash('success', 'New Coupon Saved!');
-			} else {
-				req.flash('error', err ? JSON.stringify(err) : 'Error trying to save coupon, please try again.');
-			}
-			res.redirect('admin/coupons');
+	if(cpn.title && cpn.description && cpn.rules) {
+		console.log(cpn);
+		var c = new Coupon();
+		c.title = cpn.title;
+		c.description = cpn.description;
+		c.currency = cpn.currency;
+		c.rules = cpn.rules;
+		c.save(function(err, saved){
+			res.redirect('/admin/coupons');
 		});
+
+		// cpn.save(function(err, saved) {
+		// 	console.log('WHATTTT');
+		// 	if(!err) {
+		// 		req.flash('success', 'New Coupon Saved!');
+		// 	} else {
+		// 		req.flash('error', err ? JSON.stringify(err) : 'Error trying to save coupon, please try again.');
+		// 	}
+		// 	res.redirect('/admin/coupons');
+		// });
 	} else {
 		req.flash('error', 'Missing parameters');
-		res.redirect('admin/coupons');
+		res.redirect('/admin/coupons');
 	}
 
 }
@@ -408,15 +417,15 @@ exports.policies_add = function(req, res) {
 				} else {
 					req.flash('error', err ? JSON.stringify(err) : 'Error trying to save policy, please try again.');
 				}
-				res.redirect('admin/policies');
+				res.redirect('/admin/policies');
 			});
 		} else {
 			req.flash('error', errors);
-			res.redirect('admin/policies');
+			res.redirect('/admin/policies');
 		}
 	} else {
 		req.flash('error', 'Missing parameters');
-		res.redirect('admin/policies');
+		res.redirect('/admin/policies');
 	}
 }
 

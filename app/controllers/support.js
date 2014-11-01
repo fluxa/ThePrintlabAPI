@@ -4,9 +4,9 @@
  */
 
 var mongoose = require('mongoose');
-var Support = mongoose.model('Support');
-var Client = mongoose.model('Client');
-var Email = mongoose.model('Email');
+var Support = require('../models/support');
+var Client = require('../models/client');
+var Email = require('../models/email');
 var plerror = require('../util/plerror');
 var util = require('util');
 

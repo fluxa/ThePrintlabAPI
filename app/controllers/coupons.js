@@ -4,10 +4,10 @@
  */
 
 var mongoose = require('mongoose');
-var Coupon = mongoose.model('Coupon');
-var Policy = mongoose.model('Policy');
-var Client = mongoose.model('Client');
-var Redeem = mongoose.model('Redeem');
+var Coupon = require('../models/coupon');
+var Policy = require('../models/policy');
+var Client = require('../models/client');
+var Redeem = require('../models/redeem');
 var plerror = require('../util/plerror');
 var util = require('util');
 var security = require('../util/security');
@@ -67,7 +67,7 @@ exports.get = function (req, res) {
 		var policies = [];
 
 		async.series([
-			
+
 			// Get Client
 			function(callback) {
 				Client.findOne({
@@ -86,9 +86,9 @@ exports.get = function (req, res) {
 			// GLOBAL and SPECIFIC Policies
 			// (not REDEEMABLE)
 			function(callback) {
-				
+
 				var now = moment().format('YYYY-MM-DD');
-				
+
 				Policy
 				.find({
 					type: {
@@ -167,7 +167,7 @@ exports.get = function (req, res) {
 					} else {
 						callback();
 					}
-				});		
+				});
 			}
 		],
 		// Finally
@@ -179,7 +179,7 @@ exports.get = function (req, res) {
 
 				// Sort
 				var sorted_policies = common._.sortBy(policies, 'sorting_priority');
-				
+
 				if(sorted_policies && sorted_policies.length > 0) {
 					var policy = sorted_policies[0];
 					var packed = policy.coupon.pack(policy._id);
@@ -189,12 +189,12 @@ exports.get = function (req, res) {
 					}
 					coupons.push(packed);
 				}
-				
+
 				var couponsStr = JSON.stringify(coupons);
 				var encrypted = security.pack(couponsStr);
 				res.send({
-					coupons: coupons, 
-					client: client._id, 
+					coupons: coupons,
+					client: client._id,
 					coupons_encrypted: encrypted
 				});
 			} else {
@@ -249,7 +249,7 @@ exports.redeem = function (req, res) {
 
 			// Find Redeem
 			function(callback) {
-				
+
 				Redeem
 				.findOne({
 					code: redeem_code
@@ -267,7 +267,7 @@ exports.redeem = function (req, res) {
 
 			// Validations
 			function(callback) {
-				
+
 				if(redeem.redeemed) {
 					callback({code: plerror.c.CouponInvalid, error: common.util.format('%s => Redeem code already used',redeem_code)});
 					return;

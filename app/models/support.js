@@ -3,8 +3,8 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var _ = require('underscore');
 var util = require('util')
 
@@ -51,4 +51,4 @@ SupportSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Support', SupportSchema)
+module.exports = mongoose.model('Support', SupportSchema);

@@ -47,7 +47,10 @@ module.exports = function (app) {
 	// views config
 	app.set('views', common.config.root + '/app/views');
 	app.set('view engine', 'jade');
-	app.use(bodyParser());
+	app.use(bodyParser.urlencoded({
+		extended: true
+	}));
+	app.use(bodyParser.json());
 	app.locals.pretty = true;
 
   // admin auth
@@ -64,6 +67,8 @@ module.exports = function (app) {
 
 	// express/mongo session storage
 	app.use(session({
+		saveUninitialized: true,
+		resave: true,
 		secret: common.config.master,
 		store: new mongoStore({
 			url: common.config.db,

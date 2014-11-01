@@ -3,8 +3,8 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 
 // ## Schema
@@ -30,17 +30,8 @@ PolicySchema.set( 'toJSON', { virtuals: false, getters: true } );
 
 // ### Pre save hooks
 // PolicySchema.pre('save', function(next) {
-	
+
 // });
-
-
-/**
- * Methods
- */
-PolicySchema.method({
-	
-});
-
 
 
 /**
@@ -59,5 +50,4 @@ PolicySchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Policy', PolicySchema)
-var Policy = module.exports;
+module.exports = mongoose.model('Policy', PolicySchema);

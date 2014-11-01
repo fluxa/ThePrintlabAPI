@@ -28,13 +28,7 @@ var PushSchema = new Schema({
  * - virtuals
  */
 
-/**
- * Methods
- */
 
-PushSchema.method({
-
-})
 
 /**
  * Statics

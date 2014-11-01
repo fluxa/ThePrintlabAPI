@@ -5,8 +5,9 @@
 var async = require('async');
 var Order = require('../models/order');
 var Client = require('../models/client');
+var Coupon = require('../models/coupon');
 var util = require('util');
-var _ = require('underscore')
+var _ = require('underscore');
 
 // Reset consumed coupons
 exports.coupons_reset = function(req, res) {
@@ -33,4 +34,22 @@ exports.coupons_reset = function(req, res) {
 	};
 
 
+}
+
+exports.coupon_test_save = function(req, res) {
+	var c = new Coupon();
+	c.title = 'test';
+	c.description = 'test';
+	c.currency = 'CLP';
+	c.rules = {
+		cost_base: 5000,
+		qty_base: 20,
+		cost_add: 1000,
+		qty_add: 5,
+		cost_shipping_flat: 0
+	}
+	console.log('will save Coupon => %s',c);
+	c.save(function(err, saved) {
+		res.send('OK');
+	})
 }

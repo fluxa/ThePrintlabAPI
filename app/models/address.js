@@ -3,11 +3,11 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var Client = null
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var Client = null;
 var _ = require('underscore');
-var util = require('util')
+var util = require('util');
 
 
 // ## Address schema
@@ -33,13 +33,13 @@ AddressSchema.set( 'toJSON', { virtuals: false, getters: true } );
  * - virtuals
  */
 
-// WE ARE NOT REMOVING ADDRESS ANYMORE, JUST SETTING removed = true 
+// WE ARE NOT REMOVING ADDRESS ANYMORE, JUST SETTING removed = true
 
 // ### Address post remove
 // AddressSchema.post('remove', function(removed) {
-	
+
 // 	load_models();
-	
+
 // 	//} Remove Address from Client
 // 	Client.findOne({_id: this.client}, function(err,doc) {
 // 		if (!err && doc) {
@@ -47,7 +47,7 @@ AddressSchema.set( 'toJSON', { virtuals: false, getters: true } );
 // 			doc.save();
 // 		};
 // 	});
-	
+
 // });
 
 
@@ -58,8 +58,8 @@ AddressSchema.set( 'toJSON', { virtuals: false, getters: true } );
 AddressSchema.method({
 	verbose : function() {
 		return util.format('%s %s\n%s %s\n%s, %s\n%s',
-			this.name, 
-			this.last_name, 
+			this.name,
+			this.last_name,
 			this.address_line1,
 			this.address_line2,
 			this.comuna,
@@ -81,14 +81,13 @@ AddressSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Address', AddressSchema)
+module.exports = mongoose.model('Address', AddressSchema);
 
 /**
 * Helpers
 */
-function load_models(){
-	if (Client == null) {
-		Client = mongoose.model('Client');
-	};
-}
-
+// function load_models(){
+// 	if (Client == null) {
+// 		Client = mongoose.model('Client');
+// 	};
+// }

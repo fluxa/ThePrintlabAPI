@@ -31,13 +31,7 @@ var EmailSchema = new Schema({
  * - virtuals
  */
 
-/**
- * Methods
- */
 
-EmailSchema.method({
-
-})
 
 /**
  * Statics
@@ -58,4 +52,4 @@ EmailSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Email', EmailSchema)
+module.exports = mongoose.model('Email', EmailSchema);

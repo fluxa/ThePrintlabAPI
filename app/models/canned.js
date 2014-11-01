@@ -24,13 +24,6 @@ var CannedSchema = new Schema({
  * - virtuals
  */
 
-/**
- * Methods
- */
-
-CannedSchema.method({
-
-})
 
 /**
  * Statics

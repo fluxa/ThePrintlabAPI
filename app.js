@@ -3,15 +3,14 @@
  * Module dependencies
  */
 
-require('newrelic')
+require('newrelic');
 console.log("==== STARTING SERVER ========================================");
 var common = require('./app/util/common');
 var express = require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var http = require('http');
-var cron = require('./app/util/cron');
-var pusher = require('./app/util/pusher');
+
 
 // http://reviewsignal.com/blog/2013/11/13/benchmarking-asyncronous-php-vs-nodejs-properly/
 http.globalAgent.maxSockets = Infinity;
@@ -44,7 +43,7 @@ process.on('SIGINT', function() {
 // Bootstrap models
 fs.readdirSync(__dirname + '/app/models').forEach(function (file) {
 	if (~file.indexOf('.js')) require(__dirname + '/app/models/' + file)
-})
+});
 
 var app = express();
 
@@ -55,7 +54,7 @@ require('./config/express')(app);
 require('./config/routes')(app);
 
 // Init Push Notification
-pusher.init();
+require('./app/util/pusher').init();
 
 // Start the app by listening on <port>
 var port = process.env.PORT || 5006
@@ -69,4 +68,4 @@ app.listen(port, function() {
 module.exports = app
 
 // Cronjobs
-cron.schedule();
+require('./app/util/cron').schedule();

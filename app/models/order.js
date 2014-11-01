@@ -66,8 +66,6 @@ OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );
  // ### Order pre remove hook
 OrderSchema.pre('remove', function(next) {
 
-	load_models();
-
 	//} Remove Orders from Client
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
@@ -86,8 +84,6 @@ OrderSchema.pre('remove', function(next) {
 
 // ### Order post save hook
 OrderSchema.post('save', function(saved) {
-
-	load_models();
 
 	//} Add saved Order to Client's orders
 	Client.findOne({_id: saved.client}, function(err, doc){
@@ -112,13 +108,7 @@ OrderSchema.pre('save', function(next) {
 	next();
 });
 
-/**
- * Methods
- */
 
-OrderSchema.method({
-
-})
 
 /**
  * Statics
@@ -157,13 +147,13 @@ OrderSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Order', OrderSchema)
+module.exports = mongoose.model('Order', OrderSchema);
 
 /**
 * Helpers
 */
-function load_models(){
-	if (Client == null) {
-		Client = mongoose.model('Client');
-	};
-}
+// function load_models(){
+// 	if (Client == null) {
+// 		Client = mongoose.model('Client');
+// 	};
+// }

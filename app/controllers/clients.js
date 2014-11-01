@@ -4,7 +4,7 @@
  */
 
 var mongoose = require('mongoose')
-var Client = mongoose.model('Client')
+var Client = require('../models/client')
 var plerror = require('../util/plerror')
 var util = require('util')
 var security = require('../util/security')
@@ -21,7 +21,7 @@ exports.register = function (req, res) {
 	var udid = req.body.udid;
 
 	if (udid) {
-		
+
 		//try to find client first
 		Client
 		.findOne({
@@ -60,7 +60,7 @@ exports.register = function (req, res) {
  * @param {String} token push token
  * @return {Object} { success: true } || { success: false }
  * @api public
- */ 
+ */
 exports.pushtoken = function(req, res) {
 
 	var platform = req.body.platform;

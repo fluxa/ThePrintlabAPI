@@ -39,8 +39,6 @@ ClientSchema.set( 'toJSON', { virtuals: false, getters: true } );
  // ### Client post remove hooks
 ClientSchema.post('remove', function(removed) {
 
-	load_models();
-
 	//} Remove all Address
 	Address.remove({client: removed._id}).exec();
 
@@ -62,13 +60,6 @@ ClientSchema.pre('save', function(next) {
 	next();
 });
 
-/**
- * Methods
- */
-
-ClientSchema.method({
-
-})
 
 /**
  * Statics
@@ -131,12 +122,12 @@ module.exports = mongoose.model('Client', ClientSchema)
 /**
 * Helpers
 */
-function load_models(){
-	if (Address == null) {
-		Address = mongoose.model('Address');
-	};
-
-	if (Order == null) {
-		Order = mongoose.model('Order');
-	};
-}
+// function load_models(){
+// 	if (Address == null) {
+// 		Address = mongoose.model('Address');
+// 	};
+//
+// 	if (Order == null) {
+// 		Order = mongoose.model('Order');
+// 	};
+// }

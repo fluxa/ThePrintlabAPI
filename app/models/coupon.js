@@ -3,15 +3,15 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 
 // ## Schema
 
 // App Uses this schema
-// code: 'FIRST_TIME_5FREE', 
-// title: 'En tu primera compra, te regalamos el envío!', 
+// code: 'FIRST_TIME_5FREE',
+// title: 'En tu primera compra, te regalamos el envío!',
 // desc:'Para que pruebes nuestro servicio de impresión con envío a tu casa',
 // rules: {
 // 	cost_base: 5000,
@@ -25,11 +25,11 @@ var CouponSchema = new Schema({
 	title: { type: String, required: true },
 	description: { type: String, required: true },
 	rules: {
-		cost_base: { type: Number, required: true },
-		qty_base: { type: Number, required: true },
-		cost_add: { type: Number, required: true },
-		qty_add: { type: Number, required: true },
-		cost_shipping_flat: { type: Number, required: true }
+		cost_base: { type: Number },
+		qty_base: { type: Number },
+		cost_add: { type: Number },
+		qty_add: { type: Number },
+		cost_shipping_flat: { type: Number }
 	},
 	currency: { type: String, required: true }
 });
@@ -49,6 +49,7 @@ CouponSchema.set( 'toJSON', { virtuals: false, getters: true } );
  * Methods
  */
 CouponSchema.method({
+
 	// Return coupon in the format of the App
 	pack: function(code) {
 		return {
@@ -56,12 +57,11 @@ CouponSchema.method({
 			title: this.title,
 			desc: this.description,
 			rules: this.rules
-		}
+		};
 	},
 
 	// Validate rule
-	validate: function(qty, cost_total) {
-
+	isValid: function(qty, cost_total) {
 		var _additional = Math.max(0, qty - this.rules.qty_base);
 		var _cost_printing = this.rules.cost_base + this.rules.cost_add * Math.ceil(_additional/this.rules.qty_add);
 		var _cost_shipping = this.rules.cost_shipping_flat;
@@ -70,7 +70,7 @@ CouponSchema.method({
 		if(_cost_total === cost_total) {
 			return true;
 		}
-		
+
 		return false;
 	}
 });
@@ -92,4 +92,4 @@ CouponSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Coupon', CouponSchema)
+module.exports = mongoose.model('Coupon', CouponSchema);

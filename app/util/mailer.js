@@ -7,7 +7,7 @@ var sendgrid = require('sendgrid')(common.config.smtp_options.auth.user,common.c
 var path = require('path');
 var templatesDir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
-var Email = mongoose.model('Email');
+var Email = require('../models/email');
 
 
 var _is_proccesing_queue = false;

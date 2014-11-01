@@ -3,10 +3,10 @@
  */
 
 var mongoose = require('mongoose');
-var Client = mongoose.model('Client');
-var Canned = mongoose.model('Canned');
-var Email = mongoose.model('Email');
-var Push = mongoose.model('Push');
+var Client = require('../models/client');
+var Canned = require('../models/canned');
+var Email = require('../models/email');
+var Push = require('../models/push');
 
 exports.index = function(req, res) {
 

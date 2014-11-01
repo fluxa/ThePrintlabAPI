@@ -3,8 +3,8 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 
 // ## Schema
@@ -29,7 +29,7 @@ RedeemSchema.set( 'toJSON', { virtuals: false, getters: true } );
  */
  // Pre-save hook
 RedeemSchema.pre('save', function(next) {
-	
+
 	if(this.code) {
 		next();
 		return;
@@ -86,7 +86,7 @@ RedeemSchema.method({
  */
 
 RedeemSchema.static({
-	
+
 });
 
 /**
@@ -95,4 +95,3 @@ RedeemSchema.static({
 
 module.exports = mongoose.model('Redeem', RedeemSchema);
 var Redeem = module.exports;
-

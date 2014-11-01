@@ -3,14 +3,14 @@
  */
 
 var mongoose = require('mongoose');
-var Address = mongoose.model('Address');
-var Order = mongoose.model('Order');
-var Client = mongoose.model('Client');
+var Address = require('../models/address');
+var Order = require('../models/order');
+var Client = require('../models/client');
 var plerror = require('../util/plerror');
 var util = require('util')
 
 
-// ### Registers a new Address for a Client 
+// ### Registers a new Address for a Client
 // - @param {Object} `{ payload: {client:'ObjectId', address: {}}`
 // - @return {Object} `{address: {}, client: {}}`
 // - @method `POST`
@@ -20,7 +20,7 @@ exports.register = function (req, res) {
 	var payload = req.body.payload;
 	var address = payload.address;
 	if (payload && payload.client && address) {
-		
+
 		//} First we try to find the Client
 		Client.findOne({_id: payload.client}, function(err, doc) {
 			if (!err && doc) {
@@ -83,7 +83,7 @@ exports.get = function (req, res) {
 // - @api `public`
 
 exports.remove = function (req, res) {
-	
+
 	var _id = req.params['_id'];
 	if (_id) {
 		Address.findOne({_id: _id}, function(err, doc) {

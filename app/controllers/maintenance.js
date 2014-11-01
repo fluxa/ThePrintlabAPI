@@ -4,12 +4,12 @@
 
 
 var mongoose = require('mongoose');
-var Order = mongoose.model('Order');
-var Client = mongoose.model('Client');
-var Support = mongoose.model('Support');
-var Coupon = mongoose.model('Coupon');
-var Policy = mongoose.model('Policy');
-var Redeem = mongoose.model('Redeem');
+var Order = require('../models/order');
+var Client = require('../models/client');
+var Support =require('../models/support');
+var Coupon = require('../models/coupon');
+var Policy = require('../models/policy');
+var Redeem = require('../models/redeem');
 
 
 // Switch consumed coupons fix
