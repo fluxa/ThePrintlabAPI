@@ -5,7 +5,6 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Client = null;
 var _ = require('underscore');
 var util = require('util');
 
@@ -25,30 +24,6 @@ var AddressSchema = new Schema({
 })
 
 AddressSchema.set( 'toJSON', { virtuals: false, getters: true } );
-
-/**
- * Add your
- * - pre-save hooks
- * - validations
- * - virtuals
- */
-
-// WE ARE NOT REMOVING ADDRESS ANYMORE, JUST SETTING removed = true
-
-// ### Address post remove
-// AddressSchema.post('remove', function(removed) {
-
-// 	load_models();
-
-// 	//} Remove Address from Client
-// 	Client.findOne({_id: this.client}, function(err,doc) {
-// 		if (!err && doc) {
-// 			doc.addresses.splice(doc.addresses.indexOf(removed._id),1);
-// 			doc.save();
-// 		};
-// 	});
-
-// });
 
 
 /**
@@ -82,12 +57,3 @@ AddressSchema.static({
  */
 
 module.exports = mongoose.model('Address', AddressSchema);
-
-/**
-* Helpers
-*/
-// function load_models(){
-// 	if (Client == null) {
-// 		Client = mongoose.model('Client');
-// 	};
-// }

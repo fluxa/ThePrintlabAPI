@@ -5,7 +5,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Client;
+var Client = require('./client');
 
 // IF VALUES CHANGE, ALSO SYNC IN FRONT_END
 var OrderStatus = {
@@ -148,12 +148,3 @@ OrderSchema.static({
  */
 
 module.exports = mongoose.model('Order', OrderSchema);
-
-/**
-* Helpers
-*/
-// function load_models(){
-// 	if (Client == null) {
-// 		Client = mongoose.model('Client');
-// 	};
-// }

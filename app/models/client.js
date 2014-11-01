@@ -3,10 +3,10 @@
  * Module dependencies
  */
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var Address = null
-var Order = null
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var Address = require('./address');
+var Order = require('./order');
 var _ = require('underscore');
 
 
@@ -117,17 +117,4 @@ ClientSchema.static({
  * Register
  */
 
-module.exports = mongoose.model('Client', ClientSchema)
-
-/**
-* Helpers
-*/
-// function load_models(){
-// 	if (Address == null) {
-// 		Address = mongoose.model('Address');
-// 	};
-//
-// 	if (Order == null) {
-// 		Order = mongoose.model('Order');
-// 	};
-// }
+module.exports = mongoose.model('Client', ClientSchema);
