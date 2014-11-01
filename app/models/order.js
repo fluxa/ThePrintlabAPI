@@ -5,7 +5,6 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Client = require('./client');
 
 // IF VALUES CHANGE, ALSO SYNC IN FRONT_END
 var OrderStatus = {
@@ -67,6 +66,7 @@ OrderSchema.set( 'toJSON', { virtuals: false, getters: true } );
 OrderSchema.pre('remove', function(next) {
 
 	//} Remove Orders from Client
+	var Client = require('./client');
 	Client.findOne({_id: this.client}, function(err,doc) {
 		if (!err && doc) {
 			doc.orders.splice(doc.orders.indexOf(this._id),1);
