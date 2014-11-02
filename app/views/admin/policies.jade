@@ -55,30 +55,29 @@ html
 	script(src='/js/bootstrap-datepicker.js')
 	script(src='/js/chosen.jquery.min.js')
 	script.
+		
+		$(function() {
+			$('#policy_expiry_date').datepicker({
+				format: 'yyyy-mm-dd',
+				startDate: 'today',
+				autoclose: true
+			});
 
-		$('#policy_expiry_date').datepicker({
-			format: 'yyyy-mm-dd',
-			startDate: 'today',
-			autoclose: true
-		});
+			$('.chosen-select').chosen({
+				width: '100%'
+			});
 
-		$('.chosen-select').chosen({
-			width: '100%'
-		});
-
-		$('.switch').on('switchChange', function (e, data) {
-			var $element = $(data.el),
-			value = data.value;
-			var _id = $element.attr('data-id');
-
-			$.post('policies/active', {
-				policy: {
-					_id: _id,
-					active: value
-				}
-			}, function(res) {
-				if(!res.success) {
-					location.reload();
-				}
+			$('.switch').on('switchChange.bootstrapSwitch', function (e, state) {
+				var _id = $(this).attr('data-id');
+				$.post('policies/active', {
+					policy: {
+						_id: _id,
+						active: state
+					}
+				}, function(res) {
+					if(!res.success) {
+						location.reload();
+					}
+				});
 			});
 		});
