@@ -37,7 +37,8 @@
     "passport":"latest",
     "cookie-parser":"latest",
     "passport-http":"latest",
-    "urban-airship": "latest"
+    "urban-airship": "latest",
+    "ejs": "latest"
   },
   "devDependencies": {
     "api-easy": "latest",
