@@ -5,9 +5,6 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Address = require('./address');
-var Order = require('./order');
-var _ = require('underscore');
 
 
 // ## Client schema
@@ -29,23 +26,6 @@ var ClientSchema = new Schema({
 
 ClientSchema.set( 'toJSON', { virtuals: false, getters: true } );
 
-/**
- * Add your
- * - pre-save hooks
- * - validations
- * - virtuals
- */
-
- // ### Client post remove hooks
-ClientSchema.post('remove', function(removed) {
-
-	//} Remove all Address
-	Address.remove({client: removed._id}).exec();
-
-	//} Remove all Order
-	Order.remove({client: removed._id}).exec();
-
-});
 
 // ### Client pre save hooks
 ClientSchema.pre('save', function(next) {
