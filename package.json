@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "latest",
     "express-namespace": "latest",
-    "mongoose": "latest",
+    "mongoose": "3.8.35",
     "connect-mongo": "latest",
     "view-helpers": "latest",
     "jade": "latest",

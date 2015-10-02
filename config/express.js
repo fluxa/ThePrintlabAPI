@@ -73,7 +73,7 @@ module.exports = function (app) {
 		store: new mongoStore({
 			url: common.config.db,
 			collection : 'sessions',
-			auto_reconnect: true
+			autoReconnect: true
 		})
 	}));
 
