@@ -10,7 +10,7 @@ exports.init = function(callback) {
   console.log('mongoose connecting to: %s',common.config.db);
   mongoose.connect(common.config.db);
 
-  mongoose.connection.on('connected', function () {
+  mongoose.connection.once('open', function () {
     console.log('Mongoose default connection open to ' + common.config.db);
 
     // Load models
