@@ -5,7 +5,7 @@
 
 var file = require('../util/file');
 
-/* 
+/*
 * Routes
 */
 
@@ -44,18 +44,11 @@ exports.ping = function(req, res) {
 			verbose: 'New version available on the App Store',
 			url: 'https://itunes.apple.com/cl/app/printlab-imprime-fotos-desde/id670160214?mt=8&uo=4'
 		});
-		
-	}	
+
+	}
 }
 
 exports.logs = function(req, res) {
 	var data = {};
-	file.readAtPath(common.config.std.out, function(logs) {
-		data['stdout'] = logs;
-
-		file.readAtPath(common.config.std.err, function(logs) {
-			data['stderr'] = logs;
-			res.send({logs:data});
-		});
-	});
+	res.send({logs:data});
 }

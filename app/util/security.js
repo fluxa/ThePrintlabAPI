@@ -5,7 +5,7 @@
 
 
 var secrets = require('simple-secrets');
-var master_key = new Buffer(require('../../config/config')[process.env.NODE_ENV].master, 'hex');
+var master_key = new Buffer(common.config.master, 'hex');
 
 
 exports.pack = function(data) {

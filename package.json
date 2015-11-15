@@ -45,7 +45,7 @@
     "assert": "latest"
   },
   "scripts": {
-    "start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon app.js",
+    "start": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 MONGOLAB_URI=mongodb://localhost/pl_api_dev BASIC_USER=test BASIC_PASS=shanghai88 SMTP_AUTH_USER=theprintlab SMTP_AUTH_PASS=theprintlabCL2013 MASTER_KEY=defc93a3139e968aad03c4374d57e546f28a12a1477021fab5da509c4c9e591a nodemon app.js",
     "debug": "NODE_PATH=./app/controllers NODE_ENV=test PORT=5006 nodemon --debug app.js",
     "encrypt": "encrypt ./config/config.js ./config/config.js.cast5",
     "decrypt": "decrypt ./config/config.js.cast5 ./config/config.js",

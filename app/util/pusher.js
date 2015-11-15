@@ -8,7 +8,7 @@ var _ua = null;
 
 exports.init = function() {
 	if (!_ua) {
-		_ua = new ua(common.config.ua.key, common.config.ua.secret, common.config.ua.master);
+		// _ua = new ua(common.config.ua.key, common.config.ua.secret, common.config.ua.master);
 		console.log('Initializing UrbanAirship');
 	};
 }
