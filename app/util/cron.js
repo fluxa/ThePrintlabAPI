@@ -18,13 +18,13 @@ var _jobs = [
     start: true,
     id: 'emailqueue'
   },
-  {
-		name: 'Push Notifications',
-		cronTime: '*/10 * * * * *', // every 10 seconds
-		onTick: jobs.SendPushes,
-		start: true,
-		id: 'pushes'
-	}
+  // {
+	// 	name: 'Push Notifications',
+	// 	cronTime: '*/10 * * * * *', // every 10 seconds
+	// 	onTick: jobs.SendPushes,
+	// 	start: true,
+	// 	id: 'pushes'
+	// }
 ];
 
 exports.schedule = function() {

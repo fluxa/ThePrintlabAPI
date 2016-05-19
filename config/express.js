@@ -11,35 +11,20 @@ var mongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var cookieParser = require('cookie-parser');
 var BasicStrategy = require('passport-http').BasicStrategy;
-var helpers = require('view-helpers');
 var pkg = require('../package');
 var env = process.env.NODE_ENV || 'development';
 var lessMiddleware = require('less-middleware');
 var flash = require('connect-flash');
-var log4js = require('log4js');
+var morgan = require('morgan');
 var cors = require('cors');
 var path = require('path');
-
-// Logging setup
-log4js.configure({
-	appenders: [
-		{ type: 'console' }
-  	],
-  	replaceConsole: true
-});
-var logger = log4js.getLogger();
-
-/*!
- * Expose
- */
-
+var helpers = require('view-helpers');
 
 module.exports = function (app) {
 
-	app.set('showStackError', true);
+	app.use(morgan('tiny'));
 
-	//  logger
-	app.use(log4js.connectLogger(logger, { level: 'auto' }));
+	app.set('showStackError', true);
 
 	// use express favicon
   app.use(favicon(common.config.root + '/public/img/favicon.ico'));
@@ -112,7 +97,6 @@ module.exports = function (app) {
 	app.use(flash());
 
 	// expose pkg and node env to views
-	// expose pkg and node env to views
 	app.use(function (req, res, next) {
 		res.locals.pkg = pkg;
 		res.locals.env = env;
@@ -122,6 +106,5 @@ module.exports = function (app) {
 	});
 
 	// View helpers
-	app.use(helpers(pkg.name));
-
+	// app.use(helpers(pkg.name));
 }

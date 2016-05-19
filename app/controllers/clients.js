@@ -20,36 +20,32 @@ exports.register = function (req, res) {
 
 	var udid = req.body.udid;
 
-	if (udid) {
-
-		//try to find client first
-		Client
-		.findOne({
-			udid: udid
-		})
-		.exec(function(err, doc) {
-			if(!err && doc) {
-				//Client found, return
-				res.send({'client':doc});
-				return;
+	common.async.waterfall([
+		function(cb) {
+			if(req.body.udid) {
+				return Client.findOne({udid: req.body.udid}).exec(cb);
+			}
+			return cb('Missing parameters');
+		},
+		function(client, cb) {
+			if(client) {
+				return cb(null, client);
 			}
 
 			// client not found -> register new
-			var newClient = new Client({
-				udid: udid
-			});
+			var client = new Client({udid: udid});
+			return client.save(cb);
+		}
 
-			newClient.save(function(err, doc) {
-				if (!err) {
-					res.send({'client':doc});
-				} else {
-					plerror.throw(plerror.c.DBError, err, res);
-				}
-			});
-		});
-	} else {
-		plerror.throw(plerror.c.MissingParameters, 'Missing parameters udid', res);
-	}
+	], function(err, output) {
+
+		if(err) {
+			return plerror.throw(plerror.c.DBError, err, res);
+		}
+
+		return res.send({client: output});
+
+	});
 }
 
 /**
@@ -165,6 +161,53 @@ exports.find = function (req, res) {
  * @api public
  */
 exports.update = function (req, res) {
+
+	var errorCode = plerror.c.UnknownError;
+
+	common.async.waterfall([
+		function(cb) {
+			var clientId = req.params._id;
+			return Client.findOne({_id: clientId}).exec(cb);
+		},
+		function(client, cb) {
+
+			if(client) {
+
+				if(req.body.email) {
+					client.email = req.body.email;
+				}
+
+				if(req.body.mobile) {
+					client.mobile = req.body.mobile;
+				}
+
+				return client.save(cb);
+			}
+
+			errorCode = plerror.c.MissingParameters;
+			return cb('Missing parameters');
+		}
+	], function(err, client) {
+
+		if(err) {
+			return plerror.throw(errorCode, err, res);
+		}
+
+		return res.send({client:client});
+
+	});
+
+}
+
+/**
+ * Updates Client information
+ *
+ * @param {Object} client partial Client object with updated fields
+ * @return {Object} updated Client object
+ * - @method `POST`
+ * @api public
+ */
+exports.update_deprec = function (req, res) {
 
 	var client = req.body.client;
 	if (client && client._id) {

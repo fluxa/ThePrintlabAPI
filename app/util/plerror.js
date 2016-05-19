@@ -17,7 +17,8 @@ exports.c = {
 	MissingParameters : 'MissingParameters',
 	OldAppVersion: 'OldAppVersion',
 	CustomError: 'CustomError',
-	PaymentError: 'PaymentError'
+	PaymentError: 'PaymentError',
+	UnknownError: 'UnknownError',
 }
 
 

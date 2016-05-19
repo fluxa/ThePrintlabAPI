@@ -63,16 +63,25 @@ module.exports = function (app) {
 
 	// Client
 	app.post(v+'/clients/register', clients.register);
+  app.post('/v2/clients', clients.register);
+
 	app.get(v+'/clients/get/:_id', clients.get);
-	app.post(v+'/clients/update', clients.update);
+  app.get('/v2/clients/:_id', clients.get);
+
+	app.post(v+'/clients/update', clients.update_deprec);
+  app.post('/v2/clients/:_id', clients.update);
+
 	app.delete(v+'/clients/remove/:_id', clients.remove);
 	app.post(v+'/clients/pushtoken', clients.pushtoken);
+
 
 	// -> auth
 	app.post(v+'/clients/find/', auth, clients.find);
 
 	// Coupons
 	app.get(v+'/coupons/get/:client_id', coupons.get);
+  app.get('/v2/clients/:client_id/coupons', coupons.get);
+
 	app.post(v+'/coupons/consume', coupons.consume);
 	app.post(v+'/coupons/redeem', coupons.redeem);
 
@@ -81,15 +90,23 @@ module.exports = function (app) {
 	app.get(v+'/clients/coupon/get/:client_id', coupons.get);
 
 	// Address
-	app.post(v+'/addresses/register', addresses.register);
+  app.post(v+'/addresses/register', addresses.register_deprec);
+  app.post('/v2/clients/:_id/addresses', addresses.register);
+
 	app.get(v+'/addresses/get/:_id', addresses.get);
+  app.get('/v2/addresses/:_id', addresses.get);
+
 	app.delete(v+'/addresses/remove/:_id', addresses.remove);
+  app.delete(v+'/v2/addresses/:_id', addresses.remove);
 
 	// Order
 	app.get(v+'/orders/get/:_id', orders.get);
 	app.post(v+'/orders/create', orders.create);
 	app.post(v+'/orders/submit', orders.submit);
+
 	app.post(v+'/orders/cancel/:_id', orders.cancel);
+  app.post('/v2/orders/:_id/cancel', orders.cancel);
+
   app.post(v+'/order/:_id/payment/offline/confirmation', orders.payment_offline_confirmation);
 
 	// -> auth

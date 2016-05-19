@@ -12,10 +12,10 @@ var util = require('util');
 // ## Address schema
 
 var AddressSchema = new Schema({
-	client: {type: Schema.ObjectId, ref: 'Client'},
-	name: { type: String },
-	last_name: { type: String },
-	address_line1: { type: String },
+	client: {type: Schema.ObjectId, ref: 'Client', required: true},
+	name: { type: String, required: true },
+	last_name: { type: String, required: true },
+	address_line1: { type: String, required: true },
 	address_line2: { type: String },
 	region: { type: String },
 	provincia: { type: String },
