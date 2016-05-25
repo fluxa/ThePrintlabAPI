@@ -97,7 +97,7 @@ module.exports = function (app) {
   app.get('/v2/addresses/:_id', addresses.get);
 
 	app.delete(v+'/addresses/remove/:_id', addresses.remove);
-  app.delete(v+'/v2/addresses/:_id', addresses.remove);
+  app.delete('/v2/addresses/:_id', addresses.remove);
 
 	// Order
 	app.get(v+'/orders/get/:_id', orders.get);
