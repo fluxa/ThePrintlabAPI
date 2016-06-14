@@ -22,7 +22,7 @@ exports.ping_server = function(req, res) {
 }
 
 // App Ping | Headers => user-agent | ThePrintlab/x.x
-exports.ping = function(req, res) {
+exports.ping_v1 = function(req, res) {
 
 	var user_agent = req.headers['user-agent'];
 	var is_allowed = user_agent >= common.config.minimum_app_version_allowed;
@@ -47,6 +47,30 @@ exports.ping = function(req, res) {
 
 	}
 }
+
+exports.ping = function(req, res) {
+	var isAllowed = true;
+	if(isAllowed) {
+		return res.status(200).send({status: 'ok'});
+	} else {
+
+		// res.send(403, {
+		// 	error: common.plerr.c.CustomError,
+		// 	verbose: 'New version available on the App Store',
+		// 	title: 'THIS IS A CUSTOM ERROR',
+		// 	message: 'SO GO FUCK YOURSELF',
+		// 	url: 'http://google.com'
+		// });
+
+		res.send(403, {
+			error: common.plerr.c.OldAppVersion,
+			verbose: 'New version available on the App Store',
+			url: 'https://itunes.apple.com/cl/app/printlab-imprime-fotos-desde/id670160214?mt=8&uo=4'
+		});
+
+	}
+}
+
 
 exports.logs = function(req, res) {
 	var data = {};

@@ -22,8 +22,6 @@ var passport = require('passport');
  * Expose
  */
 
-var v = '/v1';
-
 module.exports = function (app) {
 
   var auth = passport.authenticate('basic', { session: false });
@@ -31,8 +29,9 @@ module.exports = function (app) {
 	// Routes
 	app.get('/', auth, index.admin);
 	app.get('/mu-c480b215-1f18b692-ac11b7c3-2db78a1a', index.blitz);
-	app.get(v+'/ping', index.ping);
-	app.get(v+'/ping/server', index.ping_server);
+	app.get('/v1/ping', index.ping_v1);
+  app.get('/v2/ping', index.ping);
+	app.get('/v1/ping/server', index.ping_server);
 
 	// Admin
 	app.get('/admin/dashboard', auth, admin.dashboard);
@@ -59,73 +58,71 @@ module.exports = function (app) {
 	app.get('/maintenance/fix_consumed',auth,maintenance.fix_consumed);
 
 	// -> auth
-	app.get(v+'/logs', auth, index.logs);
+	app.get('/v1/logs', auth, index.logs);
 
 	// Client
-	app.post(v+'/clients/register', clients.register);
+	app.post('/v1/clients/register', clients.register);
   app.post('/v2/clients', clients.register);
 
-	app.get(v+'/clients/get/:_id', clients.get);
+	app.get('/v1/clients/get/:_id', clients.get);
   app.get('/v2/clients/:_id', clients.get);
 
-	app.post(v+'/clients/update', clients.update_deprec);
+	app.post('/v1/clients/update', clients.update_deprec);
   app.post('/v2/clients/:_id', clients.update);
 
-	app.delete(v+'/clients/remove/:_id', clients.remove);
-	app.post(v+'/clients/pushtoken', clients.pushtoken);
+	app.delete('/v1/clients/remove/:_id', clients.remove);
+	app.post('/v1/clients/pushtoken', clients.pushtoken);
 
 
 	// -> auth
-	app.post(v+'/clients/find/', auth, clients.find);
+	app.post('/v1/clients/find/', auth, clients.find);
 
 	// Coupons
-	app.get(v+'/coupons/get/:client_id', coupons.get);
+	app.get('/v1/coupons/get/:client_id', coupons.get);
   app.get('/v2/clients/:client_id/coupons', coupons.get);
 
-	app.post(v+'/coupons/consume', coupons.consume);
-	app.post(v+'/coupons/redeem', coupons.redeem);
+	app.post('/v1/coupons/consume', coupons.consume);
+	app.post('/v1/coupons/redeem', coupons.redeem);
 
 	//Deprecated - Backwards compatibility
-	app.post(v+'/clients/coupon/consume', coupons.consume);
-	app.get(v+'/clients/coupon/get/:client_id', coupons.get);
+	app.post('/v1/clients/coupon/consume', coupons.consume);
+	app.get('/v1/clients/coupon/get/:client_id', coupons.get);
 
 	// Address
-  app.post(v+'/addresses/register', addresses.register_deprec);
+  app.post('/v1/addresses/register', addresses.register_deprec);
   app.post('/v2/clients/:_id/addresses', addresses.register);
 
-	app.get(v+'/addresses/get/:_id', addresses.get);
+	app.get('/v1/addresses/get/:_id', addresses.get);
   app.get('/v2/addresses/:_id', addresses.get);
 
-	app.delete(v+'/addresses/remove/:_id', addresses.remove);
+	app.delete('/v1/addresses/remove/:_id', addresses.remove);
   app.delete('/v2/addresses/:_id', addresses.remove);
 
 	// Order
-	app.get(v+'/orders/get/:_id', orders.get);
-	app.post(v+'/orders/create', orders.create);
-	app.post(v+'/orders/submit', orders.submit);
+	app.get('/v1/orders/get/:_id', orders.get);
+	app.post('/v1/orders/create', orders.create);
+	app.post('/v1/orders/submit', orders.submit);
 
-	app.post(v+'/orders/cancel/:_id', orders.cancel);
+	app.post('/v1/orders/cancel/:_id', orders.cancel);
   app.post('/v2/orders/:_id/cancel', orders.cancel);
 
-  app.post(v+'/order/:_id/payment/offline/confirmation', orders.payment_offline_confirmation);
+  app.post('/v1/order/:_id/payment/offline/confirmation', orders.payment_offline_confirmation);
 
 	// -> auth
-	app.get(v+'/orders/status_list', auth, orders.status_list);
-	app.post(v+'/orders/find', auth, orders.find);
-	app.get(v+'/orders/all', auth, orders.all);
-	app.post(v+'/orders/payment/:_id/:action', auth, orders.payment);
-	app.delete(v+'/orders/remove/:_id', auth, orders.remove);
+	app.get('/v1/orders/status_list', auth, orders.status_list);
+	app.post('/v1/orders/find', auth, orders.find);
+	app.get('/v1/orders/all', auth, orders.all);
+	app.post('/v1/orders/payment/:_id/:action', auth, orders.payment);
+	app.delete('/v1/orders/remove/:_id', auth, orders.remove);
 
 	// Support
-	app.post(v+'/support/send_message', support.send_message);
+	app.post('/v1/support/send_message', support.send_message);
 
 	// Debug
 	if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
 		console.log('DEBUG ROUTES ON');
-		app.post(v+'/debug/coupons/reset/:client_id', debug.coupons_reset);
+		app.post('/v1/debug/coupons/reset/:client_id', debug.coupons_reset);
     app.get('/debug/coupon/test_save', debug.coupon_test_save);
 	};
-
-
 
 }
