@@ -5,8 +5,6 @@
 var mongoose = require('mongoose');
 var sendgrid = require('sendgrid')(common.config.smtp_options.auth.user,common.config.smtp_options.auth.pass);
 var path = require('path');
-var templatesDir   = path.resolve(__dirname, '..', 'views/templates');
-var emailTemplates = require('email-templates');
 var Email = require('../models/email');
 
 exports.process_queue = function(master_callback) {
