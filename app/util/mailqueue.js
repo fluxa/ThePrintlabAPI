@@ -66,7 +66,10 @@ exports.add = function(template_name, template_locals, from_email, to_emails, bc
       },
       // Finally
       function() {
-          callback(null, emails);
+        if(typeof callback != 'function') {
+          console.log(callback);
+        }
+        callback(null, emails);
       });
     }
 
