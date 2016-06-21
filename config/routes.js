@@ -123,6 +123,7 @@ module.exports = function (app) {
 		console.log('DEBUG ROUTES ON');
 		app.post('/v1/debug/coupons/reset/:client_id', debug.coupons_reset);
     app.get('/debug/coupon/test_save', debug.coupon_test_save);
+    app.get('/debug/emails/queueorderconfirm', debug.queueup_order_confirm_email);
 	};
 
 }

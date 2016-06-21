@@ -9,21 +9,9 @@ var templatesDir   = path.resolve(__dirname, '..', 'views/templates');
 var emailTemplates = require('email-templates');
 var Email = require('../models/email');
 
-
-var _is_proccesing_queue = false;
-var QUEUE_BUSY_ERROR = 'mailer.process_queue => is busy';
 exports.process_queue = function(master_callback) {
 
   common.async.waterfall([
-
-      function(callback) {
-        if(!_is_proccesing_queue) {
-          _is_proccesing_queue = true;
-          callback();
-        } else {
-          callback(QUEUE_BUSY_ERROR);
-        }
-      },
 
       function(callback) {
         Email
@@ -87,11 +75,6 @@ exports.process_queue = function(master_callback) {
     ],
     // Finally
     function(err) {
-      if(err === QUEUE_BUSY_ERROR) {
-        console.log('mailer.proccess_queue => still busy... ');
-      } else {
-        _is_proccesing_queue = false;
-      }
       if(master_callback) {
           master_callback(err);
       }

@@ -10,3 +10,8 @@ importer.sh
 mongoremote.sh
 fake_logs.log
 newrelic_agent.log
+
+*.pem
+*.pub
+.idea/
+
