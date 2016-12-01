@@ -165,6 +165,9 @@ exports.payment = function (req, res) {
 
 							if(order.payment.provider === Order.PaymentProvider.Webpay) {
 
+								if(typeof(payment_data) != 'string') {
+									payment_data = JSON.stringify(payment_data);
+								}
 								order.payment.data = payment_data;
 								order.payment.logs.push(common.util.format('%s|Payment Complete => Webpay', time_stamp));
 								order.status = Order.OrderStatus.PaymentVerified;
