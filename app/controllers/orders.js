@@ -236,6 +236,9 @@ exports.payment = function (req, res) {
 					order = saved;
 					callback();
 				} else {
+					if(err) {
+						console.log('orders.payment.complete | error => %s',common.util.inspect(err));
+					}
 					callback({code:common.plerr.c.DBError , error: common.util.format('/order/payment/ -> Cannot save Order _id: %s',_id)});
 				}
 			});
