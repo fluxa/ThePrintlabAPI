@@ -524,7 +524,7 @@ exports.submit = function (req, res) {
 	var client;
 	var offline_payment = (req.body.offline_payment === true);
 
-	console.log('orders.submit | offline_payment => %s',offline_payment);
+	console.log('orders.submit | offline_payment => %s',req.body.offline_payment);
 
 	common.async.series([
 		function(callback) {
