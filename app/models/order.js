@@ -38,8 +38,8 @@ var OrderSchema = new Schema({
 	cost_total: { type: Number },
 	status: { type: String, default: OrderStatus.PaymentPending},
 	gift: {
-		is_gift: {type: Boolean},
-		message: {type: String}
+		is_gift: {type: Boolean, default: false},
+		message: {type: String, default: ''}
 	},
 	coupon_code: { type: String },
 	payment: { //payment object
