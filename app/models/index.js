@@ -2,7 +2,7 @@
 var common = require('../util/common');
 var mongoose = require('mongoose');
 var fs = require('fs');
-
+mongoose.Promise = Promise;
 var models = {};
 
 exports.init = function(callback) {
