@@ -44,7 +44,7 @@ exports.dashboard = function(req, res) {
 	], function(err, results) {
 		res.render('admin/dashboard', {orders: orders, clients: clients, ostatus: Order.OrderStatus});
 	});
-}
+};
 
 exports.orders = function(req, res) {
 

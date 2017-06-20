@@ -49,7 +49,7 @@ models.init(function () {
         res.locals.moment = require('moment');
         res.locals.config = common.config;
         // res.locals.flash = req.flash.bind(req);
-        
+
         next();
     });
 
