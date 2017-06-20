@@ -15,7 +15,7 @@ var minimum_app_version_allowed = 'ThePrintlab/1.5';
 
 module.exports = {
     root: rootPath,
-    db: 'mongodb://pl_api_dev_user:Xtrvb34Opa098Lakjd244jusjBcxX@ds037768.mongolab.com:37768/pl_api_dev',//process.env.MONGOLAB_URI,
+    db: process.env.MONGOLAB_URI,
     smtp_options: {
         auth: {
             user: process.env.SMTP_AUTH_USER,
