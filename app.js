@@ -26,9 +26,6 @@ http.globalAgent.maxSockets = Infinity;
 
 models.init(function () {
 
-    // Bootstrap routes
-    require('./config/routes')(app);
-
     // Init Push Notification
     // require('./app/util/pusher').init();
 
@@ -131,6 +128,9 @@ models.init(function () {
         console.log(common.util.format('%s | Express app started on port %d', common.moment.utc(), app.get('port')));
         console.log("=== LOGS ==========================================");
     });
+
+    // Bootstrap routes
+    require('./config/routes')(app);
 
     // Expose app
     module.exports = app;
