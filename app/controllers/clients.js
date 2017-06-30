@@ -18,6 +18,8 @@ var security = require('../util/security')
  */
 exports.register = function (req, res) {
 
+	console.log('body => ', req.body);
+
 	var udid = req.body.udid;
 
 	common.async.waterfall([
