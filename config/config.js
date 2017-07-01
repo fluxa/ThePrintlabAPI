@@ -22,6 +22,9 @@ module.exports = {
             pass: process.env.SMTP_AUTH_PASS
         }
     },
+    sendgrid: {
+        apiKey: process.env.SENDGRID_APIKEY
+    },
     master: process.env.MASTER_KEY,
     admin_emails: ['fluxa@theprintlab.cl', 'luis@theprintlab.cl'],
     minimum_app_version_allowed: minimum_app_version_allowed,
