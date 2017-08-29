@@ -40,7 +40,14 @@ exports.process_queue = function (master_callback) {
                         });
 
                         if (email.bcc) {
-                            request.body.personalizations[0].bcc = [ { email: email.bcc } ];
+							var _bcc = [ { email: email.bcc } ];
+							if( Array.isArray(email.bcc) ){
+								_bcc = [];
+								email.bcc.forEach(function(itemBcc,idx){
+									_bcc.push( { email: itemBcc } );
+								});
+							}
+                            request.body.personalizations[0].bcc = _bcc;
                         }
                         
                         sendgrid.API(request)
